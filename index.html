@@ -58,7 +58,6 @@
       </div>
     </div>
     <div class="flex items-center space-x-2">
-      <!-- THEME SWITCHER BUTTON -->
       <button onclick="toggleThemeMode()" aria-label="Theme toggle" class="w-9 h-9 rounded-xl border flex items-center justify-center text-yellow-500 active:scale-95 transition" id="theme-btn-elem">
         <i id="theme-icon" class="fa-solid fa-moon"></i>
       </button>
@@ -81,20 +80,14 @@
   <!-- ==================== PAGE: HOME ==================== -->
   <div id="page-home" class="flex-1 flex flex-col max-w-md mx-auto w-full pb-36 px-3 pt-2.5">
     
-    <!-- LIVE ROUND HERO BANNER -->
     <div class="border rounded-3xl px-5 py-4 mb-3 shadow-xl relative overflow-hidden flex items-center justify-between shrink-0" id="hero-banner">
       <div class="relative z-10">
         <div class="text-[10px] font-black tracking-[0.14em] opacity-75 uppercase mb-1.5">
           LIVE ROUND / የቀጥታ ዙር
         </div>
-        <div class="text-2xl font-black leading-tight tracking-tight">
-          ዕድልህን
-        </div>
-        <div class="text-2xl font-black text-yellow-500 leading-tight tracking-tight">
-          አሁን ፈትነው::
-        </div>
+        <div class="text-2xl font-black leading-tight tracking-tight">ዕድልህን</div>
+        <div class="text-2xl font-black text-yellow-500 leading-tight tracking-tight">አሁን ፈትነው::</div>
       </div>
-
       <div class="relative z-10 shrink-0">
         <div class="w-20 h-20 rounded-full border-2 border-dashed border-yellow-500/60 flex flex-col items-center justify-center shadow-inner" id="countdown-circle">
           <span id="banner-countdown-sec" class="text-2xl font-black text-yellow-500 font-mono leading-none">30</span>
@@ -103,7 +96,6 @@
       </div>
     </div>
 
-    <!-- STATS CARD -->
     <div class="border rounded-2xl p-4 mb-3 shadow-xl relative overflow-hidden shrink-0" id="stats-card">
       <div class="flex justify-between items-center mb-3">
         <div class="flex items-center space-x-2">
@@ -144,7 +136,6 @@
       </div>
     </div>
 
-    <!-- SCROLLABLE CARTEL GRID -->
     <div class="border rounded-2xl p-3 flex-1 h-[58vh] min-h-[380px] overflow-y-auto shadow-inner relative" id="grid-container-box">
       <div id="cartel-grid" class="grid grid-cols-10 gap-1.5 pb-16"></div>
     </div>
@@ -165,7 +156,6 @@
       </div>
     </div>
 
-    <!-- Live Ball & Info Hero Banner -->
     <div class="border border-yellow-500/40 rounded-3xl p-4 mb-3 shadow-2xl relative overflow-hidden flex items-center justify-between shrink-0" id="ticket-hero-banner">
       <div class="flex items-center space-x-3.5 relative z-10">
         <div class="relative w-16 h-16 flex-shrink-0 flex items-center justify-center">
@@ -188,7 +178,6 @@
       </div>
     </div>
 
-    <!-- Master Board Accordion -->
     <div class="mb-3">
       <button onclick="toggleMasterBoard()" class="w-full border font-bold py-2 px-3.5 rounded-xl flex items-center justify-between text-xs shadow" id="master-board-toggle-btn">
         <span class="flex items-center space-x-2 text-yellow-500"><i class="fa-solid fa-eye"></i><span>ሙሉ ቦርድ (Master Board)</span></span>
@@ -199,7 +188,6 @@
       </div>
     </div>
 
-    <!-- Ticket Matrices Container -->
     <div class="flex-1 overflow-y-auto">
       <div id="ticket-empty-msg" class="text-center text-xs py-8 border rounded-2xl p-4 shadow">
         <div class="text-yellow-500 font-bold text-sm mb-1">በዚህ ዙር ካርድ አልመረጡም</div>
@@ -213,13 +201,8 @@
   <!-- ==================== PAGE: WALLET ==================== -->
   <div id="page-wallet" class="hidden flex-1 flex flex-col max-w-md mx-auto w-full pb-28 px-4 pt-3">
     <div class="mb-5">
-      <div class="text-[11px] font-black tracking-[0.15em] text-yellow-500 uppercase mb-1.5">
-        MY WALLET / ቦርሳ
-      </div>
-      <h1 class="text-3xl font-black leading-[1.15] tracking-tight">
-        ገንዘብህን<br>
-        <span class="text-yellow-500">በቀላሉ አስተዳድር።</span>
-      </h1>
+      <div class="text-[11px] font-black tracking-[0.15em] text-yellow-500 uppercase mb-1.5">MY WALLET / ቦርሳ</div>
+      <h1 class="text-3xl font-black leading-[1.15] tracking-tight">ገንዘብህን<br><span class="text-yellow-500">በቀላሉ አስተዳድር።</span></h1>
       <p class="text-xs opacity-75 mt-2 font-medium">የጨዋታ እና ዋና ሂሳብዎን ይከታተሉ።</p>
     </div>
 
@@ -244,12 +227,10 @@
 
     <div class="grid grid-cols-2 gap-3 mb-5">
       <button onclick="triggerDeposit()" class="bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black py-3.5 px-4 rounded-2xl shadow-lg transition-transform active:scale-95 flex items-center justify-center space-x-2 text-xs">
-        <i class="fa-solid fa-arrow-down-left text-sm"></i>
-        <span>ገንዘብ አስገባ</span>
+        <i class="fa-solid fa-arrow-down-left text-sm"></i><span>ገንዘብ አስገባ</span>
       </button>
       <button onclick="triggerWithdraw()" class="border border-yellow-500/40 font-black py-3.5 px-4 rounded-2xl shadow-md transition-transform active:scale-95 flex items-center justify-center space-x-2 text-xs">
-        <i class="fa-solid fa-arrow-up-right text-sm text-yellow-500"></i>
-        <span>ገንዘብ አውጣ</span>
+        <i class="fa-solid fa-arrow-up-right text-sm text-yellow-500"></i><span>ገንዘብ አውጣ</span>
       </button>
     </div>
 
@@ -349,7 +330,6 @@
   <!-- ==================== PAGE: PROFILE ==================== -->
   <div id="page-profile" class="hidden flex-1 flex flex-col max-w-md mx-auto w-full pb-28 px-4 pt-2">
     
-    <!-- Profile Hero Card -->
     <div class="border rounded-3xl mb-4 shadow-2xl relative overflow-hidden profile-hero-card">
       <div class="h-28 bg-gradient-to-r from-yellow-600/30 via-amber-500/20 to-yellow-400/30 relative flex items-center justify-center">
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffb700_1px,transparent_1px)] [background-size:16px_16px]"></div>
@@ -371,7 +351,6 @@
       </div>
     </div>
 
-    <!-- Stats Grid Box -->
     <div class="border rounded-2xl p-4 mb-4 shadow-xl profile-card-box">
       <div class="grid grid-cols-4 gap-1 text-center divide-x divide-gray-500/20">
         <div class="px-1">
@@ -393,7 +372,6 @@
       </div>
     </div>
 
-    <!-- Invite & Earn Card (Restored Referral Link Functionality) -->
     <div class="border rounded-2xl p-4 mb-4 shadow-lg profile-card-box">
       <div class="text-[10px] font-black tracking-wider text-yellow-500 uppercase mb-1">INVITE & EARN / ጋብዝ እና ተሸለም</div>
       <h3 class="text-sm font-black mb-1">ጓደኞችዎን ይጋብዙ</h3>
@@ -405,7 +383,6 @@
       </div>
     </div>
 
-    <!-- THEME SWITCHER CARD IN PROFILE -->
     <div class="border rounded-2xl p-4 mb-4 flex items-center justify-between shadow-lg profile-card-box">
       <div class="flex items-center space-x-2.5 text-yellow-500 text-xs font-bold">
         <i class="fa-solid fa-circle-half-stroke text-sm"></i>
@@ -414,7 +391,6 @@
       <button onclick="toggleThemeMode()" id="profile-theme-btn" class="bg-yellow-400 text-slate-950 px-3 py-1.5 rounded-xl text-xs font-black transition active:scale-95">Dark / Light</button>
     </div>
 
-    <!-- GAME RULES BUTTON -->
     <div class="space-y-2 mb-4">
       <button id="game-rules-btn" class="w-full border hover:opacity-80 rounded-2xl p-3.5 flex justify-between items-center text-xs font-bold profile-card-box">
         <span class="flex items-center gap-2.5 text-yellow-500"><i class="fa-solid fa-book text-sm"></i><span>የጨዋታ ህጎች</span></span>
@@ -466,7 +442,7 @@
     </button>
   </nav>
 
-  <!-- JAVASCRIPT LOGIC FULLY SYNCED WITH BACKEND -->
+  <!-- JAVASCRIPT LOGIC CONNECTED TO GITHUB AUDIO FILES -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
     window.currentUserName = "Player";
@@ -608,8 +584,6 @@
 
         try { localStorage.setItem('melbet_bingo_theme', 'light'); } catch(e){}
       }
-      
-      // Refresh Leaderboard UI on theme change to apply proper classes
       fetchAndRenderLeaderboard();
     }
 
@@ -642,7 +616,7 @@
                 const data = await response.json();
                 if (data.status === 'success') applyUserData(data);
             }
-        } catch (error) { console.error("Error fetching initial user data:", error); }
+        } catch (error) {}
 
         if (document.getElementById('header-user-name')) document.getElementById('header-user-name').innerText = window.currentUserName;
         if (document.getElementById('profile-user-name')) document.getElementById('profile-user-name').innerText = window.currentUserName;
@@ -865,7 +839,7 @@
         });
         if (res.balance != null) { serverBalance = Number(res.balance); serverBonus = Number(res.bonus) || 0; }
         if (res.state) applyRound(res.state);
-      } catch (err) { console.error(err); } finally { pickBusy = false; }
+      } catch (err) {} finally { pickBusy = false; }
     }
 
     async function submitPromoCode() {
@@ -1028,7 +1002,7 @@
       ticketCurrentBall.classList.remove('animate-ball');
       void ticketCurrentBall.offsetWidth;
       ticketCurrentBall.classList.add('animate-ball');
-      if (speak) playCall(num);
+      if (speak) playCallSound(num);
       ticketStatusText.innerHTML = `የወጣው ቁጥር: <strong class="text-yellow-500">${num}</strong>`;
     }
 
@@ -1043,7 +1017,7 @@
       const winners = s.winners || [];
       if (s.no_winner || winners.length === 0) { ticketStatusText.innerText = 'ምንም አሸናፊ የለም'; return; }
       if (winners.some(w => w.mine)) refreshUserData();
-      playCall('bingo');
+      playCallSound('bingo');
       
       const totalPool = Number(s.pool || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       document.getElementById('winner-top-pool').innerText = `${totalPool} ETB`;
@@ -1325,53 +1299,43 @@
       }
     }
 
-    const CALL_FILE = 'calls.mp3';
-    const CALL_MAP = {"1":[0.0,1.47],"2":[1.57,1.48],"3":[3.15,1.49],"4":[4.74,1.49],"5":[6.33,1.51],"6":[7.94,1.56],"7":[9.6,1.6],"8":[11.3,1.42],"9":[12.82,1.35],"10":[14.27,1.4],"11":[15.77,1.51],"12":[17.38,1.43],"13":[18.91,1.57],"14":[20.58,1.65],"15":[22.33,1.63],"16":[24.06,1.76],"17":[25.92,1.81],"18":[27.83,1.8],"19":[29.73,1.61],"20":[31.44,1.32],"21":[32.86,1.6],"22":[34.56,1.54],"23":[36.2,1.61],"24":[37.91,1.63],"25":[39.64,1.54],"26":[41.28,1.71],"27":[43.09,1.64],"28":[44.83,1.61],"29":[46.54,1.52],"30":[48.16,1.47],"31":[49.73,1.5],"32":[51.33,1.93],"33":[53.36,1.87],"34":[55.33,1.85],"35":[57.28,1.73],"36":[59.11,1.73],"37":[60.94,1.85],"38":[62.89,1.88],"39":[64.87,1.67],"40":[66.64,1.4],"41":[68.14,1.65],"42":[69.891,1.85],"43":[71.841,1.7],"44":[73.641,1.64],"45":[75.381,1.66],"46":[77.141,1.95],"47":[79.191,1.7],"48":[80.991,2.15],"49":[83.241,1.58],"50":[84.921,1.38],"51":[86.401,1.55],"52":[88.051,1.84],"53":[89.991,1.54],"54":[91.631,1.87],"55":[93.601,1.66],"56":[95.361,1.58],"57":[97.041,1.74],"58":[98.881,1.79],"59":[100.771,1.65],"60":[102.521,1.42],"61":[104.041,1.52],"62":[105.661,1.8],"63":[107.561,1.42],"64":[109.081,1.69],"65":[110.871,1.43],"66":[112.401,1.65],"67":[114.151,1.74],"68":[115.991,1.61],"69":[117.701,1.48],"70":[119.281,1.25],"71":[120.631,1.86],"72":[122.591,1.66],"73":[124.351,1.51],"74":[125.961,1.64],"75":[127.701,1.5],"bingo":[129.301,1.09]};
-    let audioCtx = null, callBuffer = null, currentCall = null, soundOn = true;
+    // --- SOUND MANAGEMENT CONNECTED TO GITHUB AUDIO FOLDER ---
+    let soundOn = true;
     try { soundOn = localStorage.getItem('bingo_sound') !== 'off'; } catch (e) {}
 
     function applySoundIcon() {
       const icon = document.getElementById('sound-icon');
       if (icon) icon.className = soundOn ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
     }
-    function stopCall() { if (currentCall) { try { currentCall.stop(); } catch (e) {} currentCall = null; } }
+
     function toggleSound() {
       soundOn = !soundOn;
       try { localStorage.setItem('bingo_sound', soundOn ? 'on' : 'off'); } catch (e) {}
-      if (!soundOn) stopCall();
       applySoundIcon();
     }
-    async function loadCalls() {
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const res = await fetch(CALL_FILE);
-        const data = await res.arrayBuffer();
-        callBuffer = await new Promise((ok, fail) => audioCtx.decodeAudioData(data, ok, fail));
-      } catch (e) {}
-    }
-    function unlockAudio() {
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        if (!callBuffer) loadCalls();
-      } catch (e) {}
-    }
-    ['pointerdown', 'touchstart', 'click'].forEach(ev => document.addEventListener(ev, unlockAudio, { passive: true }));
-    document.addEventListener('DOMContentLoaded', () => { applySoundIcon(); loadCalls(); });
 
-    function playCall(key) {
-      if (!soundOn || !callBuffer || !audioCtx) return;
-      const slot = CALL_MAP[key]; if (!slot) return;
-      try {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        stopCall();
-        const src = audioCtx.createBufferSource();
-        src.buffer = callBuffer; src.connect(audioCtx.destination);
-        src.start(0, slot[0], slot[1]);
-        currentCall = src;
-        src.onended = () => { if (currentCall === src) currentCall = null; };
-      } catch (e) {}
+    function playCallSound(num) {
+      if (!soundOn) return;
+      let audioUrl = '';
+      if (num === 'bingo') {
+        audioUrl = 'https://raw.githubusercontent.com/usernatnael-byte/Gamespro/main/audio/bingo.ogg';
+      } else {
+        const n = Number(num);
+        let prefix = '';
+        if (n >= 1 && n <= 15) prefix = 'b';
+        else if (n >= 16 && n <= 30) prefix = 'i';
+        else if (n >= 31 && n <= 45) prefix = 'n';
+        else if (n >= 46 && n <= 60) prefix = 'g';
+        else if (n >= 61 && n <= 75) prefix = 'o';
+
+        audioUrl = `https://raw.githubusercontent.com/usernatnael-byte/Gamespro/main/audio/${prefix}${n}.ogg`;
+      }
+
+      const audio = new Audio(audioUrl);
+      audio.play().catch(err => console.log("Audio play failed:", err));
     }
+
+    document.addEventListener('DOMContentLoaded', () => { applySoundIcon(); });
 
     async function fetchAndRenderLeaderboard() {
       try {
