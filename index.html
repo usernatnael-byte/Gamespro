@@ -217,16 +217,50 @@
   <!-- DEPOSIT SUBPAGE -->
   <div id="page-deposit" class="hidden flex-1 flex-col max-w-md mx-auto w-full p-4 pb-28">
     <button onclick="switchPage('wallet')" class="self-start text-yellow-400 mb-3 font-bold text-xs"><i class="fa-solid fa-arrow-left mr-1"></i>ወደ ዋሌት ተመለስ</button>
-    <h2 class="text-xl font-black mb-3 text-yellow-400">📥 በTelebirr ሂሳብ መሙላት</h2>
-    <div class="bg-[#141414] border border-mel-border rounded-2xl p-4 mb-4 text-xs whitespace-pre-line leading-relaxed" id="deposit-instructions">Loading payment details…</div>
-    <label class="block text-xs mb-1 text-gray-300">መጠን (ETB)</label>
-    <input id="deposit-amount" type="number" min="100" class="w-full rounded-xl bg-[#141414] border border-mel-border p-3 text-white mb-3 text-xs focus:border-yellow-400 outline-none" placeholder="ቢያንስ 100 ETB">
+    <h2 class="text-xl font-black mb-1 text-yellow-400">📥 በTelebirr ሂሳብ መሙላት</h2>
+    <p class="text-[11px] text-gray-400 mb-4">ከታች ያለውን የTelebirr ሂሳብ ተጠቅመው ክፍያዎን ይፈጽሙ።</p>
+
+    <section class="rounded-2xl border border-yellow-500/40 bg-gradient-to-br from-[#241b08] via-[#17130b] to-[#101010] p-4 mb-4 shadow-lg">
+      <div class="flex items-center justify-between mb-4">
+        <div class="font-black text-sm text-yellow-300"><i class="fa-solid fa-wallet mr-2"></i>የTelebirr ክፍያ መረጃ</div>
+        <span class="text-[9px] font-bold tracking-wider text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2 py-1">PAYMENT ACCOUNT</span>
+      </div>
+      <div class="rounded-xl bg-black/30 border border-white/10 p-3 mb-3">
+        <div class="text-[10px] text-gray-400 mb-1">የመለያ ባለቤት ስም</div>
+        <div id="telebirr-account-name" class="text-white font-extrabold text-base break-words">Loading…</div>
+      </div>
+      <div class="rounded-xl bg-black/30 border border-white/10 p-3">
+        <div class="text-[10px] text-gray-400 mb-1">የTelebirr መለያ ቁጥር</div>
+        <div class="flex items-center justify-between gap-2">
+          <div id="telebirr-account-number" class="text-yellow-300 font-mono font-black text-lg tracking-wide break-all">Loading…</div>
+          <button type="button" onclick="copyTelebirrNumber()" class="shrink-0 rounded-lg bg-yellow-400 text-black px-3 py-2 text-[10px] font-black"><i class="fa-regular fa-copy mr-1"></i>Copy</button>
+        </div>
+      </div>
+      <div class="mt-3 flex items-center justify-between text-xs">
+        <span class="text-gray-400">ዝቅተኛ የተቀማጭ መጠን</span>
+        <strong id="deposit-minimum" class="text-yellow-300 font-mono">100 ETB</strong>
+      </div>
+    </section>
+
+    <section class="rounded-xl border border-mel-border bg-[#141414] p-4 mb-4">
+      <div class="font-bold text-xs text-white mb-2"><i class="fa-solid fa-list-ol text-yellow-400 mr-2"></i>የDeposit አከፋፈል መንገድ</div>
+      <ol class="list-decimal list-inside space-y-2 text-[11px] leading-relaxed text-gray-300">
+        <li>ወደ ላይ በታየው የTelebirr ቁጥር ገንዘቡን ይላኩ።</li>
+        <li>የላኩትን መጠን እና Transaction ID ከታች ያስገቡ።</li>
+        <li>የTelebirr ክፍያ ደረሰኝ Screenshot ያያይዙ።</li>
+        <li>“ጥያቄ ላክ” የሚለውን ተጭነው የDeposit ጥያቄዎን ያስገቡ።</li>
+      </ol>
+      <div id="deposit-instructions" class="hidden whitespace-pre-line border-t border-white/10 mt-3 pt-3 text-[11px] leading-relaxed text-gray-300"></div>
+    </section>
+
+    <label class="block text-xs mb-1 text-gray-300">የላኩት መጠን (ETB)</label>
+    <input id="deposit-amount" type="number" min="100" step="0.01" class="w-full rounded-xl bg-[#141414] border border-mel-border p-3 text-white mb-3 text-xs focus:border-yellow-400 outline-none" placeholder="የላኩትን መጠን ያስገቡ">
     <label class="block text-xs mb-1 text-gray-300">የክፍያ ማረጋገጫ ቁጥር / Transaction ID</label>
     <input id="deposit-reference" class="w-full rounded-xl bg-[#141414] border border-mel-border p-3 text-white mb-3 text-xs focus:border-yellow-400 outline-none" placeholder="Transaction ID ያስገቡ">
-    <label class="block text-xs mb-1 text-gray-300">ደረሰኝ Screenshot</label>
+    <label class="block text-xs mb-1 text-gray-300">የክፍያ ደረሰኝ Screenshot</label>
     <input id="deposit-image" type="file" accept="image/png,image/jpeg,image/webp" class="w-full text-xs mb-4 text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-yellow-400 file:text-slate-950 file:font-bold">
-    <button onclick="submitDeposit()" class="w-full rounded-xl bg-yellow-400 text-slate-950 font-black p-3.5 text-xs shadow-lg">ጥያቄ ላክ</button>
-    <p id="deposit-result" class="text-xs mt-3 font-medium"></p>
+    <button onclick="submitDeposit()" class="w-full rounded-xl bg-yellow-400 text-slate-950 font-black p-3.5 text-xs shadow-lg"><i class="fa-solid fa-paper-plane mr-2"></i>ጥያቄ ላክ</button>
+    <p id="deposit-result" role="status" aria-live="polite" class="text-xs mt-3 font-medium"></p>
   </div>
 
   <!-- WITHDRAW SUBPAGE -->
@@ -936,14 +970,72 @@
     }
 
     let walletConfig = null;
-    async function loadWalletConfig() {
+    function cleanDepositInstructions(value, accountNumber) {
+      const number = String(accountNumber || '').replace(/[\s-]/g, '');
+      return String(value || '').split('\n').filter(line => {
+        const lower = line.toLowerCase();
+        const compact = line.replace(/[\s-]/g, '');
+        return !lower.includes('telebirr_account_name') && !lower.includes('telebirr_account_number') &&
+          !lower.includes('account name:') && !lower.includes('account number:') &&
+          !(number && compact.includes(number));
+      }).join('\n').trim();
+    }
+    async function copyTelebirrNumber() {
+      const number = document.getElementById('telebirr-account-number').textContent.trim();
+      if (!number || number === 'Loading…' || number === 'Not configured') return;
       try {
+        if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(number);
+        else {
+          const field = document.createElement('textarea'); field.value = number;
+          field.style.position = 'fixed'; field.style.opacity = '0'; document.body.appendChild(field);
+          field.select(); document.execCommand('copy'); field.remove();
+        }
+        const result = document.getElementById('deposit-result');
+        result.className = 'text-xs mt-3 font-medium text-emerald-400';
+        result.textContent = 'የTelebirr ቁጥሩ ተቀድቷል።';
+      } catch (e) {
+        const result = document.getElementById('deposit-result');
+        result.className = 'text-xs mt-3 font-medium text-rose-400';
+        result.textContent = 'ቁጥሩን መቅዳት አልተቻለም፤ እባክዎ በእጅ ይቅዱት።';
+      }
+    }
+    async function loadWalletConfig() {
+      const nameEl = document.getElementById('telebirr-account-name');
+      const numberEl = document.getElementById('telebirr-account-number');
+      const instructionsEl = document.getElementById('deposit-instructions');
+      try {
+        nameEl.textContent = 'Loading…';
+        numberEl.textContent = 'Loading…';
         const d = await api('/api/wallet/config');
-        if (d.status !== 'success') throw new Error();
+        if (!d || d.status !== 'success') throw new Error(d && d.message ? d.message : 'የክፍያ መረጃውን ማግኘት አልተቻለም።');
         walletConfig = d;
-        document.getElementById('deposit-instructions').innerText = `${d.depositInstructions}\n\nAccount: ${d.telebirrName} (${d.telebirrNumber})\nMinimum: ${d.depositMinimum} ETB`;
-        document.getElementById('withdraw-balance').innerText = Number(d.mainBalance).toFixed(2) + ' ETB';
-      } catch(e) {}
+        const accountName = d.telebirrName || d.TELEBIRR_ACCOUNT_NAME || '';
+        const accountNumber = d.telebirrNumber || d.TELEBIRR_ACCOUNT_NUMBER || '';
+        const minimum = Number(d.depositMinimum || 100);
+        nameEl.textContent = accountName || 'አልተዘጋጀም';
+        numberEl.textContent = accountNumber || 'አልተዘጋጀም';
+        document.getElementById('deposit-minimum').textContent = (Number.isFinite(minimum) ? minimum : 100) + ' ETB';
+        const amountInput = document.getElementById('deposit-amount');
+        amountInput.min = Number.isFinite(minimum) && minimum > 0 ? minimum : 100;
+        amountInput.placeholder = 'ቢያንስ ' + amountInput.min + ' ETB';
+        const instructions = cleanDepositInstructions(d.depositInstructions, accountNumber);
+        instructionsEl.textContent = instructions;
+        instructionsEl.classList.toggle('hidden', !instructions);
+        if (!accountName || !accountNumber) {
+          const result = document.getElementById('deposit-result');
+          result.className = 'text-xs mt-3 font-medium text-rose-400';
+          result.textContent = 'የTelebirr መለያ መረጃ በServer ላይ አልተዘጋጀም። TELEBIRR_ACCOUNT_NAME እና TELEBIRR_ACCOUNT_NUMBER ያረጋግጡ።';
+        }
+        document.getElementById('withdraw-balance').innerText = Number(d.mainBalance || 0).toFixed(2) + ' ETB';
+      } catch(e) {
+        nameEl.textContent = 'መረጃ አልተገኘም';
+        numberEl.textContent = 'መረጃ አልተገኘም';
+        instructionsEl.textContent = 'የክፍያ መረጃውን ከServer ማግኘት አልተቻለም። እባክዎ ቆይተው እንደገና ይሞክሩ።';
+        instructionsEl.classList.remove('hidden');
+        const result = document.getElementById('deposit-result');
+        result.className = 'text-xs mt-3 font-medium text-rose-400';
+        result.textContent = '❌ ' + (e.message || 'የክፍያ መረጃ ስህተት');
+      }
     }
     function triggerDeposit() { switchPage('deposit'); }
     function triggerWithdraw() { switchPage('withdraw'); }
@@ -951,12 +1043,16 @@
     async function submitDeposit() {
       const out = document.getElementById('deposit-result'); out.innerText='Sending…';
       try {
+        const amount = Number(document.getElementById('deposit-amount').value);
+        const minimum = Number(document.getElementById('deposit-amount').min || 100);
+        if (!Number.isFinite(amount) || amount < minimum) throw new Error('ዝቅተኛው የDeposit መጠን ' + minimum + ' ETB ነው።');
+        if (!document.getElementById('deposit-reference').value.trim()) throw new Error('Transaction ID ያስገቡ።');
         const file = document.getElementById('deposit-image').files[0];
         let imageBase64 = '';
         if (file) {
           imageBase64 = await new Promise((ok, fail) => { const r = new FileReader(); r.onload = () => ok(r.result); r.readAsDataURL(file); });
         }
-        const d = await api('/api/wallet/deposit', { method: 'POST', body: JSON.stringify({ amount: Number(document.getElementById('deposit-amount').value), reference: document.getElementById('deposit-reference').value, imageBase64 }) });
+        const d = await api('/api/wallet/deposit', { method: 'POST', body: JSON.stringify({ amount, reference: document.getElementById('deposit-reference').value.trim(), imageBase64 }) });
         if(d.status !== 'success') throw new Error(d.message);
         out.innerText = '✅ ' + d.message;
       } catch(e) { out.innerText = '❌ ' + e.message; }
