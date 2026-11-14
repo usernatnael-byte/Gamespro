@@ -79,12 +79,9 @@
 
   <!-- ==================== PAGE: HOME ==================== -->
   <div id="page-home" class="flex-1 flex flex-col max-w-md mx-auto w-full pb-36 px-3 pt-2.5">
-    
     <div class="border rounded-3xl px-5 py-4 mb-3 shadow-xl relative overflow-hidden flex items-center justify-between shrink-0" id="hero-banner">
       <div class="relative z-10">
-        <div class="text-[10px] font-black tracking-[0.14em] opacity-75 uppercase mb-1.5">
-          LIVE ROUND / የቀጥታ ዙር
-        </div>
+        <div class="text-[10px] font-black tracking-[0.14em] opacity-75 uppercase mb-1.5">LIVE ROUND / የቀጥታ ዙር</div>
         <div class="text-2xl font-black leading-tight tracking-tight">ዕድልህን</div>
         <div class="text-2xl font-black text-yellow-500 leading-tight tracking-tight">አሁን ፈትነው::</div>
       </div>
@@ -102,9 +99,7 @@
           <span class="text-xl font-black tracking-wider">MELBET</span>
           <span class="bg-yellow-400 text-slate-950 font-black text-xs px-2 py-0.5 rounded-md tracking-widest">BINGO</span>
         </div>
-        <div class="bg-yellow-400/10 border border-yellow-400/35 px-2.5 py-1 rounded-lg text-yellow-500 text-xs font-mono font-bold">
-          1 Card = 10 ETB
-        </div>
+        <div class="bg-yellow-400/10 border border-yellow-400/35 px-2.5 py-1 rounded-lg text-yellow-500 text-xs font-mono font-bold">1 Card = 10 ETB</div>
       </div>
 
       <div class="grid grid-cols-3 gap-2">
@@ -128,9 +123,7 @@
     </div>
    
     <div class="flex justify-between items-center px-1 mb-2 shrink-0">
-      <div class="font-extrabold text-sm tracking-wide">
-        ካርቴል ይምረጡ <span class="text-xs text-yellow-500 font-normal">(እስከ 4)</span>
-      </div>
+      <div class="font-extrabold text-sm tracking-wide">ካርቴል ይምረጡ <span class="text-xs text-yellow-500 font-normal">(እስከ 4)</span></div>
       <div class="text-xs font-bold px-3 py-1 rounded-xl border font-mono" id="selected-count-badge">
         የተመረጡ: <span id="selected-count" class="text-yellow-500 font-black">0</span> <span class="opacity-60">/ 4</span>
       </div>
@@ -169,11 +162,8 @@
           <div class="text-xs text-yellow-500 font-mono font-bold mt-1">ሽልማት: <span id="ticket-prize-pool">0.00 ETB</span></div>
         </div>
       </div>
-
       <div class="relative z-10 shrink-0 text-right">
-        <div class="text-[10px] font-black tracking-wider text-yellow-500 uppercase bg-yellow-400/10 border border-yellow-400/30 px-2.5 py-1 rounded-xl">
-          LIVE DRAW
-        </div>
+        <div class="text-[10px] font-black tracking-wider text-yellow-500 uppercase bg-yellow-400/10 border border-yellow-400/30 px-2.5 py-1 rounded-xl">LIVE DRAW</div>
         <div id="ticket-status-text" class="text-[10px] opacity-75 font-medium mt-1">በመጠበቅ ላይ...</div>
       </div>
     </div>
@@ -235,9 +225,7 @@
     </div>
 
     <div class="border rounded-2xl p-4 mb-6 shadow-lg" id="promo-box">
-      <h3 class="text-xs font-bold text-yellow-500 mb-2.5 flex items-center space-x-1.5">
-        <i class="fa-solid fa-ticket"></i><span>ፕሮሞ ኮድ አለዎት?</span>
-      </h3>
+      <h3 class="text-xs font-bold text-yellow-500 mb-2.5 flex items-center space-x-1.5"><i class="fa-solid fa-ticket"></i><span>ፕሮሞ ኮድ አለዎት?</span></h3>
       <div class="flex space-x-2">
         <input id="promo-code-input" type="text" placeholder="ፕሮሞ ኮድ እዚህ ያስገቡ" class="flex-1 rounded-xl border p-2.5 text-xs focus:border-yellow-500 outline-none uppercase font-mono promo-input-elem">
         <button onclick="submitPromoCode()" class="bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs transition-transform active:scale-95">Claim</button>
@@ -329,7 +317,6 @@
 
   <!-- ==================== PAGE: PROFILE ==================== -->
   <div id="page-profile" class="hidden flex-1 flex flex-col max-w-md mx-auto w-full pb-28 px-4 pt-2">
-    
     <div class="border rounded-3xl mb-4 shadow-2xl relative overflow-hidden profile-hero-card">
       <div class="h-28 bg-gradient-to-r from-yellow-600/30 via-amber-500/20 to-yellow-400/30 relative flex items-center justify-center">
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffb700_1px,transparent_1px)] [background-size:16px_16px]"></div>
@@ -345,16 +332,17 @@
           </div>
         </div>
 
-        <div class="text-xs font-mono font-bold text-yellow-500 mb-1" id="profile-username-handle">@Cashbingosupport1</div>
-        <div class="text-xl font-black tracking-tight mb-1" id="profile-user-name">Cash Bingo</div>
-        <div class="text-[11px] opacity-70 font-medium" id="profile-meta-info">@Cashbingosupport1 • አባል ከ Nov 2026</div>
+        <div class="text-xs font-mono font-bold text-yellow-500 mb-1" id="profile-username-handle">@username</div>
+        <div class="text-xl font-black tracking-tight mb-1" id="profile-user-name">Player Name</div>
+        <div class="text-[11px] opacity-70 font-medium" id="profile-meta-info">Telegram User</div>
       </div>
     </div>
 
+    <!-- Stats Grid Box Connected to Backend Data -->
     <div class="border rounded-2xl p-4 mb-4 shadow-xl profile-card-box">
       <div class="grid grid-cols-4 gap-1 text-center divide-x divide-gray-500/20">
         <div class="px-1">
-          <div id="stat-games-played" class="text-base font-mono font-black text-yellow-500">7</div>
+          <div id="stat-games-played" class="text-base font-mono font-black text-yellow-500">0</div>
           <div class="text-[10px] opacity-75 font-bold mt-1">ጨዋታዎች</div>
         </div>
         <div class="px-1">
@@ -362,16 +350,17 @@
           <div class="text-[10px] opacity-75 font-bold mt-1">ድሎች</div>
         </div>
         <div class="px-1">
-          <div class="text-base font-mono font-black text-emerald-500">0%</div>
+          <div id="stat-win-rate" class="text-base font-mono font-black text-emerald-500">0%</div>
           <div class="text-[10px] opacity-75 font-bold mt-1">የድል መጠን</div>
         </div>
         <div class="px-1">
           <div id="stat-games-won" class="text-sm font-mono font-black truncate">0.00</div>
-          <div class="text-[10px] opacity-75 font-bold mt-1">ጠቅላላ ሽያጭ</div>
+          <div class="text-[10px] opacity-75 font-bold mt-1">ጠቅላላ ሽልማት</div>
         </div>
       </div>
     </div>
 
+    <!-- Invite & Earn Card -->
     <div class="border rounded-2xl p-4 mb-4 shadow-lg profile-card-box">
       <div class="text-[10px] font-black tracking-wider text-yellow-500 uppercase mb-1">INVITE & EARN / ጋብዝ እና ተሸለም</div>
       <h3 class="text-sm font-black mb-1">ጓደኞችዎን ይጋብዙ</h3>
@@ -383,6 +372,7 @@
       </div>
     </div>
 
+    <!-- THEME SWITCHER CARD IN PROFILE -->
     <div class="border rounded-2xl p-4 mb-4 flex items-center justify-between shadow-lg profile-card-box">
       <div class="flex items-center space-x-2.5 text-yellow-500 text-xs font-bold">
         <i class="fa-solid fa-circle-half-stroke text-sm"></i>
@@ -399,7 +389,7 @@
     </div>
   </div>
 
-  <!-- WINNER MODAL -->
+  <!-- WINNER MODAL WITH 5S COUNTDOWN -->
   <div id="winner-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="max-w-xs w-full border-2 border-yellow-400 rounded-3xl p-4 shadow-2xl animate-modal text-center max-h-[75vh] flex flex-col overflow-hidden" id="winner-modal-box">
       <div class="shrink-0 mb-2">
@@ -407,7 +397,7 @@
           <div id="winner-count-badge" class="text-yellow-500 font-black text-xs">1 አሸናፊ</div>
           <div id="winner-top-pool" class="text-yellow-500 font-mono font-black text-xs">0.00 ETB</div>
         </div>
-        <div id="winner-name-title" class="text-base font-black text-emerald-500 italic tracking-wide">yoni.f11 has won!</div>
+        <div id="winner-name-title" class="text-base font-black text-emerald-500 italic tracking-wide">Player has won!</div>
         <div class="border rounded-xl p-2 mt-2 winner-pool-box">
           <div class="text-[9px] opacity-75 uppercase font-bold">TOTAL PRIZE POOL</div>
           <div id="winner-total-prize" class="text-base font-black text-emerald-500 font-mono mt-0.5">0.00 ETB</div>
@@ -415,8 +405,8 @@
       </div>
       <div class="flex-1 overflow-y-auto space-y-3 my-2 pr-1" id="winners-list-container"></div>
       <div class="shrink-0 pt-2 border-t border-gray-500/20">
-        <button onclick="closeWinnerModal()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black py-2.5 rounded-xl text-xs uppercase shadow-lg tracking-wider">
-          NEXT ROUND: 5S
+        <button id="next-round-btn" onclick="closeWinnerModal()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black py-2.5 rounded-xl text-xs uppercase shadow-lg tracking-wider">
+          NEXT ROUND: <span id="modal-countdown-sec">5</span>S
         </button>
       </div>
     </div>
@@ -442,12 +432,13 @@
     </button>
   </nav>
 
-  <!-- JAVASCRIPT LOGIC CONNECTED TO GITHUB AUDIO FILES -->
+  <!-- JAVASCRIPT LOGIC FULLY CONNECTED TO BACKEND -->
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
     window.currentUserName = "Player";
     window.currentUserPhone = "Unknown";
     window.currentUserId = "00000";
+    window.currentUserHandle = "@username";
 
     let isDarkMode = true;
     try {
@@ -458,41 +449,34 @@
     function applyTheme() {
       const body = document.getElementById('body-root');
       const themeIcon = document.getElementById('theme-icon');
-      
       const appHeader = document.getElementById('app-header');
       const themeBtnElem = document.getElementById('theme-btn-elem');
       const soundBtnElem = document.getElementById('sound-btn-elem');
       const walletHeaderBox = document.getElementById('wallet-header-box');
-      
       const heroBanner = document.getElementById('hero-banner');
       const countdownCircle = document.getElementById('countdown-circle');
       const statsCard = document.getElementById('stats-card');
       const subCardBoxes = document.querySelectorAll('.sub-card-box');
       const selectedCountBadge = document.getElementById('selected-count-badge');
       const gridContainerBox = document.getElementById('grid-container-box');
-
       const viewModeSwitchBox = document.getElementById('view-mode-switch-box');
       const drawCountBox = document.getElementById('draw-count-box');
       const ticketHeroBanner = document.getElementById('ticket-hero-banner');
       const masterBoardToggleBtn = document.getElementById('master-board-toggle-btn');
       const masterBoardDropdown = document.getElementById('collapsible-master-board');
       const ticketEmptyMsg = document.getElementById('ticket-empty-msg');
-
       const walletMainCard = document.getElementById('wallet-main-card');
       const subWalletBoxes = document.querySelectorAll('.sub-wallet-box');
       const promoBox = document.getElementById('promo-box');
       const promoInputElem = document.querySelector('.promo-input-elem');
       const refreshBtnBox = document.querySelector('.refresh-btn-box');
       const historyLoadingBox = document.querySelector('.history-loading-box');
-
       const depositCardBox = document.getElementById('deposit-card-box');
       const depositInnerBoxes = document.querySelectorAll('.deposit-inner-box');
       const genericInputs = document.querySelectorAll('.generic-input');
       const withdrawBalanceBox = document.querySelector('.withdraw-balance-box');
-
       const profileHeroCard = document.querySelector('.profile-hero-card');
       const profileCardBoxes = document.querySelectorAll('.profile-card-box');
-
       const winnerModalBox = document.getElementById('winner-modal-box');
       const winnerPoolBoxes = document.querySelectorAll('.winner-pool-box');
       const bottomNav = document.getElementById('bottom-nav');
@@ -500,88 +484,72 @@
       if (isDarkMode) {
         body.className = "h-full font-sans antialiased flex flex-col overflow-x-hidden select-none bg-[#050505] text-white";
         if (themeIcon) themeIcon.className = "fa-solid fa-moon";
-
         if(appHeader) appHeader.className = "px-4 py-3 bg-[#0d0d0d] border-b border-[#222] flex justify-between items-center sticky top-0 z-30 shadow-lg";
         if(themeBtnElem) themeBtnElem.className = "w-9 h-9 rounded-xl bg-[#1a1a1a] border border-[#333] flex items-center justify-center text-yellow-400 active:scale-95 transition";
         if(soundBtnElem) soundBtnElem.className = "w-9 h-9 rounded-xl bg-[#1a1a1a] border border-[#333] flex items-center justify-center text-yellow-400 active:scale-95 transition";
         if(walletHeaderBox) walletHeaderBox.className = "bg-[#161616] px-3 py-1.5 rounded-xl border border-[#333] flex flex-col items-end text-xs";
-
         if(heroBanner) heroBanner.className = "bg-gradient-to-r from-[#181818] via-[#121212] to-[#1e1a0d] border border-yellow-500/30 rounded-3xl px-5 py-4 mb-3 shadow-xl relative overflow-hidden flex items-center justify-between shrink-0";
         if(countdownCircle) countdownCircle.className = "w-20 h-20 rounded-full border-2 border-dashed border-yellow-400/60 bg-[#0d0d0d]/70 flex flex-col items-center justify-center shadow-inner";
         if(statsCard) statsCard.className = "bg-gradient-to-b from-[#161616] to-[#0a0a0a] border border-[#222] rounded-2xl p-4 mb-3 shadow-xl relative overflow-hidden shrink-0";
         subCardBoxes.forEach(el => el.className = "border border-[#222] bg-[#111] rounded-xl p-2.5 text-center flex flex-col justify-between sub-card-box");
         if(selectedCountBadge) selectedCountBadge.className = "text-xs font-bold bg-[#141414] px-3 py-1 rounded-xl border border-[#222] font-mono";
         if(gridContainerBox) gridContainerBox.className = "bg-[#101010] border border-[#222] rounded-2xl p-3 flex-1 h-[58vh] min-h-[380px] overflow-y-auto shadow-inner relative";
-
         if(viewModeSwitchBox) viewModeSwitchBox.className = "bg-[#161616] border border-[#222] rounded-xl p-0.5 flex space-x-1";
         if(drawCountBox) drawCountBox.className = "text-xs font-mono font-bold text-yellow-400 bg-[#161616] px-2.5 py-1.5 rounded-xl border border-[#222] shadow-md";
         if(ticketHeroBanner) ticketHeroBanner.className = "bg-gradient-to-r from-[#1b170e] via-[#141414] to-[#0f0f0f] border border-yellow-500/40 rounded-3xl p-4 mb-3 shadow-2xl relative overflow-hidden flex items-center justify-between shrink-0";
         if(masterBoardToggleBtn) masterBoardToggleBtn.className = "w-full bg-[#161616] border border-[#222] hover:bg-[#222] text-yellow-400 font-bold py-2 px-3.5 rounded-xl flex items-center justify-between text-xs shadow";
         if(masterBoardDropdown) masterBoardDropdown.className = "hidden mt-2 bg-[#0c0c0c] border border-[#222] rounded-xl p-2 shadow-inner";
         if(ticketEmptyMsg) ticketEmptyMsg.className = "text-center text-gray-300 text-xs py-8 bg-[#141414] border border-[#222] rounded-2xl p-4 shadow";
-
         if(walletMainCard) walletMainCard.className = "bg-gradient-to-br from-[#191919] via-[#121212] to-[#0a0a0a] border border-[#222] rounded-3xl p-5 mb-4 shadow-2xl relative overflow-hidden";
         subWalletBoxes.forEach(el => el.className = "bg-[#1b1b1b]/90 border border-white/5 rounded-2xl p-3.5 sub-wallet-box");
         if(promoBox) promoBox.className = "bg-[#141414] border border-[#222] rounded-2xl p-4 mb-6 shadow-lg";
         if(promoInputElem) promoInputElem.className = "flex-1 rounded-xl bg-[#0a0a0a] border border-[#222] p-2.5 text-white text-xs focus:border-yellow-400 outline-none uppercase font-mono promo-input-elem";
         if(refreshBtnBox) refreshBtnBox.className = "w-10 h-10 rounded-xl bg-[#141414] border border-[#222] text-yellow-400 flex items-center justify-center active:scale-90 transition refresh-btn-box";
         if(historyLoadingBox) historyLoadingBox.className = "text-center text-gray-500 text-xs py-6 bg-[#141414] border border-[#222] rounded-2xl history-loading-box";
-
         if(depositCardBox) depositCardBox.className = "rounded-2xl border border-yellow-500/40 bg-gradient-to-br from-[#241b08] via-[#17130b] to-[#101010] p-4 mb-4 shadow-lg";
         depositInnerBoxes.forEach(el => el.className = "rounded-xl bg-black/30 border border-white/10 p-3 mb-3 deposit-inner-box");
         genericInputs.forEach(el => el.className = "w-full rounded-xl bg-[#141414] border border-[#222] p-3 text-white mb-3 text-xs focus:border-yellow-400 outline-none generic-input");
         if(withdrawBalanceBox) withdrawBalanceBox.className = "bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4 text-xs withdraw-balance-box";
-
         if(profileHeroCard) profileHeroCard.className = "bg-[#141414] border border-[#222] rounded-3xl mb-4 shadow-2xl relative overflow-hidden profile-hero-card";
         profileCardBoxes.forEach(el => el.className = "bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4 shadow-lg profile-card-box");
-
         if(winnerModalBox) winnerModalBox.className = "max-w-xs w-full bg-[#141414] border-2 border-yellow-400 rounded-3xl p-4 shadow-2xl animate-modal text-center max-h-[75vh] flex flex-col overflow-hidden";
         winnerPoolBoxes.forEach(el => el.className = "bg-[#0c0c0c] border border-[#222] rounded-xl p-2 mt-2 winner-pool-box");
         if(bottomNav) bottomNav.className = "fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#0d0d0d] border-t border-[#222] px-4 py-2 flex justify-between items-center z-50";
-
         try { localStorage.setItem('melbet_bingo_theme', 'dark'); } catch(e){}
       } else {
         body.className = "h-full font-sans antialiased flex flex-col overflow-x-hidden select-none bg-[#f8f9fa] text-slate-900";
         if (themeIcon) themeIcon.className = "fa-solid fa-sun";
-
         if(appHeader) appHeader.className = "px-4 py-3 bg-white border-b border-gray-200 flex justify-between items-center sticky top-0 z-30 shadow-md";
         if(themeBtnElem) themeBtnElem.className = "w-9 h-9 rounded-xl bg-gray-100 border border-gray-300 flex items-center justify-center text-amber-600 active:scale-95 transition";
         if(soundBtnElem) soundBtnElem.className = "w-9 h-9 rounded-xl bg-gray-100 border border-gray-300 flex items-center justify-center text-amber-600 active:scale-95 transition";
         if(walletHeaderBox) walletHeaderBox.className = "bg-gray-100 px-3 py-1.5 rounded-xl border border-gray-300 flex flex-col items-end text-xs";
-
         if(heroBanner) heroBanner.className = "bg-gradient-to-r from-gray-100 via-white to-amber-50 border border-amber-500/30 rounded-3xl px-5 py-4 mb-3 shadow-xl relative overflow-hidden flex items-center justify-between shrink-0";
         if(countdownCircle) countdownCircle.className = "w-20 h-20 rounded-full border-2 border-dashed border-amber-500/60 bg-white/80 flex flex-col items-center justify-center shadow-inner";
         if(statsCard) statsCard.className = "bg-gradient-to-b from-white to-gray-50 border border-gray-200 rounded-2xl p-4 mb-3 shadow-xl relative overflow-hidden shrink-0";
         subCardBoxes.forEach(el => el.className = "border border-gray-200 bg-gray-50 rounded-xl p-2.5 text-center flex flex-col justify-between sub-card-box");
         if(selectedCountBadge) selectedCountBadge.className = "text-xs font-bold bg-white px-3 py-1 rounded-xl border border-gray-200 font-mono";
         if(gridContainerBox) gridContainerBox.className = "bg-white border border-gray-200 rounded-2xl p-3 flex-1 h-[58vh] min-h-[380px] overflow-y-auto shadow-inner relative";
-
         if(viewModeSwitchBox) viewModeSwitchBox.className = "bg-gray-100 border border-gray-300 rounded-xl p-0.5 flex space-x-1";
         if(drawCountBox) drawCountBox.className = "text-xs font-mono font-bold text-amber-600 bg-gray-100 px-2.5 py-1.5 rounded-xl border border-gray-300 shadow-md";
         if(ticketHeroBanner) ticketHeroBanner.className = "bg-gradient-to-r from-amber-50 via-white to-gray-50 border border-amber-500/40 rounded-3xl p-4 mb-3 shadow-2xl relative overflow-hidden flex items-center justify-between shrink-0";
         if(masterBoardToggleBtn) masterBoardToggleBtn.className = "w-full bg-gray-100 border border-gray-300 hover:bg-gray-200 text-amber-600 font-bold py-2 px-3.5 rounded-xl flex items-center justify-between text-xs shadow";
         if(masterBoardDropdown) masterBoardDropdown.className = "hidden mt-2 bg-white border border-gray-200 rounded-xl p-2 shadow-inner";
         if(ticketEmptyMsg) ticketEmptyMsg.className = "text-center text-gray-700 text-xs py-8 bg-white border border-gray-200 rounded-2xl p-4 shadow";
-
         if(walletMainCard) walletMainCard.className = "bg-gradient-to-br from-gray-50 via-white to-amber-50/30 border border-gray-200 rounded-3xl p-5 mb-4 shadow-2xl relative overflow-hidden";
         subWalletBoxes.forEach(el => el.className = "bg-white border border-gray-200 rounded-2xl p-3.5 sub-wallet-box");
         if(promoBox) promoBox.className = "bg-white border border-gray-200 rounded-2xl p-4 mb-6 shadow-lg";
         if(promoInputElem) promoInputElem.className = "flex-1 rounded-xl bg-gray-50 border border-gray-300 p-2.5 text-slate-900 text-xs focus:border-amber-500 outline-none uppercase font-mono promo-input-elem";
         if(refreshBtnBox) refreshBtnBox.className = "w-10 h-10 rounded-xl bg-white border border-gray-300 text-amber-600 flex items-center justify-center active:scale-90 transition refresh-btn-box";
         if(historyLoadingBox) historyLoadingBox.className = "text-center text-gray-500 text-xs py-6 bg-white border border-gray-200 rounded-2xl history-loading-box";
-
         if(depositCardBox) depositCardBox.className = "rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-50 via-white to-gray-50 p-4 mb-4 shadow-lg";
         depositInnerBoxes.forEach(el => el.className = "rounded-xl bg-white border border-gray-200 p-3 mb-3 deposit-inner-box");
         genericInputs.forEach(el => el.className = "w-full rounded-xl bg-white border border-gray-300 p-3 text-slate-900 mb-3 text-xs focus:border-amber-500 outline-none generic-input");
         if(withdrawBalanceBox) withdrawBalanceBox.className = "bg-white border border-gray-200 rounded-2xl p-4 mb-4 text-xs withdraw-balance-box";
-
         if(profileHeroCard) profileHeroCard.className = "bg-white border border-gray-200 rounded-3xl mb-4 shadow-2xl relative overflow-hidden profile-hero-card";
         profileCardBoxes.forEach(el => el.className = "bg-white border border-gray-200 rounded-2xl p-4 mb-4 shadow-lg profile-card-box");
-
         if(winnerModalBox) winnerModalBox.className = "max-w-xs w-full bg-white border-2 border-amber-500 rounded-3xl p-4 shadow-2xl animate-modal text-center max-h-[75vh] flex flex-col overflow-hidden";
         winnerPoolBoxes.forEach(el => el.className = "bg-gray-50 border border-gray-200 rounded-xl p-2 mt-2 winner-pool-box");
         if(bottomNav) bottomNav.className = "fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 px-4 py-2 flex justify-between items-center z-50";
-
         try { localStorage.setItem('melbet_bingo_theme', 'light'); } catch(e){}
       }
       fetchAndRenderLeaderboard();
@@ -603,10 +571,21 @@
         if (tgUser) {
             window.currentUserName = `${tgUser.first_name} ${tgUser.last_name || ""}`.trim();
             window.currentUserId = tgUser.id.toString();
+            window.currentUserHandle = tgUser.username ? `@${tgUser.username}` : `@id_${tgUser.id}`;
         } else {
             window.currentUserId = "test_user";
             window.currentUserName = "Cash Bingo";
+            window.currentUserHandle = "@Cashbingosupport1";
         }
+
+        if (document.getElementById('header-user-name')) document.getElementById('header-user-name').innerText = window.currentUserName;
+        if (document.getElementById('profile-user-name')) document.getElementById('profile-user-name').innerText = window.currentUserName;
+        if (document.getElementById('profile-username-handle')) document.getElementById('profile-username-handle').innerText = window.currentUserHandle;
+        if (window.currentUserName) {
+            const firstLetter = window.currentUserName.charAt(0).toUpperCase();
+            if (document.getElementById('profile-avatar-letter')) document.getElementById('profile-avatar-letter').innerText = firstLetter;
+        }
+
         try {
             const response = await fetch('/api/user-data', {
                 method: 'GET',
@@ -617,13 +596,6 @@
                 if (data.status === 'success') applyUserData(data);
             }
         } catch (error) {}
-
-        if (document.getElementById('header-user-name')) document.getElementById('header-user-name').innerText = window.currentUserName;
-        if (document.getElementById('profile-user-name')) document.getElementById('profile-user-name').innerText = window.currentUserName;
-        if (window.currentUserName) {
-            const firstLetter = window.currentUserName.charAt(0).toUpperCase();
-            if (document.getElementById('profile-avatar-letter')) document.getElementById('profile-avatar-letter').innerText = firstLetter;
-        }
 
         const rulesBtn = document.getElementById('game-rules-btn');
         if (rulesBtn) {
@@ -973,11 +945,21 @@
       serverBalance = Number(d.balance) || 0;
       serverBonus = Number(d.bonus) || 0;
       if (currentPage === 'wallet') loadTransactionHistory();
-      window.currentUserPhone = d.phone_number || 'Not Provided';
-      ['header-user-phone'].forEach(id => { const el = document.getElementById(id); if (el) el.innerText = window.currentUserPhone; });
-      const played = document.getElementById('stat-games-played'); if (played) played.innerText = d.total_games_played || 7;
-      const wonCount = document.getElementById('stat-games-won-count'); if (wonCount) wonCount.innerText = d.total_wins || 0;
-      const won = document.getElementById('stat-games-won'); if (won) won.innerText = (Number(d.total_winnings) || 0).toFixed(2);
+      
+      const phoneNum = d.phone_number || 'Not Provided';
+      window.currentUserPhone = phoneNum;
+      ['header-user-phone'].forEach(id => { const el = document.getElementById(id); if (el) el.innerText = phoneNum; });
+      
+      const played = Number(d.total_games_played) || 0;
+      const wonCount = Number(d.total_wins) || 0;
+      const totalWinnings = Number(d.total_winnings) || 0;
+      const winRate = played > 0 ? ((wonCount / played) * 100).toFixed(0) + '%' : '0%';
+
+      const statPlayedEl = document.getElementById('stat-games-played'); if (statPlayedEl) statPlayedEl.innerText = played;
+      const wonCountEl = document.getElementById('stat-games-won-count'); if (wonCountEl) wonCountEl.innerText = wonCount;
+      const winRateEl = document.getElementById('stat-win-rate'); if (winRateEl) winRateEl.innerText = winRate;
+      const wonEl = document.getElementById('stat-games-won'); if (wonEl) wonEl.innerText = totalWinnings.toFixed(2);
+
       updateUI();
     }
 
@@ -1012,6 +994,8 @@
       if (s.phase === 'result') return 'ጨዋታው ተጠናቋል';
       return 'እጣ እየወጣ ነው...';
     }
+
+    let winnerModalCountdownInterval = null;
 
     function showResult(s) {
       const winners = s.winners || [];
@@ -1062,7 +1046,30 @@
       
       if (currentPage === 'home' || currentPage === 'ticket') {
         winnerModal.classList.remove('hidden');
+        startWinnerModalCountdown();
       }
+    }
+
+    function startWinnerModalCountdown() {
+      if (winnerModalCountdownInterval) clearInterval(winnerModalCountdownInterval);
+      let timeLeft = 5;
+      const secSpan = document.getElementById('modal-countdown-sec');
+      if (secSpan) secSpan.innerText = timeLeft;
+
+      winnerModalCountdownInterval = setInterval(() => {
+        timeLeft--;
+        if (secSpan) secSpan.innerText = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(winnerModalCountdownInterval);
+          closeWinnerModal();
+        }
+      }, 1000);
+    }
+
+    function closeWinnerModal() { 
+      if (winnerModalCountdownInterval) clearInterval(winnerModalCountdownInterval);
+      winnerModal.classList.add('hidden'); 
+      switchPage('home'); 
     }
 
     function applyRound(s) {
@@ -1091,6 +1098,7 @@
         ticketStatusText.innerText = 'ገና አልጀመረም...';
         ticketDrawCount.innerText = '0/75';
         winnerModal.classList.add('hidden');
+        if (winnerModalCountdownInterval) clearInterval(winnerModalCountdownInterval);
       }
 
       const n = s.drawn.length;
@@ -1143,11 +1151,6 @@
         if (bannerSecEl) bannerSecEl.innerText = '0';
         bar.style.width = '0%';
       }
-    }
-
-    function closeWinnerModal() { 
-      winnerModal.classList.add('hidden'); 
-      switchPage('home'); 
     }
 
     initGrid();
@@ -1332,7 +1335,7 @@
       }
 
       const audio = new Audio(audioUrl);
-      audio.play().catch(err => console.log("Audio play failed:", err));
+      audio.play().catch(err => {});
     }
 
     document.addEventListener('DOMContentLoaded', () => { applySoundIcon(); });
