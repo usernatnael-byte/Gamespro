@@ -149,30 +149,32 @@
     </div>
   </div>
 
-  <!-- ==================== PAGE: TICKET ==================== -->
-  <div id="page-ticket" class="hidden flex-1 flex flex-col max-w-md mx-auto w-full pb-28 px-4 pt-2">
-    <div class="flex justify-between items-center mb-3">
-      <h2 class="text-lg font-black text-yellow-400 tracking-wide">LIVE BINGO ROOM</h2>
-      <div class="text-xs font-mono font-bold text-gray-400 bg-[#161616] px-3 py-1.5 rounded-xl border border-mel-border">
+  <!-- ==================== PAGE: TICKET (LIVE BINGO ROOM 2x2 Grid Layout) ==================== -->
+  <div id="page-ticket" class="hidden flex-1 flex flex-col max-w-md mx-auto w-full pb-28 px-3 pt-2">
+    <div class="flex justify-between items-center mb-2.5">
+      <h2 class="text-base font-black text-yellow-400 tracking-wide">LIVE BINGO ROOM</h2>
+      <div class="text-xs font-mono font-bold text-gray-300 bg-[#161616] px-3 py-1.5 rounded-xl border border-mel-border">
         ወጣ: <span id="ticket-draw-count" class="text-yellow-400">0/75</span>
       </div>
     </div>
 
-    <div class="bg-[#141414] border border-mel-border rounded-2xl p-4 mb-3 shadow-lg flex items-center space-x-4">
-      <div class="relative w-14 h-14 flex-shrink-0 flex items-center justify-center">
+    <!-- Live Call Ball & Pool Card -->
+    <div class="bg-[#141414] border border-mel-border rounded-2xl p-3.5 mb-2.5 shadow-lg flex items-center space-x-3.5">
+      <div class="relative w-12 h-12 flex-shrink-0 flex items-center justify-center">
         <div class="absolute inset-0 bg-yellow-500/20 rounded-full blur-md"></div>
-        <div id="ticket-current-ball" class="relative w-12 h-12 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-[0_0_15px_rgba(255,183,0,0.5)]">
-          <span id="ticket-ball-text" class="text-slate-950 font-black text-xl font-mono">--</span>
+        <div id="ticket-current-ball" class="relative w-11 h-11 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-[0_0_15px_rgba(255,183,0,0.5)]">
+          <span id="ticket-ball-text" class="text-slate-950 font-black text-lg font-mono">--</span>
         </div>
       </div>
-      <div class="flex-1">
-        <div id="ticket-status-text" class="text-gray-200 font-bold text-sm">ጨዋታውን በመጠበቅ ላይ...</div>
+      <div class="flex-1 min-w-0">
+        <div id="ticket-status-text" class="text-gray-200 font-bold text-xs truncate">ጨዋታውን በመጠበቅ ላይ...</div>
         <div class="text-xs text-yellow-500 font-mono mt-0.5">ሽልማት: <span id="ticket-prize-pool" class="font-bold">0.00 ETB</span></div>
       </div>
     </div>
 
-    <div class="mb-3">
-      <button onclick="toggleMasterBoard()" class="w-full bg-[#161616] border border-mel-border hover:bg-[#222] text-yellow-400 font-bold py-2.5 px-4 rounded-xl flex items-center justify-between transition-colors text-xs">
+    <!-- Master Board Accordion -->
+    <div class="mb-2.5">
+      <button onclick="toggleMasterBoard()" class="w-full bg-[#161616] border border-mel-border hover:bg-[#222] text-yellow-400 font-bold py-2 px-3.5 rounded-xl flex items-center justify-between transition-colors text-xs">
         <span class="flex items-center space-x-2"><i class="fa-solid fa-eye"></i><span>ሙሉ ቦርድ (Master Board)</span></span>
         <i id="master-board-chevron" class="fa-solid fa-chevron-down transition-transform"></i>
       </button>
@@ -181,13 +183,15 @@
       </div>
     </div>
 
-    <div class="flex-1">
+    <!-- Ticket Matrices Container (2x2 Grid Layout for up to 4 Cards) -->
+    <div class="flex-1 overflow-y-auto">
       <div id="ticket-empty-msg" class="text-center text-gray-300 text-xs py-8 bg-[#141414] border border-mel-border rounded-2xl p-4">
         <div class="text-yellow-400 font-bold text-sm mb-1">በዚህ ዙር ካርድ አልመረጡም</div>
         <p class="text-gray-400 mb-2">ቀጣዩ ድል የርስዎ ነው!</p>
         <button onclick="switchPage('home')" class="mt-2 bg-yellow-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs">ካርቴል ምረጥ</button>
       </div>
-      <div id="ticket-matrices-container" class="grid grid-cols-1 gap-3 hidden"></div>
+      <!-- 2x2 Grid container when multiple tickets are selected -->
+      <div id="ticket-matrices-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 hidden pb-4"></div>
     </div>
   </div>
 
@@ -324,7 +328,7 @@
   </div>
 
   <!-- WITHDRAW SUBPAGE -->
-  <div id="page-withdraw" class="hidden flex-1 flex-col max-w-md mx-auto w-full p-4 pb-28">
+  <div id="page-withdraw" class="hidden flex-1-col max-w-md mx-auto w-full p-4 pb-28">
     <button onclick="switchPage('wallet')" class="self-start text-yellow-400 mb-3 font-bold text-xs"><i class="fa-solid fa-arrow-left mr-1"></i> ወደ ዋሌት ተመለስ</button>
     <h2 class="text-xl font-black mb-3 text-rose-500">📤 ገንዘብ ማውጣት</h2>
     <div class="bg-[#141414] border border-mel-border rounded-2xl p-4 mb-4 text-xs">ቀሪ ዋና ሂሳብ: <b id="withdraw-balance" class="text-yellow-400 font-mono">0.00 ETB</b></div>
@@ -840,22 +844,39 @@
       });
     }
 
+    // Render Ticket Matrices in 2x2 Grid Layout
     function renderTicketMatrices() {
       ticketMatricesContainer.innerHTML = '';
       if (selectedTickets.length === 0) return;
-      ticketMatricesContainer.className = "grid grid-cols-1 gap-3";
+      
+      // If 2 or more tickets, use 2 columns grid (2x2 layout), otherwise single column
+      ticketMatricesContainer.className = selectedTickets.length > 1 ? "grid grid-cols-2 gap-2.5 pb-4" : "grid grid-cols-1 gap-3 pb-4";
+
       selectedTickets.forEach(ticketId => {
         const matrix = generateMatrix(ticketId);
         const card = document.createElement('div');
-        card.className = 'bg-[#141414] border border-mel-border rounded-2xl p-3 shadow-md';
-        let html = `<div class="flex justify-between items-center mb-2"><span class="font-bold text-xs text-yellow-400">ካርቴል #${ticketId}</span></div><div class="grid grid-cols-5 gap-1 text-center font-black text-[10px] text-yellow-500 mb-1"><div>B</div><div>I</div><div>N</div><div>G</div><div>O</div></div><div class="grid grid-cols-5 gap-1 text-center text-xs font-mono font-bold">`;
+        card.className = 'bg-[#121212] border border-mel-border rounded-2xl p-2.5 shadow-lg flex flex-col justify-between';
+        
+        let html = `
+          <div class="flex justify-between items-center mb-1.5 px-0.5">
+            <span class="font-bold text-[11px] text-yellow-400">CARD #${ticketId}</span>
+            <span class="text-[9px] font-mono text-gray-400">MELBET</span>
+          </div>
+          <div class="grid grid-cols-5 gap-0.5 text-center font-black text-[9px] text-yellow-500 mb-1">
+            <div>B</div><div>I</div><div>N</div><div>G</div><div>O</div>
+          </div>
+          <div class="grid grid-cols-5 gap-1 text-center text-xs font-mono font-bold">
+        `;
+
         for (let r = 0; r < 5; r++) {
           for (let c = 0; c < 5; c++) {
-            if (r === 2 && c === 2) html += `<div class="bg-yellow-400 text-slate-950 font-black p-2 rounded-xl flex items-center justify-center text-[9px]">FREE</div>`;
-            else {
+            if (r === 2 && c === 2) {
+              html += `<div class="bg-yellow-400 text-slate-950 font-black p-1.5 rounded-lg flex items-center justify-center text-[10px]">★</div>`;
+            } else {
               const num = matrix[c][r];
               const marked = drawnNumbers.includes(num);
-              html += `<div class="${marked ? 'bg-yellow-400 text-slate-950 font-black scale-105 shadow' : 'bg-[#0a0a0a] text-white border border-[#222]'} p-2 rounded-xl transition-all flex items-center justify-center text-xs">${num}</div>`;
+              let cellBg = marked ? 'bg-emerald-600 text-white font-black scale-105 shadow' : 'bg-[#1a1a1a] text-gray-300 border border-white/5';
+              html += `<div class="${cellBg} p-1.5 rounded-lg transition-all flex items-center justify-center text-[10px]">${num}</div>`;
             }
           }
         }
