@@ -1,93 +1,1127 @@
-<!doctype html><html lang="am"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>XLiteBingo Admin</title><script src="https://telegram.org/js/telegram-web-app.js"></script><style>
-*{box-sizing:border-box}body{margin:0;background:#08111f;color:#e5eefb;font:15px system-ui,sans-serif}main{max-width:1200px;margin:auto;padding:16px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}h1{font-size:23px;margin:8px 0}h2{font-size:18px;margin:0 0 12px}.muted{color:#91a4bd}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:16px 0}.card,section{background:#111f32;border:1px solid #263a55;border-radius:14px;padding:14px}.num{font-size:23px;font-weight:800;margin-top:6px}input,textarea,select,button{border:1px solid #38516f;border-radius:9px;padding:10px;background:#0a1728;color:#fff;max-width:100%}input,textarea,select{width:100%}textarea{min-height:110px;resize:vertical}button{cursor:pointer;background:#126b63;border:0;font-weight:700;margin:3px}button.danger{background:#a73548}button.secondary{background:#344963}section{margin:14px 0;overflow:auto}.row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.row>*{flex:1}.notice{padding:12px;border-radius:10px;background:#3a2630;color:#ffd6df;margin:12px 0;display:none}.ok{background:#153d35;color:#c9ffea}table{width:100%;border-collapse:collapse;min-width:720px}td,th{text-align:left;padding:9px;border-bottom:1px solid #293b52;font-size:13px;vertical-align:top}th{color:#9db1ca}.status{font-weight:700}.small{font-size:12px;white-space:pre-wrap;max-width:280px;overflow-wrap:anywhere}.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}.bar{height:12px;background:#263b54;border-radius:20px;overflow:hidden}.bar>i{display:block;height:100%;background:#25b99c;width:0}
-</style></head><body><main><div class="top"><div><h1>🛠 XLiteBingo Admin</h1><div class="muted">በTelegram አካውንትዎ የተረጋገጠ የአድሚን ፓነል</div></div><button onclick="loadAll()">↻ አድስ</button></div><div id="notice" class="notice"></div><div class="grid" id="stats"></div>
+<!doctype html>
+<html lang="am">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>XLiteBingo Admin</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080d17;
+      --surface: #0f1726;
+      --surface-alt: #131e31;
+      --border: #1e2d45;
+      --border-strong: #2c4163;
+      --text: #e6eefb;
+      --muted: #8ca1bf;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --amber: #f59e0b;
+      --danger: #e11d48;
+      --danger-hover: #be123c;
+      --btn-secondary: #1e293b;
+      --radius: 12px;
+    }
 
-<!-- 🤖 ሮቦት / ቦት ሴቲንግ (Robot Settings & Win Control) -->
-<section>
-  <h2>🤖 የሮቦት እና የማሸነፍ መቆጣጠሪያ ሴቲንግ (Game & Robot Settings)</h2>
-  <div class="two">
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mono, .tabular {
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .shell {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 248px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 20px 16px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .brand {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      padding: 4px 8px 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+      white-space: nowrap;
+    }
+
+    .nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-link {
+      display: block;
+      padding: 9px 12px;
+      border-radius: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: background-color 150ms ease, color 150ms ease;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover,
+    .nav-link.active {
+      background: var(--surface-alt);
+      color: var(--text);
+    }
+
+    .sidebar-note {
+      font-size: 12px;
+      color: var(--muted);
+      padding: 12px 8px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Main Workspace */
+    .workspace {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      padding: 14px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .topbar-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .topbar-meta {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .mobile-nav {
+      display: none;
+      gap: 6px;
+      padding: 10px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+    }
+
+    .mobile-nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .mobile-nav a:hover {
+      background: var(--surface-alt);
+      color: var(--text);
+    }
+
+    main {
+      max-width: 1240px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Sections & Panels (Single-Elevation) */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 0;
+      color: var(--text);
+    }
+
+    .panel-sub {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .sub-heading {
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0 0 12px;
+      color: var(--text);
+    }
+
+    .muted { color: var(--muted); }
+
+    /* Notice Banner */
+    .notice {
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid #881337;
+      background: #2b101b;
+      color: #fecdd3;
+      font-size: 13px;
+      font-weight: 500;
+      display: none;
+    }
+    .notice.ok {
+      border-color: #065f46;
+      background: #0b2920;
+      color: #a7f3d0;
+    }
+
+    /* Live Room KPI Grid */
+    .room-kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+
+    .kpi-cell {
+      background: var(--bg);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .kpi-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .kpi-value.accent { color: #34d399; }
+    .kpi-value.warn { color: #fbbf24; }
+    .kpi-value.danger { color: #fb7185; }
+
+    .kpi-foot {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Progress Bars */
+    .bar {
+      height: 8px;
+      background: var(--surface-alt);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .bar > i {
+      display: block;
+      height: 100%;
+      background: var(--accent);
+      width: 0;
+      transition: width 200ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Controller Action Strip */
+    .ctrl-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+
+    .timing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    /* Bingo 1-75 Board */
+    .bingo-board-wrap {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .bingo-grid {
+      display: grid;
+      grid-template-columns: repeat(15, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    .ball-cell {
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 5px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+
+    .ball-cell.called {
+      background: #064e3b;
+      border-color: #10b981;
+      color: #ecfdf5;
+    }
+
+    .ball-cell.last {
+      background: var(--amber);
+      border-color: #fde68a;
+      color: #090d16;
+      font-weight: 700;
+    }
+
+    /* Overview Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+    }
+
+    .stat-box {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .stat-box .num {
+      font-size: 22px;
+      font-weight: 700;
+      margin-top: 6px;
+      color: var(--text);
+    }
+
+    /* Forms & Grid Splits */
+    .two {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .split-block {
+      padding-top: 4px;
+    }
+
+    .divider-v {
+      border-left: 1px solid var(--border);
+      padding-left: 20px;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      max-width: 100%;
+      border: 1px solid var(--border-strong);
+      border-radius: 8px;
+      padding: 9px 12px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      transition: border-color 150ms ease;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: 2px solid rgba(16, 185, 129, 0.35);
+      border-color: var(--accent);
+    }
+
+    textarea {
+      min-height: 104px;
+      resize: vertical;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .row > * { flex: 1; min-width: 160px; }
+    .row > button { flex: 0 0 auto; min-width: auto; }
+
+    /* Buttons */
+    button {
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 9px 16px;
+      min-height: 40px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: var(--accent);
+      color: #032016;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: background-color 150ms ease, transform 120ms ease, opacity 150ms ease;
+    }
+
+    button:hover { background: var(--accent-hover); color: #ffffff; }
+    button:active { transform: scale(0.98); }
+    button:focus-visible { outline: 2px solid #34d399; outline-offset: 2px; }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    button.secondary {
+      background: var(--btn-secondary);
+      border-color: var(--border-strong);
+      color: var(--text);
+    }
+    button.secondary:hover { background: #293548; }
+
+    button.amber {
+      background: var(--amber);
+      color: #1c1002;
+    }
+    button.amber:hover { background: #d97706; color: #fff; }
+
+    button.danger {
+      background: var(--danger);
+      color: #fff;
+    }
+    button.danger:hover { background: var(--danger-hover); }
+
+    button.sm {
+      min-height: 32px;
+      padding: 6px 11px;
+      font-size: 12px;
+    }
+
+    /* Tables */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 680px;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      background: var(--surface);
+    }
+
+    tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
+    tbody tr:last-child td { border-bottom: none; }
+
+    .status { font-weight: 700; }
+    .small {
+      font-size: 12px;
+      white-space: pre-wrap;
+      max-width: 280px;
+      overflow-wrap: anywhere;
+    }
+
+    a { color: #38bdf8; }
+
+    .weekly-item {
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .weekly-item:last-of-type { border-bottom: none; }
+    .weekly-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    @media (max-width: 980px) {
+      .sidebar { display: none; }
+      .mobile-nav { display: flex; }
+      .bingo-board-wrap { grid-template-columns: 1fr; }
+      .divider-v { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 16px; }
+    }
+
+    @media (max-width: 640px) {
+      main { padding: 14px; gap: 16px; }
+      .topbar { padding: 12px 14px; gap: 12px; }
+      .bingo-grid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+      button { min-height: 44px; }
+      button.sm { min-height: 36px; }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
     <div>
-      <label>በአንድ ዙር የሚገቡ የሮቦቶች ብዛት (Max Bots)</label>
-      <input id="botCountInput" type="number" min="0" max="400" value="50" placeholder="ለምሳሌ: 50">
+      <div class="brand">XLiteBingo Admin</div>
+      <nav class="nav-list">
+        <a class="nav-link active" href="#sec-live-room">Live Room Controller</a>
+        <a class="nav-link" href="#sec-overview">Overview & 7-Day Report</a>
+        <a class="nav-link" href="#sec-bot-settings">Bot & Game Settings</a>
+        <a class="nav-link" href="#sec-promo">Auto Bonus & Promos</a>
+        <a class="nav-link" href="#sec-requests">Deposits & Withdrawals</a>
+        <a class="nav-link" href="#sec-users">User Management</a>
+        <a class="nav-link" href="#sec-broadcast">Telegram Broadcast</a>
+      </nav>
     </div>
-    <div>
-      <label>የሮቦቶች ማሸነፊያ ፐርሰንት (%)</label>
-      <input id="botWinPercentInput" type="number" min="0" max="100" value="20" placeholder="ለምሳሌ: 20%">
+    <div class="sidebar-note">
+      በTelegram አካውንትዎ የተረጋገጠ የአድሚን ፓነል
     </div>
-    <div>
-      <label>አንድ ሮቦት የሚይዘው የካርቴል ብዛት (Cards Per Bot)</label>
-      <input id="botCardsPerUser" type="number" min="1" max="4" value="2" placeholder="ለምሳሌ: 2 (እስከ 4)">
-    </div>
-    <div>
-      <label>🚫 ዲፖዚት ያደረጉ ተጫዋቾች እንዳያሸንፉ መቆጣጠሪያ</label>
-      <select id="restrictDepositedWinInput">
-        <option value="yes">በርቷል (ON - ዲፖዚት ያደረጉ 1 ቁጥር እየጎደለባቸው አያሸንፉም)</option>
-        <option value="no">ጠፍቷል (OFF - ሁሉም በእኩል እድል ያሸንፋሉ)</option>
-      </select>
-    </div>
-  </div>
-  <div class="row" style="margin-top:12px;">
-    <button onclick="saveBotSettings()">💾 ሴቲንግ አስቀምጥ</button>
-  </div>
-</section>
+  </aside>
 
-<!-- 🎁 አውቶ ዲፖዚት ቦነስ እና ፕሮሞ ኮድ ሴቲንግ (Auto Bonus & Promo Codes) -->
-<section>
-  <h2>🎁 አውቶ ዲፖዚት ቦነስ እና ፕሮሞ ኮድ አስተዳደር</h2>
-  <div class="two">
-    <div style="background:#0a1728; padding:12px; border-radius:10px; border:1px solid #263a55;">
-      <h3>⚡ አውቶማቲክ ዲፖዚት ቦነስ (Auto Deposit Bonus)</h3>
-      <label>ሁኔታው</label>
-      <select id="autoBonusEnabled"><option value="yes">በርቷል (Active)</option><option value="no">ጠፍቷል (Disabled)</option></select>
-      <label>የቦነስ ዓይነት</label>
-      <select id="autoBonusType"><option value="percent">ፐርሰንት (%)</option><option value="fixed">ቋሚ ገንዘብ (Fixed ETB)</option></select>
-      <label>የቦነስ መጠን (Value)</label>
-      <input id="autoBonusValue" type="number" placeholder="ለምሳሌ: 10 (ለ %) ወይም 50 (ለ ETB)">
-      <label>ዝቅተኛ ዲፖዚት (Min Deposit Limit)</label>
-      <input id="autoBonusMinDeposit" type="number" placeholder="ከዚህ በላይ ዲፖዚት ሲያደርጉ (ለምሳሌ: 100)">
-      <button onclick="saveAutoBonus()" style="margin-top:10px;">💾 አውቶ ቦነስ ሴቲንግ አስቀምጥ</button>
-    </div>
+  <div class="workspace">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="topbar-title">Operations Console</h1>
+        <span class="topbar-meta mono" id="topSyncMeta">Syncing live room...</span>
+      </div>
+      <div class="topbar-actions">
+        <button class="secondary sm" id="liveToggleBtn" onclick="toggleLivePolling()">Auto-Sync: ON</button>
+        <button onclick="loadAll()">↻ አድስ</button>
+      </div>
+    </header>
 
-    <div style="background:#0a1728; padding:12px; border-radius:10px; border:1px solid #263a55;">
-      <h3>🎟 አዲስ ፕሮሞ / ኩፖን ኮድ መፍጠር</h3>
-      <label>የኮዱ ስም (Promo Code)</label>
-      <input id="promoCodeInput" type="text" placeholder="ለምሳሌ: BINGO2026">
-      <label>የቦነስ ዓይነት</label>
-      <select id="promoType"><option value="percent">ፐርሰንት (%)</option><option value="fixed">ቋሚ ገንዘብ (Fixed ETB)</option></select>
-      <label>የቦነስ መጠን (Value)</label>
-      <input id="promoValue" type="number" placeholder="ለምሳሌ: 20 ወይም 100">
-      <label>የዲፖዚት ሊሚት (Min Deposit Required - 0 ከሆኑ ለሁሉም ነፃ ነው)</label>
-      <input id="promoMinDeposit" type="number" value="0" placeholder="ዲፖዚት ላደረጉ ብቻ ከዚህ በላይ (0 = ለሁሉም)">
-      <label>የአጠቃቀም ገደብ (Max Uses)</label>
-      <input id="promoMaxUses" type="number" value="100" placeholder="ስንት ሰው ይጠቀመው">
-      <button onclick="createPromoCode()" style="margin-top:10px; background:#1b7b34;">➕ ፕሮሞ ኮድ ፍጠር</button>
-    </div>
+    <nav class="mobile-nav">
+      <a href="#sec-live-room">Live Room</a>
+      <a href="#sec-overview">Overview</a>
+      <a href="#sec-bot-settings">Bots</a>
+      <a href="#sec-promo">Promos</a>
+      <a href="#sec-requests">Requests</a>
+      <a href="#sec-users">Users</a>
+      <a href="#sec-broadcast">Broadcast</a>
+    </nav>
+
+    <main>
+      <div id="notice" class="notice"></div>
+
+      <!-- LIVE BINGO ROOM CONTROLLER -->
+      <section class="panel" id="sec-live-room">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Live Rooms</h2>
+            <div class="panel-sub mono" id="roomSubtitle">Updated: --:--:-- · Round: -- · PLAY — waiting</div>
+          </div>
+          <div class="panel-sub mono" id="roomStatusText">PLAY — waiting</div>
+        </div>
+
+        <div class="room-kpis">
+          <div class="kpi-cell">
+            <span class="kpi-label">Room State</span>
+            <span class="kpi-value accent" id="lr-status">PLAY — waiting</span>
+            <span class="kpi-foot mono" id="lr-round-id">Round: —</span>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label">Total Sold</span>
+            <span class="kpi-value mono" id="lr-total-sold">0 / 500</span>
+            <div class="bar"><i id="lr-sold-bar"></i></div>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label">Bots</span>
+            <span class="kpi-value mono" id="lr-bots">0</span>
+            <span class="kpi-foot mono" id="lr-bots-cartels">0 bot cards</span>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label">Real Players</span>
+            <span class="kpi-value mono" id="lr-real-players">0</span>
+            <span class="kpi-foot mono" id="lr-real-cartels">0 real cards</span>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label">Connected</span>
+            <span class="kpi-value mono" id="lr-connected">0</span>
+            <span class="kpi-foot">Active in last 20s</span>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label">Pool</span>
+            <span class="kpi-value mono accent" id="lr-pool">0.00 ETB</span>
+            <span class="kpi-foot">8 ETB / cartel</span>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label">Numbers Called</span>
+            <span class="kpi-value mono" id="lr-numbers-called">0 / 75</span>
+            <div class="bar"><i id="lr-balls-bar"></i></div>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label">Last Number Called</span>
+            <span class="kpi-value mono warn" id="lr-last-number">—</span>
+            <span class="kpi-foot mono" id="lr-last-letter">B-I-N-G-O</span>
+          </div>
+          <div class="kpi-cell">
+            <span class="kpi-label">Seconds Left</span>
+            <span class="kpi-value mono" id="lr-seconds-left">0</span>
+            <span class="kpi-foot" id="lr-seconds-note">Phase timer</span>
+          </div>
+        </div>
+
+        <div class="ctrl-bar">
+          <button id="btnPauseResume" class="amber" onclick="toggleRoomPause()">⏸ Pause Room</button>
+          <button id="btnForceStart" onclick="roomAction('force_start')">▶ Force Start Draw</button>
+          <button id="btnDrawNext" class="secondary" onclick="roomAction('draw_next')">🎱 Draw Next Ball</button>
+          <button id="btnInjectBots" class="secondary" onclick="roomAction('inject_bots')">🤖 Inject Bots Now</button>
+          <button class="danger" onclick="confirmResetRound()">↺ Reset / Cancel Round</button>
+        </div>
+
+        <div class="timing-grid">
+          <div>
+            <label>Selection Seconds</label>
+            <input id="timingSelection" type="number" min="5" max="300" value="30">
+          </div>
+          <div>
+            <label>Draw Interval (sec)</label>
+            <input id="timingDrawInterval" type="number" min="0.5" max="30" step="0.5" value="3">
+          </div>
+          <div>
+            <label>Result Seconds</label>
+            <input id="timingResult" type="number" min="3" max="60" value="10">
+          </div>
+          <div>
+            <label>Min Players</label>
+            <input id="timingMinPlayers" type="number" min="1" max="50" value="2">
+          </div>
+          <div>
+            <button class="secondary" style="width:100%" onclick="saveRoomTiming()">💾 Apply Timing</button>
+          </div>
+        </div>
+
+        <div class="bingo-board-wrap">
+          <div>
+            <div class="row" style="justify-content:space-between;margin-bottom:8px;">
+              <h3 class="sub-heading" style="margin:0;">Master Call Board (1–75)</h3>
+              <span class="panel-sub mono" id="drawnSequencePreview">Called: none</span>
+            </div>
+            <div class="bingo-grid" id="adminMasterBoard"></div>
+          </div>
+          <div>
+            <h3 class="sub-heading">Real Players in Current Round</h3>
+            <div class="table-wrap">
+              <table style="min-width:100%;">
+                <thead>
+                  <tr><th>User ID</th><th>Cards</th><th>Cartels</th></tr>
+                </thead>
+                <tbody id="livePlayersBody">
+                  <tr><td colspan="3" class="muted">No real players in this round yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- OVERVIEW & 7-DAY REPORT -->
+      <section class="panel" id="sec-overview">
+        <div class="panel-head">
+          <h2 class="panel-title">Platform Overview & 7-Day Report</h2>
+          <span class="panel-sub">Real-time wallet balances and weekly volume</span>
+        </div>
+        <div class="stats-grid" id="stats">
+          <div class="stat-box"><div class="muted">Loading overview...</div><div class="num mono">—</div></div>
+        </div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+          <h3 class="sub-heading">📊 የ7 ቀን ሪፖርት</h3>
+          <div id="weekly" class="muted">መረጃ በመጫን ላይ...</div>
+        </div>
+      </section>
+
+      <!-- BOT & WIN CONTROL SETTINGS -->
+      <section class="panel" id="sec-bot-settings">
+        <div class="panel-head">
+          <h2 class="panel-title">🤖 የሮቦት እና የማሸነፍ መቆጣጠሪያ ሴቲንግ (Game & Robot Settings)</h2>
+          <span class="panel-sub">Saved to Firestore & synced immediately to GameEngine</span>
+        </div>
+        <div class="two">
+          <div class="field">
+            <label>በአንድ ዙር የሚገቡ የሮቦቶች ብዛት (Max Bots)</label>
+            <input id="botCountInput" type="number" min="0" max="400" value="50" placeholder="ለምሳሌ: 50">
+          </div>
+          <div class="field">
+            <label>የሮቦቶች ማሸነፊያ ፐርሰንት (%)</label>
+            <input id="botWinPercentInput" type="number" min="0" max="100" value="20" placeholder="ለምሳሌ: 20%">
+          </div>
+          <div class="field">
+            <label>አንድ ሮቦት የሚይዘው የካርቴል ብዛት (Cards Per Bot)</label>
+            <input id="botCardsPerUser" type="number" min="1" max="4" value="2" placeholder="ለምሳሌ: 2 (እስከ 4)">
+          </div>
+          <div class="field">
+            <label>🚫 ዲፖዚት ያደረጉ ተጫዋቾች እንዳያሸንፉ መቆጣጠሪያ</label>
+            <select id="restrictDepositedWinInput">
+              <option value="yes">በርቷል (ON - ዲፖዚት ያደረጉ 1 ቁጥር እየጎደለባቸው አያሸንፉም)</option>
+              <option value="no">ጠፍቷል (OFF - ሁሉም በእኩል እድል ያሸንፋሉ)</option>
+            </select>
+          </div>
+        </div>
+        <div class="row" style="margin-top:4px;">
+          <button onclick="saveBotSettings()">💾 ሴቲንግ አስቀምጥ</button>
+        </div>
+      </section>
+
+      <!-- AUTO BONUS & PROMO CODES -->
+      <section class="panel" id="sec-promo">
+        <div class="panel-head">
+          <h2 class="panel-title">🎁 አውቶ ዲፖዚት ቦነስ እና ፕሮሞ ኮድ አስተዳደር</h2>
+          <span class="panel-sub">Configure deposit bonuses and redeemable coupon codes</span>
+        </div>
+        <div class="two">
+          <div class="split-block">
+            <h3 class="sub-heading">⚡ አውቶማቲክ ዲፖዚት ቦነስ (Auto Deposit Bonus)</h3>
+            <div class="field">
+              <label>ሁኔታው</label>
+              <select id="autoBonusEnabled"><option value="yes">በርቷል (Active)</option><option value="no">ጠፍቷል (Disabled)</option></select>
+            </div>
+            <div class="field">
+              <label>የቦነስ ዓይነት</label>
+              <select id="autoBonusType"><option value="percent">ፐርሰንት (%)</option><option value="fixed">ቋሚ ገንዘብ (Fixed ETB)</option></select>
+            </div>
+            <div class="field">
+              <label>የቦነስ መጠን (Value)</label>
+              <input id="autoBonusValue" type="number" placeholder="ለምሳሌ: 10 (ለ %) ወይም 50 (ለ ETB)">
+            </div>
+            <div class="field">
+              <label>ዝቅተኛ ዲፖዚት (Min Deposit Limit)</label>
+              <input id="autoBonusMinDeposit" type="number" placeholder="ከዚህ በላይ ዲፖዚት ሲያደርጉ (ለምሳሌ: 100)">
+            </div>
+            <button onclick="saveAutoBonus()">💾 አውቶ ቦነስ ሴቲንግ አስቀምጥ</button>
+          </div>
+
+          <div class="split-block divider-v">
+            <h3 class="sub-heading">🎟 አዲስ ፕሮሞ / ኩፖን ኮድ መፍጠር</h3>
+            <div class="field">
+              <label>የኮዱ ስም (Promo Code)</label>
+              <input id="promoCodeInput" type="text" placeholder="ለምሳሌ: BINGO2026">
+            </div>
+            <div class="field">
+              <label>የቦነስ ዓይነት</label>
+              <select id="promoType"><option value="percent">ፐርሰንት (%)</option><option value="fixed">ቋሚ ገንዘብ (Fixed ETB)</option></select>
+            </div>
+            <div class="field">
+              <label>የቦነስ መጠን (Value)</label>
+              <input id="promoValue" type="number" placeholder="ለምሳሌ: 20 ወይም 100">
+            </div>
+            <div class="field">
+              <label>የዲፖዚት ሊሚት (Min Deposit Required - 0 ከሆኑ ለሁሉም ነፃ ነው)</label>
+              <input id="promoMinDeposit" type="number" value="0" placeholder="ዲፖዚት ላደረጉ ብቻ ከዚህ በላይ (0 = ለሁሉም)">
+            </div>
+            <div class="field">
+              <label>የአጠቃቀም ገደብ (Max Uses)</label>
+              <input id="promoMaxUses" type="number" value="100" placeholder="ስንት ሰው ይጠቀመው">
+            </div>
+            <button onclick="createPromoCode()">➕ ፕሮሞ ኮድ ፍጠር</button>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+          <h3 class="sub-heading">📋 ነባር ፕሮሞ ኮዶች ዝርዝር</h3>
+          <div id="promoCodesList" class="muted">መረጃ በመጫን ላይ...</div>
+        </div>
+      </section>
+
+      <!-- DEPOSIT & WITHDRAWAL REQUESTS -->
+      <section class="panel" id="sec-requests">
+        <div class="panel-head">
+          <h2 class="panel-title">📥 Deposit / 📤 Withdrawal ጥያቄዎች</h2>
+          <button class="secondary sm" onclick="loadRequests()">↻ Refresh Requests</button>
+        </div>
+        <div id="requests" class="muted">በመጫን ላይ…</div>
+      </section>
+
+      <!-- USER MANAGEMENT -->
+      <section class="panel" id="sec-users">
+        <div class="panel-head">
+          <h2 class="panel-title">👥 የተጠቃሚ አስተዳደር</h2>
+          <span class="panel-sub">Search users and adjust Main or Bonus balances</span>
+        </div>
+        <div class="row" style="margin-bottom:14px;">
+          <input id="search" placeholder="Telegram ID፣ ስም፣ username ወይም ስልክ">
+          <button onclick="loadUsers()">ፈልግ</button>
+        </div>
+        <div id="users" class="muted">ተጠቃሚ ለማየት ፈልግ።</div>
+      </section>
+
+      <!-- BROADCAST -->
+      <section class="panel" id="sec-broadcast">
+        <div class="panel-head">
+          <h2 class="panel-title">📢 ብሮድካስት</h2>
+          <span class="panel-sub">Send text or photo announcements to Telegram bot users</span>
+        </div>
+        <div class="two">
+          <div>
+            <div class="field">
+              <label>ተቀባዮች</label>
+              <select id="broadcastAudience">
+                <option value="all">All — ሁሉም የተመዘገቡ (ከታገዱ በስተቀር)</option>
+                <option value="verified">Verified — ስልክ ያረጋገጡ</option>
+                <option value="unverified">Unverified — ስልክ ያላረጋገጡ</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>ፎቶ (JPG/PNG/WEBP፣ ከ7MB በታች)</label>
+              <input id="broadcastImage" type="file" accept="image/jpeg,image/png,image/webp">
+            </div>
+            <div class="row">
+              <div class="field"><label>Button ስም</label><input id="broadcastButtonText" placeholder="Inline Button ስም (ለምሳሌ: ይጫኑ)"></div>
+              <div class="field"><label>Button URL</label><input id="broadcastButtonUrl" placeholder="https://example.com"></div>
+            </div>
+          </div>
+          <div>
+            <div class="field">
+              <label>ጽሑፍ / Caption</label>
+              <textarea id="broadcastText" placeholder="መልዕክትዎን እዚህ ይጻፉ..."></textarea>
+            </div>
+            <button onclick="broadcast()">📢 አሁን ላክ</button>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
+</div>
 
-  <div style="margin-top:15px;">
-    <h3>📋 ነባር ፕሮሞ ኮዶች ዝርዝር</h3>
-    <div id="promoCodesList">መረጃ በመጫን ላይ...</div>
-  </div>
-</section>
-
-<div class="two"><section><h2>📊 የ7 ቀን ሪፖርት</h2><div id="weekly"></div></section><section><h2>📢 ብሮድካስት</h2><label>ተቀባዮች</label><select id="broadcastAudience"><option value="all">All — ሁሉም የተመዘገቡ (ከታገዱ በስተቀር)</option><option value="verified">Verified — ስልክ ያረጋገጡ</option><option value="unverified">Unverified — ስልክ ያላረጋገጡ</option></select><label>ፎቶ (JPG/PNG/WEBP፣ ከ7MB በታች)</label><input id="broadcastImage" type="file" accept="image/jpeg,image/png,image/webp"><label>ጽሑፍ / Caption</label><textarea id="broadcastText" placeholder="መልዕክትዎን እዚህ ይጻፉ..."></textarea><div class="row"><input id="broadcastButtonText" placeholder="Inline Button ስም (ለምሳሌ: ይጫኑ)"><input id="broadcastButtonUrl" placeholder="https://example.com"></div><button onclick="broadcast()">📢 አሁን ላክ</button></section></div>
-<section><h2>📥 Deposit / 📤 Withdrawal ጥያቄዎች</h2><div id="requests">በመጫን ላይ…</div></section>
-<section><h2>👥 የተጠቃሚ አስተዳደር</h2><div class="row"><input id="search" placeholder="Telegram ID፣ ስም፣ username ወይም ስልክ"><button onclick="loadUsers()">ፈልግ</button></div><div id="users">ተጠቃሚ ለማየት ፈልግ።</div></section>
 <script>
-const tg=window.Telegram?.WebApp;tg?.ready();tg?.expand();const headers={'Content-Type':'application/json','X-Telegram-Init-Data':tg?.initData||''};
-async function api(path,opts={}){const r=await fetch(path,{...opts,headers:{...headers,...opts.headers}});const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.message||`HTTP ${r.status}`);return d}
-function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}function fail(e){const n=document.getElementById('notice');n.textContent=e.message;n.style.display='block';n.className='notice'}function success(t){const n=document.getElementById('notice');n.textContent=t;n.style.display='block';n.className='notice ok'}
+const tg = window.Telegram?.WebApp;
+tg?.ready();
+tg?.expand();
+const headers = {
+  'Content-Type': 'application/json',
+  'X-Telegram-Init-Data': tg?.initData || ''
+};
 
+async function api(path, opts = {}) {
+  const r = await fetch(path, { ...opts, headers: { ...headers, ...opts.headers } });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.message || `HTTP ${r.status}`);
+  return d;
+}
+
+function esc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
+function fail(e) {
+  const n = document.getElementById('notice');
+  n.textContent = e?.message || String(e);
+  n.style.display = 'block';
+  n.className = 'notice';
+}
+
+function success(t) {
+  const n = document.getElementById('notice');
+  n.textContent = t;
+  n.style.display = 'block';
+  n.className = 'notice ok';
+}
+
+/* ==================== LIVE ROOM CONTROLLER ==================== */
+let livePollingEnabled = true;
+let roomPollInFlight = false;
+let currentRoomState = null;
+let timingFieldsDirty = false;
+
+['timingSelection', 'timingDrawInterval', 'timingResult', 'timingMinPlayers'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', () => { timingFieldsDirty = true; });
+});
+
+function initAdminMasterBoard() {
+  const board = document.getElementById('adminMasterBoard');
+  if (!board) return;
+  let html = '';
+  for (let i = 1; i <= 75; i++) {
+    html += `<div class="ball-cell mono" id="adm-ball-${i}">${i}</div>`;
+  }
+  board.innerHTML = html;
+}
+
+function bingoPrefix(num) {
+  const n = Number(num);
+  if (!Number.isFinite(n) || n < 1) return 'B-I-N-G-O';
+  if (n <= 15) return `B-${n}`;
+  if (n <= 30) return `I-${n}`;
+  if (n <= 45) return `N-${n}`;
+  if (n <= 60) return `G-${n}`;
+  return `O-${n}`;
+}
+
+function toggleLivePolling() {
+  livePollingEnabled = !livePollingEnabled;
+  const btn = document.getElementById('liveToggleBtn');
+  if (btn) btn.textContent = livePollingEnabled ? 'Auto-Sync: ON' : 'Auto-Sync: OFF';
+}
+
+function renderLiveRoom(room) {
+  if (!room) return;
+  currentRoomState = room;
+
+  const updatedStr = new Date(room.updated_at || Date.now()).toLocaleTimeString();
+  const statusEl = document.getElementById('lr-status');
+  const subtitleEl = document.getElementById('roomSubtitle');
+  const topSyncEl = document.getElementById('topSyncMeta');
+
+  if (subtitleEl) {
+    subtitleEl.textContent = `Updated: ${updatedStr} · Round ${room.round_id} · ${room.status_text}`;
+  }
+  if (topSyncEl) {
+    topSyncEl.textContent = `Updated ${updatedStr} · ${room.status_text}`;
+  }
+
+  document.getElementById('roomStatusText').textContent = room.status_text || '—';
+  statusEl.textContent = room.status_text || '—';
+  statusEl.className = 'kpi-value ' + (room.paused ? 'warn' : (room.phase === 'drawing' ? 'accent' : ''));
+  document.getElementById('lr-round-id').textContent = `Round: ${room.round_id || '—'}`;
+
+  const totalSold = Number(room.total_sold || 0);
+  const maxCartels = Number(room.max_cartels || 500);
+  document.getElementById('lr-total-sold').textContent = `${totalSold} / ${maxCartels}`;
+  document.getElementById('lr-sold-bar').style.width = `${Math.min(100, (totalSold / Math.max(1, maxCartels)) * 100)}%`;
+
+  document.getElementById('lr-bots').textContent = Number(room.bot_cartels ?? room.bots_count ?? 0);
+  document.getElementById('lr-bots-cartels').textContent = `${Number(room.bots_count || 0)} bots · ${Number(room.bot_cartels || 0)} cards`;
+
+  document.getElementById('lr-real-players').textContent = Number(room.real_players_count || 0);
+  document.getElementById('lr-real-cartels').textContent = `${Number(room.real_cartels || 0)} real cards`;
+
+  document.getElementById('lr-connected').textContent = Number(room.connected_count || 0);
+  document.getElementById('lr-pool').textContent = `${Number(room.pool || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ETB`;
+
+  const called = Number(room.numbers_called || 0);
+  const totalBalls = Number(room.total_balls || 75);
+  document.getElementById('lr-numbers-called').textContent = `${called} / ${totalBalls}`;
+  document.getElementById('lr-balls-bar').style.width = `${Math.min(100, (called / Math.max(1, totalBalls)) * 100)}%`;
+
+  const lastNum = room.last_number;
+  document.getElementById('lr-last-number').textContent = lastNum != null ? String(lastNum) : '—';
+  document.getElementById('lr-last-letter').textContent = lastNum != null ? bingoPrefix(lastNum) : 'B-I-N-G-O';
+
+  document.getElementById('lr-seconds-left').textContent = String(Number(room.seconds_left || 0));
+  document.getElementById('lr-seconds-note').textContent = room.paused ? 'Timer paused' : (room.phase === 'drawing' ? 'Next ball timer' : 'Phase timer');
+
+  // Update action button states
+  const pauseBtn = document.getElementById('btnPauseResume');
+  if (pauseBtn) {
+    pauseBtn.textContent = room.paused ? '▶ Resume Room' : '⏸ Pause Room';
+    pauseBtn.className = room.paused ? '' : 'amber';
+  }
+  const forceBtn = document.getElementById('btnForceStart');
+  if (forceBtn) forceBtn.disabled = room.phase !== 'selection' || totalSold === 0;
+  const drawBtn = document.getElementById('btnDrawNext');
+  if (drawBtn) drawBtn.disabled = room.phase !== 'drawing';
+  const injectBtn = document.getElementById('btnInjectBots');
+  if (injectBtn) injectBtn.disabled = room.phase !== 'selection';
+
+  // Update timing inputs if admin isn't editing them
+  if (!timingFieldsDirty && room.timing) {
+    document.getElementById('timingSelection').value = room.timing.selection_seconds ?? 30;
+    document.getElementById('timingDrawInterval').value = room.timing.draw_interval ?? 3;
+    document.getElementById('timingResult').value = room.timing.result_seconds ?? 10;
+    document.getElementById('timingMinPlayers').value = room.timing.min_players ?? 2;
+  }
+
+  // Paint 1-75 board
+  const drawnArr = Array.isArray(room.drawn) ? room.drawn : [];
+  const drawnSet = new Set(drawnArr);
+  for (let i = 1; i <= 75; i++) {
+    const el = document.getElementById(`adm-ball-${i}`);
+    if (!el) continue;
+    if (i === lastNum) el.className = 'ball-cell mono last';
+    else if (drawnSet.has(i)) el.className = 'ball-cell mono called';
+    else el.className = 'ball-cell mono';
+  }
+  const seqPreview = document.getElementById('drawnSequencePreview');
+  if (seqPreview) {
+    seqPreview.textContent = drawnArr.length ? `Last 8: ${drawnArr.slice(-8).join(', ')}` : 'Called: none';
+  }
+
+  // Real players table
+  const tbody = document.getElementById('livePlayersBody');
+  const realList = Array.isArray(room.real_players) ? room.real_players : [];
+  if (tbody) {
+    if (!realList.length) {
+      tbody.innerHTML = '<tr><td colspan="3" class="muted">No real players in this round yet.</td></tr>';
+    } else {
+      tbody.innerHTML = realList.map(p => `
+        <tr>
+          <td class="mono">${esc(p.uid)}</td>
+          <td class="mono">${p.cartels.length}</td>
+          <td class="mono">${p.cartels.map(c => '#' + c).join(', ')}</td>
+        </tr>
+      `).join('');
+    }
+  }
+}
+
+async function loadLiveRoom() {
+  if (roomPollInFlight) return;
+  roomPollInFlight = true;
+  try {
+    const d = await api('/api/admin/room');
+    if (d.room) renderLiveRoom(d.room);
+  } catch (e) {
+    const sub = document.getElementById('roomSubtitle');
+    if (sub && !currentRoomState) sub.textContent = `Live room offline (${e.message})`;
+  } finally {
+    roomPollInFlight = false;
+  }
+}
+
+async function roomAction(action, extra = {}) {
+  try {
+    const d = await api('/api/admin/room/control', {
+      method: 'POST',
+      body: JSON.stringify({ action, ...extra })
+    });
+    if (d.room) renderLiveRoom(d.room);
+    success(d.message || 'Room updated.');
+  } catch (e) {
+    fail(e);
+  }
+}
+
+function toggleRoomPause() {
+  const action = currentRoomState?.paused ? 'resume' : 'pause';
+  roomAction(action);
+}
+
+function confirmResetRound() {
+  if (!confirm('አሁን ያለውን ዙር ሰርዘው (ለተጫዋቾች ገንዘብ ተመልሶ) አዲስ ዙር መጀመር ይፈልጋሉ?')) return;
+  roomAction('reset_round');
+}
+
+async function saveRoomTiming() {
+  const selection_seconds = Number(document.getElementById('timingSelection').value);
+  const draw_interval = Number(document.getElementById('timingDrawInterval').value);
+  const result_seconds = Number(document.getElementById('timingResult').value);
+  const min_players = Number(document.getElementById('timingMinPlayers').value);
+  timingFieldsDirty = false;
+  await roomAction('update_timing', { selection_seconds, draw_interval, result_seconds, min_players });
+}
+
+/* ==================== EXISTING ADMIN FUNCTIONS (SAFE & PRESERVED) ==================== */
 async function loadBotSettings() {
   try {
     const d = await api('/api/admin/bot-settings');
-    if(d.settings) {
+    if (d.settings) {
       document.getElementById('botCountInput').value = d.settings.botCount ?? 50;
       document.getElementById('botWinPercentInput').value = d.settings.botWinPercent ?? 20;
       document.getElementById('botCardsPerUser').value = d.settings.botCardsPerUser ?? 2;
       document.getElementById('restrictDepositedWinInput').value = (d.settings.restrictDepositedWin !== false) ? 'yes' : 'no';
     }
-  } catch(e) { console.error('Failed to load bot settings', e); }
+  } catch (e) { console.error('Failed to load bot settings', e); }
 }
 
 async function saveBotSettings() {
@@ -101,20 +1135,20 @@ async function saveBotSettings() {
       body: JSON.stringify({ botCount, botWinPercent, botCardsPerUser, restrictDepositedWin })
     });
     success('ሴቲንጉ በተሳካ ሁኔታ ተስተካክሏል!');
-  } catch(e) { fail(e); }
+  } catch (e) { fail(e); }
 }
 
 async function loadPromoAndBonusSettings() {
   try {
     const d = await api('/api/admin/promos');
-    if(d.autoBonus) {
+    if (d.autoBonus) {
       document.getElementById('autoBonusEnabled').value = d.autoBonus.enabled ? 'yes' : 'no';
       document.getElementById('autoBonusType').value = d.autoBonus.type || 'percent';
       document.getElementById('autoBonusValue').value = d.autoBonus.value || '';
       document.getElementById('autoBonusMinDeposit').value = d.autoBonus.minDeposit || '';
     }
     renderPromoList(d.promos || []);
-  } catch(e) { console.error('Failed to load promos', e); }
+  } catch (e) { console.error('Failed to load promos', e); }
 }
 
 async function saveAutoBonus() {
@@ -128,7 +1162,7 @@ async function saveAutoBonus() {
       body: JSON.stringify({ enabled, type, value, minDeposit })
     });
     success('አውቶ ዲፖዚት ቦነስ ሴቲንግ ተቀምጧል!');
-  } catch(e) { fail(e); }
+  } catch (e) { fail(e); }
 }
 
 async function createPromoCode() {
@@ -137,7 +1171,7 @@ async function createPromoCode() {
   const value = Number(document.getElementById('promoValue').value);
   const minDeposit = Number(document.getElementById('promoMinDeposit').value);
   const maxUses = Number(document.getElementById('promoMaxUses').value);
-  if(!code) return alert('እባክዎ የኮድ ስም ያስገቡ');
+  if (!code) return alert('እባክዎ የኮድ ስም ያስገቡ');
   try {
     await api('/api/admin/promos/create', {
       method: 'POST',
@@ -147,31 +1181,178 @@ async function createPromoCode() {
     document.getElementById('promoCodeInput').value = '';
     document.getElementById('promoValue').value = '';
     loadPromoAndBonusSettings();
-  } catch(e) { fail(e); }
+  } catch (e) { fail(e); }
 }
 
 async function deletePromo(code) {
-  if(!confirm(`ፕሮሞ ኮድ ${code} መሰረዝ ይፈልጋሉ?`)) return;
+  if (!confirm(`ፕሮሞ ኮድ ${code} መሰረዝ ይፈልጋሉ?`)) return;
   try {
     await api('/api/admin/promos/delete', { method: 'POST', body: JSON.stringify({ code }) });
     success('ፕሮሞ ኮድ ተሰርዟል።');
     loadPromoAndBonusSettings();
-  } catch(e) { fail(e); }
+  } catch (e) { fail(e); }
 }
 
 function renderPromoList(promos) {
   const box = document.getElementById('promoCodesList');
-  if(!promos.length) { box.innerHTML = '<div class="muted">ምንም ፕሮሞ ኮድ የለም።</div>'; return; }
-  box.innerHTML = `<table><thead><tr><th>ኮድ</th><th>ዓይነት</th><th>መጠን</th><th>ሚን. ዲፖዚት ሊሚት</th><th>사용 / Max</th><th>እርምጃ</th></tr></thead><tbody>` +
-    promos.map(p=>`<tr><td><b>${esc(p.code)}</b></td><td>${esc(p.type)}</td><td>${esc(p.value)}</td><td>${esc(p.minDeposit||0)} ETB</td><td>${esc(p.usedCount||0)} / ${esc(p.maxUses)}</td><td><button class="danger" onclick="deletePromo('${esc(p.code)}')">ሰርዝ</button></td></tr>`).join('') +
-    `</tbody></table>`;
+  if (!promos.length) { box.innerHTML = '<div class="muted">ምንም ፕሮሞ ኮድ የለም።</div>'; return; }
+  box.innerHTML = `<div class="table-wrap"><table><thead><tr><th>ኮድ</th><th>ዓይነት</th><th>መጠን</th><th>ሚን. ዲፖዚት ሊሚት</th><th>Used / Max</th><th>እርምጃ</th></tr></thead><tbody>` +
+    promos.map(p => `<tr><td class="mono"><b>${esc(p.code)}</b></td><td>${esc(p.type)}</td><td class="mono">${esc(p.value)}</td><td class="mono">${esc(p.minDeposit || 0)} ETB</td><td class="mono">${esc(p.usedCount || 0)} / ${esc(p.maxUses)}</td><td><button class="danger sm" onclick="deletePromo('${esc(p.code)}')">ሰርዝ</button></td></tr>`).join('') +
+    `</tbody></table></div>`;
 }
 
-async function loadOverview(){const d=await api('/api/admin/overview');const s=d.stats;document.getElementById('stats').innerHTML=[['ተጠቃሚዎች',s.users],['Main Balance',Number(s.mainBalance).toFixed(2)+' ETB'],['Bonus Balance',Number(s.bonusBalance).toFixed(2)+' ETB'],['Pending Deposit',s.pendingDeposits],['Pending Withdrawal',s.pendingWithdrawals],['የጨዋታ ዙሮች',s.rounds]].map(x=>`<div class="card"><div class="muted">${x[0]}</div><div class="num">${x[1]}</div></div>`).join('');const vals=[['Deposit',s.weeklyDeposits],['Withdrawal requests',s.weeklyWithdrawals],['Winnings recorded',s.weeklyWinnings]];const max=Math.max(1,...vals.map(x=>Number(x[1])));document.getElementById('weekly').innerHTML=vals.map(x=>`<p>${x[0]} — <b>${Number(x[1]).toFixed(2)} ETB</b></p><div class="bar"><i style="width:${Math.max(0,Number(x[1])/max*100)}%"></i></div>`).join('')+'<p class="muted">የሪፖርቱ ጊዜ: ያለፉት 7 ቀናት።</p>'}
-async function loadRequests(){const d=await api('/api/admin/requests');const rows=d.requests.map(r=>`<tr><td>${esc(r.type)}</td><td>${esc(r.user_id)}</td><td>${Number(r.amount||0).toFixed(2)} ETB</td><td class="status">${esc(r.status)}</td><td>${r.created_at?new Date(Number(r.created_at)).toLocaleString():''}</td><td class="small">${esc(r.reference||r.receipt_text||'')}${r.receipt_image?'<br><a target="_blank" href="'+r.receipt_image+'">📷 View receipt</a>':''}${r.photo_file_id?'📷 የደረሰኝ ፎቶ በTelegram ተልኳል':''}${r.payout_name?'\nተቀባይ: '+esc(r.payout_name):''}${r.payout_account?'\nTelebirr: '+esc(r.payout_account):''}</td><td>${r.status==='pending'?`<button onclick="review('${esc(r.id)}','${r.type}',true)">Approve</button><button class="danger" onclick="review('${esc(r.id)}','${r.type}',false)">Reject</button>`:'—'}</td></tr>`).join('');document.getElementById('requests').innerHTML=`<table><thead><tr><th>Type</th><th>User ID</th><th>Amount</th><th>Status</th><th>Created</th><th>Receipt / SMS</th><th>Action</th></tr></thead><tbody>${rows||'<tr><td colspan="7">ምንም ጥያቄ የለም።</td></tr>'}</tbody></table>`}
-async function review(id,type,approve){if(!confirm(`${approve?'Approve':'Reject'} ${type} ${id}?`))return;try{await api('/api/admin/review',{method:'POST',body:JSON.stringify({id,type,approve})});success('የጥያቄው ሁኔታ ተቀይሯል።');await loadAll()}catch(e){fail(e)}}
-async function loadUsers(){try{const q=document.getElementById('search').value;const d=await api('/api/admin/users?q='+encodeURIComponent(q));document.getElementById('users').innerHTML=`<table><thead><tr><th>User</th><th>Name</th><th>Phone</th><th>Main</th><th>Bonus</th><th>Status</th><th>Actions</th></tr></thead><tbody>${d.users.map(u=>`<tr><td>${esc(u.id)}</td><td>${esc(u.first_name||u.username||'')}</td><td>${esc(u.phone_number||'')}</td><td>${Number(u.balance||0).toFixed(2)} ETB</td><td>${Number(u.bonus||0).toFixed(2)} ETB</td><td>${u.has_deposited?'💳 Deposited':'🆕 Bonus Only'}</td><td><button onclick="userAction('${esc(u.id)}','block')">Block</button><button class="secondary" onclick="userAction('${esc(u.id)}','unblock')">Unblock</button><button onclick="adjust('${esc(u.id)}','credit','main')">+ Main</button><button class="danger" onclick="adjust('${esc(u.id)}','debit','main')">− Main</button><button onclick="adjust('${esc(u.id)}','credit','bonus')">+ Bonus</button><button class="danger" onclick="adjust('${esc(u.id)}','debit','bonus')">− Bonus</button></td></tr>`).join('')||'<tr><td colspan="7">ተጠቃሚ አልተገኘም።</td></tr>'}</tbody></table>`}catch(e){fail(e)}}
-async function userAction(userId,action){try{await api('/api/admin/user-action',{method:'POST',body:JSON.stringify({userId,action})});success('ተግባሩ ተሳክቷል።');await loadUsers()}catch(e){fail(e)}}async function adjust(userId,action,walletType){const amount=Number(prompt(`${walletType==='main'?'Main':'Bonus'} Balance መጠን (ETB)`));if(!Number.isFinite(amount)||amount<=0)return;if(!confirm(`${amount} ETB ${walletType} ${action==='credit'?'ጨምር':'ቀንስ'}?`))return;try{await api('/api/admin/user-action',{method:'POST',body:JSON.stringify({userId,action,amount,walletType})});success('Balance ተስተካክሏል።');await loadUsers();await loadOverview()}catch(e){fail(e)}}
-async function broadcast(){const message=document.getElementById('broadcastText').value.trim(),audience=document.getElementById('broadcastAudience').value,buttonText=document.getElementById('broadcastButtonText').value.trim(),buttonUrl=document.getElementById('broadcastButtonUrl').value.trim(),file=document.getElementById('broadcastImage').files[0];if(!message&&!file)return alert('ጽሑፍ ወይም ፎቶ ያስገቡ።');if(file&&file.size>7*1024*1024)return alert('ፎቶው ከ7MB በታች መሆን አለበት።');if(buttonText&&!buttonUrl)return alert('የButton URL ያስገቡ።');if(!confirm(`ይህን Broadcast ለተመረጡት ተጠቃሚዎች መላክ ይፈልጋሉ?`))return;try{let imageBase64='';if(file)imageBase64=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file)});const d=await api('/api/admin/broadcast',{method:'POST',body:JSON.stringify({message,audience,buttonText,buttonUrl,imageBase64})});success(`ብሮድካስት ተጠናቋል። ተልኳል: ${d.sent}፣ አልተሳካም: ${d.failed}፣ ጠቅላላ: ${d.total}`)}catch(e){fail(e)}}
-async function loadAll(){document.getElementById('notice').style.display='none';try{await Promise.all([loadOverview(),loadRequests(),loadBotSettings(),loadPromoAndBonusSettings()])}catch(e){fail(e)}}loadAll();setInterval(()=>{loadOverview().catch(fail);loadRequests().catch(fail)},15000);
-</script></main></body></html>
+async function loadOverview() {
+  const d = await api('/api/admin/overview');
+  const s = d.stats;
+  document.getElementById('stats').innerHTML = [
+    ['ተጠቃሚዎች', s.users],
+    ['Main Balance', Number(s.mainBalance).toFixed(2) + ' ETB'],
+    ['Bonus Balance', Number(s.bonusBalance).toFixed(2) + ' ETB'],
+    ['Pending Deposit', s.pendingDeposits],
+    ['Pending Withdrawal', s.pendingWithdrawals],
+    ['የጨዋታ ዙሮች', s.rounds]
+  ].map(x => `<div class="stat-box"><div class="muted" style="font-size:12px;">${x[0]}</div><div class="num mono">${x[1]}</div></div>`).join('');
+
+  const vals = [
+    ['Deposit', s.weeklyDeposits],
+    ['Withdrawal requests', s.weeklyWithdrawals],
+    ['Winnings recorded', s.weeklyWinnings]
+  ];
+  const max = Math.max(1, ...vals.map(x => Number(x[1])));
+  document.getElementById('weekly').innerHTML = vals.map(x => `
+    <div class="weekly-item">
+      <div class="weekly-head"><span>${x[0]}</span><b class="mono">${Number(x[1]).toFixed(2)} ETB</b></div>
+      <div class="bar"><i style="width:${Math.max(0, Number(x[1]) / max * 100)}%"></i></div>
+    </div>
+  `).join('') + '<p class="muted" style="font-size:12px;margin:10px 0 0;">የሪፖርቱ ጊዜ: ያለፉት 7 ቀናት።</p>';
+}
+
+async function loadRequests() {
+  const d = await api('/api/admin/requests');
+  const rows = d.requests.map(r => `<tr>
+    <td>${esc(r.type)}</td>
+    <td class="mono">${esc(r.user_id)}</td>
+    <td class="mono">${Number(r.amount || 0).toFixed(2)} ETB</td>
+    <td class="status">${esc(r.status)}</td>
+    <td class="mono">${r.created_at ? new Date(Number(r.created_at)).toLocaleString() : ''}</td>
+    <td class="small">${esc(r.reference || r.receipt_text || '')}${r.receipt_image ? '<br><a target="_blank" href="' + r.receipt_image + '">📷 View receipt</a>' : ''}${r.photo_file_id ? '📷 የደረሰኝ ፎቶ በTelegram ተልኳል' : ''}${r.payout_name ? '\nተቀባይ: ' + esc(r.payout_name) : ''}${r.payout_account ? '\nTelebirr: ' + esc(r.payout_account) : ''}</td>
+    <td>${r.status === 'pending' ? `<div class="row" style="gap:6px;"><button class="sm" onclick="review('${esc(r.id)}','${r.type}',true)">Approve</button><button class="danger sm" onclick="review('${esc(r.id)}','${r.type}',false)">Reject</button></div>` : '—'}</td>
+  </tr>`).join('');
+  document.getElementById('requests').innerHTML = `<div class="table-wrap"><table><thead><tr><th>Type</th><th>User ID</th><th>Amount</th><th>Status</th><th>Created</th><th>Receipt / SMS</th><th>Action</th></tr></thead><tbody>${rows || '<tr><td colspan="7">ምንም ጥያቄ የለም።</td></tr>'}</tbody></table></div>`;
+}
+
+async function review(id, type, approve) {
+  if (!confirm(`${approve ? 'Approve' : 'Reject'} ${type} ${id}?`)) return;
+  try {
+    await api('/api/admin/review', { method: 'POST', body: JSON.stringify({ id, type, approve }) });
+    success('የጥያቄው ሁኔታ ተቀይሯል።');
+    await loadAll();
+  } catch (e) { fail(e); }
+}
+
+async function loadUsers() {
+  try {
+    const q = document.getElementById('search').value;
+    const d = await api('/api/admin/users?q=' + encodeURIComponent(q));
+    document.getElementById('users').innerHTML = `<div class="table-wrap"><table><thead><tr><th>User</th><th>Name</th><th>Phone</th><th>Main</th><th>Bonus</th><th>Status</th><th>Actions</th></tr></thead><tbody>${d.users.map(u => `<tr>
+      <td class="mono">${esc(u.id)}</td>
+      <td>${esc(u.first_name || u.username || '')}</td>
+      <td class="mono">${esc(u.phone_number || '')}</td>
+      <td class="mono">${Number(u.balance || 0).toFixed(2)} ETB</td>
+      <td class="mono">${Number(u.bonus || 0).toFixed(2)} ETB</td>
+      <td>${u.has_deposited ? '💳 Deposited' : '🆕 Bonus Only'}</td>
+      <td>
+        <div class="row" style="gap:4px;">
+          <button class="sm" onclick="userAction('${esc(u.id)}','block')">Block</button>
+          <button class="secondary sm" onclick="userAction('${esc(u.id)}','unblock')">Unblock</button>
+          <button class="sm" onclick="adjust('${esc(u.id)}','credit','main')">+ Main</button>
+          <button class="danger sm" onclick="adjust('${esc(u.id)}','debit','main')">− Main</button>
+          <button class="sm" onclick="adjust('${esc(u.id)}','credit','bonus')">+ Bonus</button>
+          <button class="danger sm" onclick="adjust('${esc(u.id)}','debit','bonus')">− Bonus</button>
+        </div>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="7">ተጠቃሚ አልተገኘም።</td></tr>'}</tbody></table></div>`;
+  } catch (e) { fail(e); }
+}
+
+async function userAction(userId, action) {
+  try {
+    await api('/api/admin/user-action', { method: 'POST', body: JSON.stringify({ userId, action }) });
+    success('ተግባሩ ተሳክቷል።');
+    await loadUsers();
+  } catch (e) { fail(e); }
+}
+
+async function adjust(userId, action, walletType) {
+  const amount = Number(prompt(`${walletType === 'main' ? 'Main' : 'Bonus'} Balance መጠን (ETB)`));
+  if (!Number.isFinite(amount) || amount <= 0) return;
+  if (!confirm(`${amount} ETB ${walletType} ${action === 'credit' ? 'ጨምር' : 'ቀንስ'}?`)) return;
+  try {
+    await api('/api/admin/user-action', { method: 'POST', body: JSON.stringify({ userId, action, amount, walletType }) });
+    success('Balance ተስተካክሏል።');
+    await loadUsers();
+    await loadOverview();
+  } catch (e) { fail(e); }
+}
+
+async function broadcast() {
+  const message = document.getElementById('broadcastText').value.trim(),
+    audience = document.getElementById('broadcastAudience').value,
+    buttonText = document.getElementById('broadcastButtonText').value.trim(),
+    buttonUrl = document.getElementById('broadcastButtonUrl').value.trim(),
+    file = document.getElementById('broadcastImage').files[0];
+  if (!message && !file) return alert('ጽሑፍ ወይም ፎቶ ያስገቡ።');
+  if (file && file.size > 7 * 1024 * 1024) return alert('ፎቶው ከ7MB በታች መሆን አለበት።');
+  if (buttonText && !buttonUrl) return alert('የButton URL ያስገቡ።');
+  if (!confirm(`ይህን Broadcast ለተመረጡት ተጠቃሚዎች መላክ ይፈልጋሉ?`)) return;
+  try {
+    let imageBase64 = '';
+    if (file) imageBase64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    const d = await api('/api/admin/broadcast', {
+      method: 'POST',
+      body: JSON.stringify({ message, audience, buttonText, buttonUrl, imageBase64 })
+    });
+    success(`ብሮድካስት ተጠናቋል። ተልኳል: ${d.sent}፣ አልተሳካም: ${d.failed}፣ ጠቅላላ: ${d.total}`);
+  } catch (e) { fail(e); }
+}
+
+async function loadAll() {
+  document.getElementById('notice').style.display = 'none';
+  try {
+    await Promise.all([
+      loadLiveRoom(),
+      loadOverview(),
+      loadRequests(),
+      loadBotSettings(),
+      loadPromoAndBonusSettings()
+    ]);
+  } catch (e) { fail(e); }
+}
+
+// Sidebar active link highlighting on click
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', () => {
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+  });
+});
+
+initAdminMasterBoard();
+loadAll();
+setInterval(() => {
+  if (livePollingEnabled) loadLiveRoom();
+}, 1000);
+setInterval(() => {
+  if (livePollingEnabled) {
+    loadOverview().catch(() => {});
+    loadRequests().catch(() => {});
+  }
+}, 15000);
+</script>
+</body>
+</html>

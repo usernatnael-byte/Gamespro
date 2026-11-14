@@ -91,6 +91,27 @@ async function isChannelMember(userId) {
     }
 }
 
+const connectedClients = new Map();
+const CONNECTED_TTL_MS = 20 * 1000;
+
+function trackConnectedClient(userId) {
+    if (!userId) return;
+    connectedClients.set(String(userId), Date.now());
+}
+
+function getConnectedCount() {
+    const cutoff = Date.now() - CONNECTED_TTL_MS;
+    let count = 0;
+    for (const [uid, ts] of connectedClients.entries()) {
+        if (ts >= cutoff) {
+            count++;
+        } else {
+            connectedClients.delete(uid);
+        }
+    }
+    return count;
+}
+
 async function requireTelegramUser(req, res, next) {
     const user = verifyTelegramInitData(req.get('X-Telegram-Init-Data'));
 
@@ -143,6 +164,10 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.get(['/admin', '/admin.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
+
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
@@ -155,6 +180,67 @@ const TELEBIRR_NAME = process.env.TELEBIRR_ACCOUNT_NAME || 'Esraeal';
 const TELEBIRR_NUMBER = process.env.TELEBIRR_ACCOUNT_NUMBER || '0949196145';
 const DEPOSIT_INSTRUCTIONS = process.env.DEPOSIT_INSTRUCTIONS || `Telebirr ስም: ${TELEBIRR_NAME}\nቁጥር: ${TELEBIRR_NUMBER}`;
 const ADMIN_IDS = new Set([...(process.env.ADMIN_ID || '7396414604').split(','), ...(process.env.ADMIN_IDS || '').split(',')].map(v => v.trim()).filter(Boolean));
+
+function requireAdmin(req, res, next) {
+    if (!ADMIN_IDS.has(String(req.telegramUserId))) {
+        return res.status(403).json({ status: 'error', message: 'Admin access required.' });
+    }
+    next();
+}
+
+app.get('/api/admin/room', requireAdmin, (req, res) => {
+    try {
+        res.json({
+            status: 'success',
+            room: engine.get_admin_state(getConnectedCount())
+        });
+    } catch (e) {
+        res.status(500).json({ status: 'error', message: 'Could not load live room state.' });
+    }
+});
+
+app.post('/api/admin/room/control', requireAdmin, async (req, res) => {
+    const { action, selection_seconds, draw_interval, result_seconds, min_players } = req.body || {};
+    try {
+        let ok = false;
+        let message = 'Unknown action';
+
+        if (action === 'pause') {
+            [ok, message] = engine.pause();
+        } else if (action === 'resume') {
+            [ok, message] = engine.resume();
+        } else if (action === 'force_start') {
+            [ok, message] = await engine.force_start();
+        } else if (action === 'draw_next') {
+            [ok, message] = engine.draw_next();
+        } else if (action === 'inject_bots') {
+            [ok, message] = engine.inject_bots_now();
+        } else if (action === 'reset_round') {
+            [ok, message] = await engine.reset_round();
+        } else if (action === 'update_timing') {
+            [ok, message] = engine.update_timing({ selection_seconds, draw_interval, result_seconds, min_players });
+        } else {
+            return res.status(400).json({ status: 'error', message: 'Unsupported room control action.' });
+        }
+
+        if (!ok) {
+            return res.status(400).json({
+                status: 'error',
+                message,
+                room: engine.get_admin_state(getConnectedCount())
+            });
+        }
+
+        res.json({
+            status: 'success',
+            message,
+            room: engine.get_admin_state(getConnectedCount())
+        });
+    } catch (e) {
+        console.error('Admin room control error:', e);
+        res.status(500).json({ status: 'error', message: 'Room control failed.' });
+    }
+});
 
 app.get('/api/wallet/history', async (req,res) => {
     try {
@@ -231,7 +317,7 @@ app.post('/api/wallet/withdraw', async (req,res) => {
 
             const balance=Number(u.balance||0);
             if(balance<amount) throw new Error('INSUFFICIENT_BALANCE');
-            
+
             const txs=Array.isArray(u.transactions)?u.transactions:[];
             tx.update(userRef,{balance:balance-amount,transactions:[...txs,{type:'withdrawal_pending',amount,request_id:ref.id,timestamp:new Date().toISOString()}]});
             tx.set(ref,{user_id:req.telegramUserId,amount,payout_name:name,payout_account:account,status:'pending',created_at:Date.now()});
@@ -295,6 +381,7 @@ app.post('/api/promo/redeem', async (req, res) => {
 });
 
 app.get('/api/round', (req, res) => {
+    trackConnectedClient(req.telegramUserId);
     res.json({
         status: 'success',
         state: engine.get_state(req.telegramUserId)
@@ -302,6 +389,7 @@ app.get('/api/round', (req, res) => {
 });
 
 app.post('/api/round/pick', async (req, res) => {
+    trackConnectedClient(req.telegramUserId);
     const { cartel } = req.body || {};
     const [ok, code] = await engine.pick(req.telegramUserId, Number(cartel));
     res.json({
@@ -312,6 +400,7 @@ app.post('/api/round/pick', async (req, res) => {
 });
 
 app.post('/api/round/unpick', (req, res) => {
+    trackConnectedClient(req.telegramUserId);
     const { cartel } = req.body || {};
     const [ok, code] = engine.unpick(req.telegramUserId, Number(cartel));
     res.json({
@@ -322,6 +411,7 @@ app.post('/api/round/unpick', (req, res) => {
 });
 
 app.get('/api/user-data', async (req, res) => {
+    trackConnectedClient(req.telegramUserId);
     try {
         const doc = await db.collection('users').doc(req.telegramUserId).get();
         const data = doc.exists ? doc.data() : {};

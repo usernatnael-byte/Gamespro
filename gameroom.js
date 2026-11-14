@@ -96,6 +96,8 @@ class GameEngine {
 
         this._seq = 0;
         this._threadRunning = false;
+        this.paused = false;
+        this._pausedAt = null;
         this.on_round_result = null;
 
         this.botSettings = {
@@ -122,6 +124,113 @@ class GameEngine {
 
     stop() {
         this._threadRunning = false;
+    }
+
+    pause() {
+        if (this.paused) return [true, 'ሩሙ ቀድሞውኑ ቆሟል'];
+        this.paused = true;
+        this._pausedAt = Date.now() / 1000;
+        this._seq++;
+        return [true, 'ጨዋታው ለጊዜው ቆሟል (Paused)'];
+    }
+
+    resume() {
+        if (!this.paused) return [true, 'ጨዋታው በመካሄድ ላይ ነው'];
+        const now = Date.now() / 1000;
+        const delta = this._pausedAt ? Math.max(0, now - this._pausedAt) : 0;
+        if (this.phase_ends_at != null) this.phase_ends_at += delta;
+        if (this.next_draw_at != null) this.next_draw_at += delta;
+        this.paused = false;
+        this._pausedAt = null;
+        this._seq++;
+        return [true, 'ጨዋታው ቀጥሏል (Resumed)'];
+    }
+
+    async force_start() {
+        if (this.phase !== 'selection') {
+            return [false, 'Force start የሚሰራው በSelection ጊዜ ብቻ ነው'];
+        }
+        if (Object.keys(this.cartels).length === 0) {
+            return [false, 'ቢያንስ 1 ካርቴል መመረጥ አለበት'];
+        }
+        this.paused = false;
+        this._pausedAt = null;
+        this.phase = 'locking';
+        this._seq++;
+        await this._do_lock(this.cartels);
+        return [true, 'ጨዋታው ወዲያውኑ ተጀምሯል!'];
+    }
+
+    draw_next() {
+        if (this.phase !== 'drawing') {
+            return [false, 'ቁጥር ማውጣት የሚቻለው በDrawing ጊዜ ብቻ ነው'];
+        }
+        const now = Date.now() / 1000;
+        this._draw_one(now);
+        if (this.paused) {
+            this._pausedAt = now;
+        }
+        return [true, `ቁጥር ${this.drawn[this.drawn.length - 1] ?? ''} ወጥቷል!`];
+    }
+
+    inject_bots_now() {
+        if (this.phase !== 'selection') {
+            return [false, 'ቦቶችን ማስገባት የሚቻለው በSelection ጊዜ ብቻ ነው'];
+        }
+        if (!this._botsInjected) {
+            this._initBotsQueue();
+            this._botsInjected = true;
+        }
+        let added = 0;
+        while (this.botInjectIndex < this.botQueue.length) {
+            const botId = this.botQueue[this.botInjectIndex++];
+            let availableCartels = [];
+            for (let i = 1; i <= CARTEL_COUNT; i++) {
+                if (!this.cartels[i]) availableCartels.push(i);
+            }
+            if (availableCartels.length === 0) break;
+            const chosenCartel = availableCartels[Math.floor(Math.random() * availableCartels.length)];
+            const botExistingCount = Object.values(this.cartels).filter(u => u === botId).length;
+            if (botExistingCount < MAX_SELECTION) {
+                this.cartels[chosenCartel] = botId;
+                added++;
+            }
+        }
+        if (added > 0) this._seq++;
+        return [true, `${added} የቦት ካርቴሎች ገብተዋል`];
+    }
+
+    async reset_round() {
+        const rid = this.round_id;
+        if (['locking', 'drawing', 'settling'].includes(this.phase)) {
+            const realPaidUids = [...new Set(
+                Object.values(this.cartels).filter(u => !String(u).startsWith('bot_'))
+            )];
+            if (realPaidUids.length > 0) {
+                await this.wallet.cancel_round(rid, realPaidUids);
+            }
+        }
+        this.paused = false;
+        this._pausedAt = null;
+        this._newRound();
+        return [true, 'ዙሩ ተሰርዞ አዲስ ዙር ተጀምሯል!'];
+    }
+
+    update_timing({ selection_seconds, draw_interval, result_seconds, min_players } = {}) {
+        if (Number.isFinite(Number(selection_seconds))) {
+            this.selection_seconds = Math.min(300, Math.max(5, Number(selection_seconds)));
+        }
+        if (Number.isFinite(Number(draw_interval))) {
+            this.draw_interval = Math.min(30, Math.max(0.5, Number(draw_interval)));
+        }
+        if (Number.isFinite(Number(result_seconds))) {
+            this.result_seconds = Math.min(60, Math.max(3, Number(result_seconds)));
+        }
+        if (Number.isFinite(Number(min_players))) {
+            this.min_players = Math.min(50, Math.max(1, Math.round(Number(min_players))));
+        }
+        this._seq++;
+        return [true, 'የጨዋታ ሰዓት ሴቲንግ ተዘምኗል'];
     }
 
     async _runLoop() {
@@ -205,7 +314,8 @@ class GameEngine {
             round_id: this.round_id,
             seq: this._seq,
             phase: this.phase,
-            server_time: Date.now() / 1000,
+            paused: this.paused,
+            server_time: this.paused && this._pausedAt ? this._pausedAt : Date.now() / 1000,
             phase_ends_at: ['selection', 'result'].includes(this.phase) ? this.phase_ends_at : null,
             selection_seconds: this.selection_seconds,
             result_seconds: this.result_seconds,
@@ -220,7 +330,79 @@ class GameEngine {
         };
     }
 
+    get_admin_state(connectedCount = 0) {
+        const now = this.paused && this._pausedAt ? this._pausedAt : Date.now() / 1000;
+        const entries = Object.entries(this.cartels);
+        let botCartels = 0;
+        let realCartels = 0;
+        const botSet = new Set();
+        const realMap = new Map();
+
+        for (const [cartelStr, uid] of entries) {
+            const cNum = Number(cartelStr);
+            if (String(uid).startsWith('bot_')) {
+                botCartels++;
+                botSet.add(uid);
+            } else {
+                realCartels++;
+                if (!realMap.has(uid)) realMap.set(uid, []);
+                realMap.get(uid).push(cNum);
+            }
+        }
+
+        let secondsLeft = 0;
+        if (this.phase === 'selection' || this.phase === 'result') {
+            secondsLeft = this.phase_ends_at ? Math.max(0, Math.ceil(this.phase_ends_at - now)) : 0;
+        } else if (this.phase === 'drawing' && this.next_draw_at) {
+            secondsLeft = Math.max(0, Math.ceil(this.next_draw_at - now));
+        }
+
+        const phaseMap = {
+            selection: 'waiting / selection',
+            locking: 'locking',
+            drawing: 'playing',
+            settling: 'settling',
+            result: 'result'
+        };
+
+        return {
+            round_id: this.round_id,
+            seq: this._seq,
+            phase: this.phase,
+            status_text: this.paused ? `PLAY — paused (${this.phase})` : `PLAY — ${phaseMap[this.phase] || this.phase}`,
+            paused: this.paused,
+            updated_at: Date.now(),
+            total_sold: entries.length,
+            max_cartels: CARTEL_COUNT,
+            bot_cartels: botCartels,
+            bots_count: botSet.size,
+            real_cartels: realCartels,
+            real_players_count: realMap.size,
+            connected_count: connectedCount,
+            pool: entries.length * PRIZE_PER_CARTEL,
+            numbers_called: this.drawn.length,
+            total_balls: BALLS,
+            last_number: this.drawn.length > 0 ? this.drawn[this.drawn.length - 1] : null,
+            seconds_left: secondsLeft,
+            drawn: this.drawn.slice(),
+            winners: this.winners.slice(),
+            no_winner: this.phase === 'result' ? this.no_winner : false,
+            real_players: Array.from(realMap.entries()).map(([uid, cartels]) => ({
+                uid,
+                cartels: cartels.sort((a, b) => a - b)
+            })),
+            timing: {
+                selection_seconds: this.selection_seconds,
+                draw_interval: this.draw_interval,
+                result_seconds: this.result_seconds,
+                min_players: this.min_players
+            },
+            bot_settings: { ...this.botSettings }
+        };
+    }
+
     async _tick() {
+        if (this.paused) return;
         let now = Date.now() / 1000;
         if (this.phase === 'selection') {
             if (!this._botsInjected) {
@@ -350,6 +532,11 @@ class GameEngine {
 
     _draw_one(now) {
         let nextIndex = this.drawn.length;
+        if (nextIndex >= this.draw_order.length) {
+            this._pending = ['none', []];
+            this.phase = 'settling';
+            return;
+        }
         let chosenNumber = this.draw_order[nextIndex];
         let number = chosenNumber;
         this.drawn.push(number);
@@ -425,4 +612,4 @@ class GameEngine {
     }
 }
 
-module.exports = { GameEngine, TICKET_PRICE, PRIZE_PER_CARTEL, MAX_SELECTION, generateMatrix };
+module.exports = { GameEngine, TICKET_PRICE, PRIZE_PER_CARTEL, MAX_SELECTION, CARTEL_COUNT, generateMatrix };
