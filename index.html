@@ -121,7 +121,7 @@
         </div>
       </div>
     </div>
-   
+
     <div class="flex justify-between items-center px-1 mb-2 shrink-0">
       <div class="font-extrabold text-sm tracking-wide">ካርቴል ይምረጡ <span class="text-xs text-yellow-500 font-normal">(እስከ 4)</span></div>
       <div class="text-xs font-bold px-3 py-1 rounded-xl border font-mono" id="selected-count-badge">
@@ -321,7 +321,7 @@
       <div class="h-28 bg-gradient-to-r from-yellow-600/30 via-amber-500/20 to-yellow-400/30 relative flex items-center justify-center">
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffb700_1px,transparent_1px)] [background-size:16px_16px]"></div>
       </div>
-      
+
       <div class="px-5 pb-5 pt-0 relative flex flex-col items-center -mt-12 text-center">
         <div class="relative mb-3">
           <div class="w-20 h-20 rounded-full border-4 border-yellow-400 bg-gradient-to-tr from-yellow-400 to-amber-600 flex items-center justify-center text-3xl font-black text-slate-950 shadow-xl">
@@ -365,7 +365,7 @@
       <div class="text-[10px] font-black tracking-wider text-yellow-500 uppercase mb-1">INVITE & EARN / ጋብዝ እና ተሸለም</div>
       <h3 class="text-sm font-black mb-1">ጓደኞችዎን ይጋብዙ</h3>
       <p class="text-[11px] opacity-75 mb-3 font-medium">ለእያንዳንዱ አዲስ ተጫዋች ሊንክዎን በመላክ ቦነስ ያገኙ።</p>
-      
+
       <div class="flex items-center space-x-2 border border-dashed border-yellow-500/40 rounded-xl p-2 bg-yellow-400/5">
         <div id="referral-link-display" class="flex-1 font-mono font-bold text-xs text-yellow-500 truncate px-1">Loading...</div>
         <button onclick="copyReferralLink()" id="btn-copy-link" class="bg-yellow-400 hover:bg-yellow-500 text-slate-950 text-xs font-black px-3 py-1.5 rounded-lg transition active:scale-95">Copy</button>
@@ -409,6 +409,20 @@
           NEXT ROUND: <span id="modal-countdown-sec">5</span>S
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- ==================== CUSTOM POPUP MODAL (Exceed 4 Cards) ==================== -->
+  <div id="custom-alert-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+    <div class="bg-mel-card border border-yellow-500/50 rounded-3xl p-6 max-w-xs w-full text-center shadow-2xl animate-modal relative">
+      <div class="w-14 h-14 rounded-2xl bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center mx-auto mb-4 text-yellow-500 text-xl font-bold">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 id="custom-alert-title" class="text-base font-black text-yellow-500 mb-2">ማስታወሻ</h3>
+      <p id="custom-alert-message" class="text-xs opacity-90 mb-6 font-medium leading-relaxed">በብዙ 4 ካርቴል መምረጥ ይችላሉ</p>
+      <button onclick="closeCustomAlertAndOpenTicket()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black py-3 rounded-xl text-xs shadow-lg transition-transform active:scale-95">
+        OK
+      </button>
     </div>
   </div>
 
@@ -511,7 +525,7 @@
         genericInputs.forEach(el => el.className = "w-full rounded-xl bg-[#141414] border border-[#222] p-3 text-white mb-3 text-xs focus:border-yellow-400 outline-none generic-input");
         if(withdrawBalanceBox) withdrawBalanceBox.className = "bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4 text-xs withdraw-balance-box";
         if(profileHeroCard) profileHeroCard.className = "bg-[#141414] border border-[#222] rounded-3xl mb-4 shadow-2xl relative overflow-hidden profile-hero-card";
-        profileCardBoxes.forEach(el => el.className = "bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4 shadow-lg profile-card-box");
+        profileCardBoxes.forEach(el => el.className = "bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4 shadow-lg profile-card-box";
         if(winnerModalBox) winnerModalBox.className = "max-w-xs w-full bg-[#141414] border-2 border-yellow-400 rounded-3xl p-4 shadow-2xl animate-modal text-center max-h-[75vh] flex flex-col overflow-hidden";
         winnerPoolBoxes.forEach(el => el.className = "bg-[#0c0c0c] border border-[#222] rounded-xl p-2 mt-2 winner-pool-box");
         if(bottomNav) bottomNav.className = "fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#0d0d0d] border-t border-[#222] px-4 py-2 flex justify-between items-center z-50";
@@ -798,11 +812,28 @@
       }
     }
 
+    // Custom Popup Modal Triggered when trying to select > 4 cards
+    function showCustomAlert(message) {
+      const modal = document.getElementById('custom-alert-modal');
+      const msgEl = document.getElementById('custom-alert-message');
+      if (msgEl) msgEl.textContent = message;
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeCustomAlertAndOpenTicket() {
+      const modal = document.getElementById('custom-alert-modal');
+      if (modal) modal.classList.add('hidden');
+      switchPage('ticket'); // Open ticket room
+    }
+
     async function toggleCartel(id) {
       if (!round || round.phase !== 'selection' || pickBusy) return;
       const mine = selectedTickets.includes(id);
       if (!mine && takenCartels.has(id)) return;
-      if (!mine && selectedTickets.length >= MAX_SELECTION) { alert(pickErrorText('full')); return; }
+      if (!mine && selectedTickets.length >= MAX_SELECTION) { 
+        showCustomAlert('በብዙ 4 ካርቴል መምረጥ ይችላሉ[span_0](start_span)[span_0](end_span)'); 
+        return; 
+      }
       if (!mine && userPlayBalance < TICKET_PRICE) { alert(pickErrorText('balance')); return; }
       pickBusy = true;
       try {
@@ -851,7 +882,7 @@
       const playShown = Math.max(0, serverBonus - fromBonus);
       const mainShown = Math.max(0, serverBalance - Math.max(0, reserved - fromBonus));
       const totalShown = playShown + mainShown;
-      
+
       if (!balanceRefreshing) {
         playWalletDisplay.innerText = playShown.toFixed(2);
         walletPagePlay.innerText = playShown.toFixed(2) + ' ብር';
@@ -897,7 +928,7 @@
     function renderTicketMatrices() {
       ticketMatricesContainer.innerHTML = '';
       if (selectedTickets.length === 0) return;
-      
+
       if (ticketViewMode === 'grid') {
         ticketMatricesContainer.className = selectedTickets.length > 1 ? "grid grid-cols-2 gap-2.5 pb-4" : "grid grid-cols-1 gap-3 pb-4";
       } else {
@@ -908,7 +939,7 @@
         const matrix = generateMatrix(ticketId);
         const card = document.createElement('div');
         card.className = isDarkMode ? 'bg-[#121212] border border-[#222] rounded-2xl p-2.5 shadow-lg flex flex-col justify-between' : 'bg-white border border-gray-200 rounded-2xl p-2.5 shadow-lg flex flex-col justify-between';
-        
+
         let html = `
           <div class="flex justify-between items-center mb-1.5 px-0.5">
             <span class="font-bold text-[11px] text-yellow-500">CARD #${ticketId}</span>
@@ -945,11 +976,11 @@
       serverBalance = Number(d.balance) || 0;
       serverBonus = Number(d.bonus) || 0;
       if (currentPage === 'wallet') loadTransactionHistory();
-      
+
       const phoneNum = d.phone_number || 'Not Provided';
       window.currentUserPhone = phoneNum;
       ['header-user-phone'].forEach(id => { const el = document.getElementById(id); if (el) el.innerText = phoneNum; });
-      
+
       const played = Number(d.total_games_played) || 0;
       const wonCount = Number(d.total_wins) || 0;
       const totalWinnings = Number(d.total_winnings) || 0;
@@ -1002,12 +1033,12 @@
       if (s.no_winner || winners.length === 0) { ticketStatusText.innerText = 'ምንም አሸናፊ የለም'; return; }
       if (winners.some(w => w.mine)) refreshUserData();
       playCallSound('bingo');
-      
+
       const totalPool = Number(s.pool || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       document.getElementById('winner-top-pool').innerText = `${totalPool} ETB`;
       document.getElementById('winner-total-prize').innerText = `${totalPool} ETB`;
       document.getElementById('winner-count-badge').innerText = `${winners.length} አሸናፊ`;
-      
+
       const firstWinnerName = winners[0]?.name || 'Player';
       document.getElementById('winner-name-title').innerText = `${firstWinnerName} has won!`;
 
@@ -1043,7 +1074,7 @@
         html += `</div></div>`;
         return html;
       }).join('');
-      
+
       if (currentPage === 'home' || currentPage === 'ticket') {
         winnerModal.classList.remove('hidden');
         startWinnerModalCountdown();
@@ -1111,7 +1142,7 @@
       }
 
       gameStatusLabel.innerText = statusText(s);
-      
+
       if (s.phase === 'drawing' && prevPhase !== 'drawing' && selectedTickets.length > 0 && currentPage === 'home') {
         switchPage('ticket');
       }
@@ -1288,13 +1319,13 @@
             account: document.getElementById('withdraw-account').value 
           }) 
         });
-        
+
         if(res.status !== 'success') {
           let cleanMsg = res.message || 'ማውጣት አልተቻለም';
           cleanMsg = cleanMsg.replace(/\[span_\d+\]\(start_span\)|\[span_\d+\]\(end_span\)/g, '').replace(/::$/, '');
           throw new Error(cleanMsg);
         }
-        
+
         out.innerText = '✅ ' + (res.message || 'የማውጣት ጥያቄ ተልኳል');
         loadWalletConfig();
       } catch(e) { 
