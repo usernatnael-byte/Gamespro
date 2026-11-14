@@ -412,20 +412,6 @@
     </div>
   </div>
 
-  <!-- ==================== CUSTOM POPUP MODAL (Exceed 4 Cards) ==================== -->
-  <div id="custom-alert-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
-    <div class="bg-mel-card border border-yellow-500/50 rounded-3xl p-6 max-w-xs w-full text-center shadow-2xl animate-modal relative">
-      <div class="w-14 h-14 rounded-2xl bg-yellow-400/10 border border-yellow-400/30 flex items-center justify-center mx-auto mb-4 text-yellow-500 text-xl font-bold">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-      </div>
-      <h3 id="custom-alert-title" class="text-base font-black text-yellow-500 mb-2">ማስታወሻ</h3>
-      <p id="custom-alert-message" class="text-xs opacity-90 mb-6 font-medium leading-relaxed">በብዙ 4 ካርቴል መምረጥ ይችላሉ</p>
-      <button onclick="closeCustomAlertAndOpenTicket()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black py-3 rounded-xl text-xs shadow-lg transition-transform active:scale-95">
-        OK
-      </button>
-    </div>
-  </div>
-
   <!-- BOTTOM NAVIGATION BAR -->
   <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto border-t px-4 py-2 flex justify-between items-center z-50" id="bottom-nav">
     <button onclick="switchPage('home')" id="nav-home" class="nav-active flex flex-col items-center space-y-1 opacity-75 hover:opacity-100 w-12 py-1">
@@ -525,7 +511,7 @@
         genericInputs.forEach(el => el.className = "w-full rounded-xl bg-[#141414] border border-[#222] p-3 text-white mb-3 text-xs focus:border-yellow-400 outline-none generic-input");
         if(withdrawBalanceBox) withdrawBalanceBox.className = "bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4 text-xs withdraw-balance-box";
         if(profileHeroCard) profileHeroCard.className = "bg-[#141414] border border-[#222] rounded-3xl mb-4 shadow-2xl relative overflow-hidden profile-hero-card";
-        profileCardBoxes.forEach(el => el.className = "bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4 shadow-lg profile-card-box";
+        profileCardBoxes.forEach(el => el.className = "bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4 shadow-lg profile-card-box");
         if(winnerModalBox) winnerModalBox.className = "max-w-xs w-full bg-[#141414] border-2 border-yellow-400 rounded-3xl p-4 shadow-2xl animate-modal text-center max-h-[75vh] flex flex-col overflow-hidden";
         winnerPoolBoxes.forEach(el => el.className = "bg-[#0c0c0c] border border-[#222] rounded-xl p-2 mt-2 winner-pool-box");
         if(bottomNav) bottomNav.className = "fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#0d0d0d] border-t border-[#222] px-4 py-2 flex justify-between items-center z-50";
@@ -812,28 +798,11 @@
       }
     }
 
-    // Custom Popup Modal Triggered when trying to select > 4 cards
-    function showCustomAlert(message) {
-      const modal = document.getElementById('custom-alert-modal');
-      const msgEl = document.getElementById('custom-alert-message');
-      if (msgEl) msgEl.textContent = message;
-      if (modal) modal.classList.remove('hidden');
-    }
-
-    function closeCustomAlertAndOpenTicket() {
-      const modal = document.getElementById('custom-alert-modal');
-      if (modal) modal.classList.add('hidden');
-      switchPage('ticket'); // Open ticket room
-    }
-
     async function toggleCartel(id) {
       if (!round || round.phase !== 'selection' || pickBusy) return;
       const mine = selectedTickets.includes(id);
       if (!mine && takenCartels.has(id)) return;
-      if (!mine && selectedTickets.length >= MAX_SELECTION) { 
-        showCustomAlert('በብዙ 4 ካርቴል መምረጥ ይችላሉ[span_0](start_span)[span_0](end_span)'); 
-        return; 
-      }
+      if (!mine && selectedTickets.length >= MAX_SELECTION) { alert(pickErrorText('full')); return; }
       if (!mine && userPlayBalance < TICKET_PRICE) { alert(pickErrorText('balance')); return; }
       pickBusy = true;
       try {
@@ -1436,3 +1405,4 @@
   </script>
 </body>
 </html>
+
