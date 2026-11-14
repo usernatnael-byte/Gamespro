@@ -149,49 +149,65 @@
     </div>
   </div>
 
-  <!-- ==================== PAGE: TICKET (LIVE BINGO ROOM 2x2 Grid Layout) ==================== -->
+  <!-- ==================== PAGE: TICKET (LIVE BINGO ROOM REDESIGNED) ==================== -->
   <div id="page-ticket" class="hidden flex-1 flex flex-col max-w-md mx-auto w-full pb-28 px-3 pt-2">
-    <div class="flex justify-between items-center mb-2.5">
+    
+    <!-- Top Header Bar matching Screenshot[span_4](start_span)[span_4](end_span) -->
+    <div class="flex justify-between items-center mb-3">
       <h2 class="text-base font-black text-yellow-400 tracking-wide">LIVE BINGO ROOM</h2>
-      <div class="text-xs font-mono font-bold text-gray-300 bg-[#161616] px-3 py-1.5 rounded-xl border border-mel-border">
-        ወጣ: <span id="ticket-draw-count" class="text-yellow-400">0/75</span>
+      <div class="text-xs font-mono font-bold text-yellow-400 bg-[#161616] px-3 py-1.5 rounded-2xl border border-mel-border shadow-md">
+        ወጣ: <span id="ticket-draw-count">0/75</span>
       </div>
     </div>
 
-    <!-- Live Call Ball & Pool Card -->
-    <div class="bg-[#141414] border border-mel-border rounded-2xl p-3.5 mb-2.5 shadow-lg flex items-center space-x-3.5">
-      <div class="relative w-12 h-12 flex-shrink-0 flex items-center justify-center">
-        <div class="absolute inset-0 bg-yellow-500/20 rounded-full blur-md"></div>
-        <div id="ticket-current-ball" class="relative w-11 h-11 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-[0_0_15px_rgba(255,183,0,0.5)]">
-          <span id="ticket-ball-text" class="text-slate-950 font-black text-lg font-mono">--</span>
+    <!-- Redesigned Live Ball & Info Hero Banner matching Screenshot[span_5](start_span)[span_5](end_span)[span_6](start_span)[span_6](end_span) -->
+    <div class="bg-gradient-to-r from-[#1b170e] via-[#141414] to-[#0f0f0f] border border-yellow-500/40 rounded-3xl p-4 mb-3 shadow-2xl relative overflow-hidden flex items-center justify-between shrink-0">
+      <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full border border-yellow-400/15 bg-yellow-400/[0.04] pointer-events-none"></div>
+      <div class="absolute -right-2 -bottom-2 w-24 h-24 rounded-full border border-yellow-400/10 bg-yellow-400/[0.02] pointer-events-none"></div>
+
+      <!-- Left Side: Drawn Ball Display -->
+      <div class="flex items-center space-x-3.5 relative z-10">
+        <div class="relative w-16 h-16 flex-shrink-0 flex items-center justify-center">
+          <div class="absolute inset-0 bg-yellow-500/30 rounded-2xl blur-lg"></div>
+          <div id="ticket-current-ball" class="relative w-14 h-14 bg-yellow-400 rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(255,183,0,0.6)]">
+            <span id="ticket-ball-text" class="text-slate-950 font-black text-2xl font-mono">--</span>
+          </div>
+        </div>
+        <div class="flex flex-col justify-center">
+          <div class="text-xs font-bold text-gray-300 tracking-wide">የወጣው ቁጥር: <span id="ticket-drawn-num-text" class="text-yellow-400 font-mono text-sm font-black">--</span></div>
+          <div class="text-xs text-yellow-500 font-mono font-bold mt-1">ሽልማት: <span id="ticket-prize-pool" class="text-white">0.00 ETB</span></div>
         </div>
       </div>
-      <div class="flex-1 min-w-0">
-        <div id="ticket-status-text" class="text-gray-200 font-bold text-xs truncate">ጨዋታውን በመጠበቅ ላይ...</div>
-        <div class="text-xs text-yellow-500 font-mono mt-0.5">ሽልማት: <span id="ticket-prize-pool" class="font-bold">0.00 ETB</span></div>
+
+      <!-- Right Side decorative badge / status -->
+      <div class="relative z-10 shrink-0 text-right">
+        <div class="text-[10px] font-black tracking-wider text-yellow-400 uppercase bg-yellow-400/10 border border-yellow-400/30 px-2.5 py-1 rounded-xl">
+          LIVE DRAW
+        </div>
+        <div id="ticket-status-text" class="text-[10px] text-gray-400 font-medium mt-1">በመጠበቅ ላይ...</div>
       </div>
     </div>
 
     <!-- Master Board Accordion -->
-    <div class="mb-2.5">
-      <button onclick="toggleMasterBoard()" class="w-full bg-[#161616] border border-mel-border hover:bg-[#222] text-yellow-400 font-bold py-2 px-3.5 rounded-xl flex items-center justify-between transition-colors text-xs">
+    <div class="mb-3">
+      <button onclick="toggleMasterBoard()" class="w-full bg-[#161616] border border-mel-border hover:bg-[#222] text-yellow-400 font-bold py-2 px-3.5 rounded-xl flex items-center justify-between transition-colors text-xs shadow">
         <span class="flex items-center space-x-2"><i class="fa-solid fa-eye"></i><span>ሙሉ ቦርድ (Master Board)</span></span>
         <i id="master-board-chevron" class="fa-solid fa-chevron-down transition-transform"></i>
       </button>
-      <div id="collapsible-master-board" class="hidden mt-2 bg-[#0c0c0c] border border-mel-border rounded-xl p-2">
+      <div id="collapsible-master-board" class="hidden mt-2 bg-[#0c0c0c] border border-mel-border rounded-xl p-2 shadow-inner">
         <div id="master-board-grid" class="grid grid-cols-5 gap-1"></div>
       </div>
     </div>
 
     <!-- Ticket Matrices Container (2x2 Grid Layout for up to 4 Cards) -->
     <div class="flex-1 overflow-y-auto">
-      <div id="ticket-empty-msg" class="text-center text-gray-300 text-xs py-8 bg-[#141414] border border-mel-border rounded-2xl p-4">
+      <div id="ticket-empty-msg" class="text-center text-gray-300 text-xs py-8 bg-[#141414] border border-mel-border rounded-2xl p-4 shadow">
         <div class="text-yellow-400 font-bold text-sm mb-1">በዚህ ዙር ካርድ አልመረጡም</div>
         <p class="text-gray-400 mb-2">ቀጣዩ ድል የርስዎ ነው!</p>
         <button onclick="switchPage('home')" class="mt-2 bg-yellow-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs">ካርቴል ምረጥ</button>
       </div>
       <!-- 2x2 Grid container when multiple tickets are selected -->
-      <div id="ticket-matrices-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 hidden pb-4"></div>
+      <div id="ticket-matrices-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 hidden pb-4"></div>
     </div>
   </div>
 
@@ -413,29 +429,19 @@
     <div id="popup-cards-wrapper" class="flex space-x-2 overflow-x-auto pb-1"></div>
   </div>
 
-  <!-- WINNER MODAL (MATCHING SCREENSHOT DESIGN) -->
+  <!-- WINNER MODAL -->
   <div id="winner-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
     <div class="max-w-xs w-full bg-[#141414] border-2 border-yellow-400 rounded-3xl p-5 shadow-2xl animate-modal text-center max-h-[90vh] overflow-y-auto">
-      
-      <!-- Top Winner Count & Pool Header -->
       <div class="flex justify-between items-center mb-2 px-1">
         <div id="winner-count-badge" class="text-yellow-400 font-black text-xs">1 አሸናፊ</div>
         <div id="winner-top-pool" class="text-yellow-400 font-mono font-black text-xs">0.00 ETB</div>
       </div>
-
-      <!-- Winner Name Title -->
       <div id="winner-name-title" class="text-lg font-black text-emerald-400 italic mb-3 tracking-wide">yoni.f11 has won!</div>
-
-      <!-- Total Prize Box -->
       <div class="bg-[#0c0c0c] border border-mel-border rounded-2xl p-2.5 mb-3">
         <div class="text-[9px] text-gray-400 uppercase font-bold">TOTAL PRIZE POOL</div>
         <div id="winner-total-prize" class="text-lg font-black text-emerald-400 font-mono mt-0.5">0.00 ETB</div>
       </div>
-
-      <!-- Winners List / Matrices Container -->
       <div class="space-y-4 mb-4" id="winners-list-container"></div>
-
-      <!-- Next Round / Continue Button -->
       <button onclick="closeWinnerModal()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black py-3 rounded-xl text-xs uppercase shadow-lg tracking-wider">
         NEXT ROUND: 5S
       </button>
@@ -606,6 +612,7 @@
     const ticketPrizePool = document.getElementById('ticket-prize-pool');
     const ticketCurrentBall = document.getElementById('ticket-current-ball');
     const ticketBallText = document.getElementById('ticket-ball-text');
+    const ticketDrawnNumText = document.getElementById('ticket-drawn-num-text');
     const ticketStatusText = document.getElementById('ticket-status-text');
 
     const walletPageTotal = document.getElementById('wallet-page-total');
@@ -849,7 +856,6 @@
       ticketMatricesContainer.innerHTML = '';
       if (selectedTickets.length === 0) return;
       
-      // If 2 or more tickets, use 2 columns grid (2x2 layout), otherwise single column
       ticketMatricesContainer.className = selectedTickets.length > 1 ? "grid grid-cols-2 gap-2.5 pb-4" : "grid grid-cols-1 gap-3 pb-4";
 
       selectedTickets.forEach(ticketId => {
@@ -916,6 +922,7 @@
     function showBall(num, count, speak) {
       ticketDrawCount.innerText = `${count}/75`;
       ticketBallText.innerText = num;
+      ticketDrawnNumText.innerText = num;
       ticketCurrentBall.classList.remove('animate-ball');
       void ticketCurrentBall.offsetWidth;
       ticketCurrentBall.classList.add('animate-ball');
@@ -1004,6 +1011,7 @@
         gridState = [];
         initMasterBoard();
         ticketBallText.innerText = '--';
+        ticketDrawnNumText.innerText = '--';
         ticketStatusText.innerText = 'ገና አልጀመረም...';
         ticketDrawCount.innerText = '0/75';
         winnerModal.classList.add('hidden');
