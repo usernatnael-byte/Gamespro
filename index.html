@@ -41,35 +41,35 @@
     .nav-active { color: #ffb700 !important; border-bottom: 2px solid #ffb700; }
   </style>
 </head>
-<body class="h-full font-sans antialiased flex flex-col overflow-x-hidden select-none bg-[#050505] dark:bg-[#050505] text-white transition-colors duration-200" id="body-root">
+<body class="h-full font-sans antialiased flex flex-col overflow-x-hidden select-none transition-colors duration-200" id="body-root">
 
   <!-- TOP HEADER -->
-  <header class="px-4 py-3 bg-[#0d0d0d] dark:bg-[#0d0d0d] border-b border-[#222] dark:border-[#222] flex justify-between items-center sticky top-0 z-30 shadow-lg">
+  <header class="px-4 py-3 border-b flex justify-between items-center sticky top-0 z-30 shadow-lg transition-colors duration-200" id="app-header">
     <div class="flex items-center space-x-3">
       <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center font-black text-slate-950 shadow-md">
         <i class="fa-solid fa-crown text-base"></i>
       </div>
       <div>
-        <div class="font-extrabold text-sm tracking-wider text-white" id="header-user-name">Loading...</div>
-        <div class="text-xs text-yellow-400 font-mono font-bold" id="header-user-phone">Loading...</div>
+        <div class="font-extrabold text-sm tracking-wider" id="header-user-name">Loading...</div>
+        <div class="text-xs text-yellow-500 font-mono font-bold" id="header-user-phone">Loading...</div>
       </div>
     </div>
     <div class="flex items-center space-x-2">
       <!-- THEME SWITCHER BUTTON -->
-      <button onclick="toggleThemeMode()" aria-label="Theme toggle" class="w-9 h-9 rounded-xl bg-[#1a1a1a] border border-[#333] flex items-center justify-center text-yellow-400 active:scale-95 transition">
+      <button onclick="toggleThemeMode()" aria-label="Theme toggle" class="w-9 h-9 rounded-xl border flex items-center justify-center text-yellow-500 active:scale-95 transition" id="theme-btn-elem">
         <i id="theme-icon" class="fa-solid fa-moon"></i>
       </button>
-      <button id="sound-btn" onclick="toggleSound()" aria-label="Sound toggle" class="w-9 h-9 rounded-xl bg-[#1a1a1a] border border-[#333] flex items-center justify-center text-yellow-400 active:scale-95 transition">
+      <button id="sound-btn" onclick="toggleSound()" aria-label="Sound toggle" class="w-9 h-9 rounded-xl border flex items-center justify-center text-yellow-500 active:scale-95 transition" id="sound-btn-elem">
         <i id="sound-icon" class="fa-solid fa-volume-high"></i>
       </button>
-      <div class="bg-[#161616] px-3 py-1.5 rounded-xl border border-[#333] flex flex-col items-end text-xs">
+      <div class="px-3 py-1.5 rounded-xl border flex flex-col items-end text-xs transition-colors duration-200" id="wallet-header-box">
         <div class="flex items-center space-x-1.5">
-          <span class="text-yellow-400 font-extrabold text-[9px] tracking-widest">PLAY</span>
-          <span id="play-wallet" class="font-mono font-extrabold text-white text-xs">0.00</span>
+          <span class="text-yellow-500 font-extrabold text-[9px] tracking-widest">PLAY</span>
+          <span id="play-wallet" class="font-mono font-extrabold text-xs">0.00</span>
         </div>
         <div class="flex items-center space-x-1.5 mt-0.5">
-          <span class="text-gray-400 font-bold text-[9px] tracking-widest">MAIN</span>
-          <span id="main-wallet" class="font-mono text-gray-300 text-xs">0.00</span>
+          <span class="opacity-70 font-bold text-[9px] tracking-widest">MAIN</span>
+          <span id="main-wallet" class="font-mono text-xs">0.00</span>
         </div>
       </div>
     </div>
@@ -79,75 +79,70 @@
   <div id="page-home" class="flex-1 flex flex-col max-w-md mx-auto w-full pb-36 px-3 pt-2.5">
     
     <!-- LIVE ROUND HERO BANNER -->
-    <div class="bg-gradient-to-r from-[#181818] via-[#121212] to-[#1e1a0d] border border-yellow-500/30 rounded-3xl px-5 py-4 mb-3 shadow-xl relative overflow-hidden flex items-center justify-between shrink-0">
-      <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full border border-yellow-400/10 bg-yellow-400/[0.03] pointer-events-none"></div>
-      <div class="absolute -right-3 -top-3 w-32 h-32 rounded-full border border-yellow-400/15 bg-yellow-400/[0.04] pointer-events-none"></div>
-
+    <div class="border rounded-3xl px-5 py-4 mb-3 shadow-xl relative overflow-hidden flex items-center justify-between shrink-0 transition-colors duration-200" id="hero-banner">
       <div class="relative z-10">
-        <div class="text-[10px] font-black tracking-[0.14em] text-gray-300 uppercase mb-1.5">
+        <div class="text-[10px] font-black tracking-[0.14em] opacity-75 uppercase mb-1.5">
           LIVE ROUND / የቀጥታ ዙር
         </div>
-        <div class="text-2xl font-black text-white leading-tight tracking-tight">
+        <div class="text-2xl font-black leading-tight tracking-tight">
           ዕድልህን
         </div>
-        <div class="text-2xl font-black text-yellow-400 leading-tight tracking-tight">
+        <div class="text-2xl font-black text-yellow-500 leading-tight tracking-tight">
           አሁን ፈትነው::
         </div>
       </div>
 
       <div class="relative z-10 shrink-0">
-        <div class="w-20 h-20 rounded-full border-2 border-dashed border-yellow-400/60 bg-[#0d0d0d]/70 flex flex-col items-center justify-center shadow-inner">
-          <span id="banner-countdown-sec" class="text-2xl font-black text-yellow-400 font-mono leading-none">30</span>
-          <span class="text-[10px] font-bold text-gray-300 mt-1">ሰከንድ</span>
+        <div class="w-20 h-20 rounded-full border-2 border-dashed border-yellow-500/60 flex flex-col items-center justify-center shadow-inner transition-colors duration-200" id="countdown-circle">
+          <span id="banner-countdown-sec" class="text-2xl font-black text-yellow-500 font-mono leading-none">30</span>
+          <span class="text-[10px] font-bold opacity-75 mt-1">ሰከንድ</span>
         </div>
       </div>
     </div>
 
     <!-- STATS CARD -->
-    <div class="bg-gradient-to-b from-[#161616] to-[#0a0a0a] border border-[#222] rounded-2xl p-4 mb-3 shadow-xl relative overflow-hidden shrink-0">
-      <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-yellow-500/10 rounded-full blur-2xl"></div>
-      
+    <div class="border rounded-2xl p-4 mb-3 shadow-xl relative overflow-hidden shrink-0 transition-colors duration-200" id="stats-card">
       <div class="flex justify-between items-center mb-3">
         <div class="flex items-center space-x-2">
-          <span class="text-xl font-black tracking-wider text-white">MELBET</span>
+          <span class="text-xl font-black tracking-wider">MELBET</span>
           <span class="bg-yellow-400 text-slate-950 font-black text-xs px-2 py-0.5 rounded-md tracking-widest">BINGO</span>
         </div>
-        <div class="bg-yellow-400/10 border border-yellow-400/30 px-2.5 py-1 rounded-lg text-yellow-400 text-xs font-mono font-bold">
+        <div class="bg-yellow-400/10 border border-yellow-400/35 px-2.5 py-1 rounded-lg text-yellow-500 text-xs font-mono font-bold">
           1 Card = 10 ETB
         </div>
       </div>
 
       <div class="grid grid-cols-3 gap-2">
-        <div class="bg-[#111] border border-[#222] rounded-xl p-2.5 text-center flex flex-col justify-between">
-          <span id="game-status-label" class="text-[10px] text-gray-400 font-semibold">ዙሩ ተጀምሯል</span>
-          <div id="countdown" class="text-lg font-black text-yellow-400 font-mono tracking-wider my-1">00:30</div>
-          <div class="w-full bg-gray-800 h-1 rounded-full overflow-hidden">
+        <div class="border rounded-xl p-2.5 text-center flex flex-col justify-between transition-colors duration-200 sub-card-box">
+          <span id="game-status-label" class="text-[10px] opacity-75 font-semibold">ዙሩ ተጀምሯል</span>
+          <div id="countdown" class="text-lg font-black text-yellow-500 font-mono tracking-wider my-1">00:30</div>
+          <div class="w-full bg-gray-500/30 h-1 rounded-full overflow-hidden">
             <div id="timer-bar" class="bg-yellow-400 h-full w-full transition-all duration-1000"></div>
           </div>
         </div>
-        <div class="bg-[#111] border border-yellow-500/30 rounded-xl p-2.5 text-center flex flex-col justify-between">
-          <span class="text-[10px] text-yellow-400 font-bold">ጃክፖት (Pool)</span>
-          <div id="jackpot-display" class="text-lg font-black text-white font-mono my-0.5">0.00</div>
-          <span class="text-[9px] text-gray-400 font-bold">ETB</span>
+        <div class="border border-yellow-500/30 rounded-xl p-2.5 text-center flex flex-col justify-between transition-colors duration-200 sub-card-box">
+          <span class="text-[10px] text-yellow-500 font-bold">ጃክፖት (Pool)</span>
+          <div id="jackpot-display" class="text-lg font-black font-mono my-0.5">0.00</div>
+          <span class="text-[9px] opacity-75 font-bold">ETB</span>
         </div>
-        <div class="bg-[#111] border border-[#222] rounded-xl p-2.5 text-center flex flex-col justify-center items-center">
-          <span class="text-[10px] text-gray-400 mb-1">PLAYERS</span>
-          <div id="active-players-count" class="text-base font-black text-yellow-400 font-mono">0</div>
+        <div class="border rounded-xl p-2.5 text-center flex flex-col justify-center items-center transition-colors duration-200 sub-card-box">
+          <span class="text-[10px] opacity-75 mb-1">PLAYERS</span>
+          <div id="active-players-count" class="text-base font-black text-yellow-500 font-mono">0</div>
         </div>
       </div>
     </div>
    
     <div class="flex justify-between items-center px-1 mb-2 shrink-0">
-      <div class="font-extrabold text-sm tracking-wide text-gray-200">
-        ካርቴል ይምረጡ <span class="text-xs text-yellow-400 font-normal">(እስከ 4)</span>
+      <div class="font-extrabold text-sm tracking-wide">
+        ካርቴል ይምረጡ <span class="text-xs text-yellow-500 font-normal">(እስከ 4)</span>
       </div>
-      <div class="text-xs font-bold bg-[#141414] px-3 py-1 rounded-xl border border-[#222] font-mono">
-        የተመረጡ: <span id="selected-count" class="text-yellow-400 font-black">0</span> <span class="text-gray-500">/ 4</span>
+      <div class="text-xs font-bold px-3 py-1 rounded-xl border font-mono transition-colors duration-200" id="selected-count-badge">
+        የተመረጡ: <span id="selected-count" class="text-yellow-500 font-black">0</span> <span class="opacity-60">/ 4</span>
       </div>
     </div>
 
     <!-- SCROLLABLE CARTEL GRID -->
-    <div class="bg-[#101010] border border-[#222] rounded-2xl p-3 flex-1 h-[58vh] min-h-[380px] overflow-y-auto shadow-inner relative">
+    <div class="border rounded-2xl p-3 flex-1 h-[58vh] min-h-[380px] overflow-y-auto shadow-inner relative transition-colors duration-200" id="grid-container-box">
       <div id="cartel-grid" class="grid grid-cols-10 gap-1.5 pb-16"></div>
     </div>
   </div>
@@ -155,23 +150,20 @@
   <!-- ==================== PAGE: TICKET ==================== -->
   <div id="page-ticket" class="hidden flex-1 flex flex-col max-w-md mx-auto w-full pb-28 px-3 pt-2">
     <div class="flex justify-between items-center mb-3">
-      <h2 class="text-base font-black text-yellow-400 tracking-wide">LIVE BINGO ROOM</h2>
+      <h2 class="text-base font-black text-yellow-500 tracking-wide">LIVE BINGO ROOM</h2>
       <div class="flex items-center space-x-2">
-        <div class="bg-[#161616] border border-[#222] rounded-xl p-0.5 flex space-x-1">
+        <div class="border rounded-xl p-0.5 flex space-x-1 transition-colors duration-200" id="view-mode-switch-box">
           <button onclick="setTicketViewMode('grid')" id="view-mode-grid-btn" class="px-2.5 py-1 rounded-lg text-[10px] font-black bg-yellow-400 text-slate-950 transition">2x2 Grid</button>
-          <button onclick="setTicketViewMode('single')" id="view-mode-single-btn" class="px-2.5 py-1 rounded-lg text-[10px] font-bold text-gray-400 hover:text-white transition">Single</button>
+          <button onclick="setTicketViewMode('single')" id="view-mode-single-btn" class="px-2.5 py-1 rounded-lg text-[10px] font-bold transition">Single</button>
         </div>
-        <div class="text-xs font-mono font-bold text-yellow-400 bg-[#161616] px-2.5 py-1.5 rounded-xl border border-[#222] shadow-md">
+        <div class="text-xs font-mono font-bold text-yellow-500 px-2.5 py-1.5 rounded-xl border shadow-md transition-colors duration-200" id="draw-count-box">
           ወጣ: <span id="ticket-draw-count">0/75</span>
         </div>
       </div>
     </div>
 
     <!-- Live Ball & Info Hero Banner -->
-    <div class="bg-gradient-to-r from-[#1b170e] via-[#141414] to-[#0f0f0f] border border-yellow-500/40 rounded-3xl p-4 mb-3 shadow-2xl relative overflow-hidden flex items-center justify-between shrink-0">
-      <div class="absolute -right-8 -top-8 w-32 h-32 rounded-full border border-yellow-400/15 bg-yellow-400/[0.04] pointer-events-none"></div>
-      <div class="absolute -right-2 -bottom-2 w-24 h-24 rounded-full border border-yellow-400/10 bg-yellow-400/[0.02] pointer-events-none"></div>
-
+    <div class="border border-yellow-500/40 rounded-3xl p-4 mb-3 shadow-2xl relative overflow-hidden flex items-center justify-between shrink-0 transition-colors duration-200" id="ticket-hero-banner">
       <div class="flex items-center space-x-3.5 relative z-10">
         <div class="relative w-16 h-16 flex-shrink-0 flex items-center justify-center">
           <div class="absolute inset-0 bg-yellow-500/30 rounded-2xl blur-lg"></div>
@@ -180,35 +172,35 @@
           </div>
         </div>
         <div class="flex flex-col justify-center">
-          <div class="text-xs font-bold text-gray-300 tracking-wide">የወጣው ቁጥር: <span id="ticket-drawn-num-text" class="text-yellow-400 font-mono text-sm font-black">--</span></div>
-          <div class="text-xs text-yellow-500 font-mono font-bold mt-1">ሽልማት: <span id="ticket-prize-pool" class="text-white">0.00 ETB</span></div>
+          <div class="text-xs font-bold tracking-wide">የወጣው ቁጥር: <span id="ticket-drawn-num-text" class="text-yellow-500 font-mono text-sm font-black">--</span></div>
+          <div class="text-xs text-yellow-500 font-mono font-bold mt-1">ሽልማት: <span id="ticket-prize-pool">0.00 ETB</span></div>
         </div>
       </div>
 
       <div class="relative z-10 shrink-0 text-right">
-        <div class="text-[10px] font-black tracking-wider text-yellow-400 uppercase bg-yellow-400/10 border border-yellow-400/30 px-2.5 py-1 rounded-xl">
+        <div class="text-[10px] font-black tracking-wider text-yellow-500 uppercase bg-yellow-400/10 border border-yellow-400/30 px-2.5 py-1 rounded-xl">
           LIVE DRAW
         </div>
-        <div id="ticket-status-text" class="text-[10px] text-gray-400 font-medium mt-1">በመጠበቅ ላይ...</div>
+        <div id="ticket-status-text" class="text-[10px] opacity-75 font-medium mt-1">በመጠበቅ ላይ...</div>
       </div>
     </div>
 
     <!-- Master Board Accordion -->
     <div class="mb-3">
-      <button onclick="toggleMasterBoard()" class="w-full bg-[#161616] border border-[#222] hover:bg-[#222] text-yellow-400 font-bold py-2 px-3.5 rounded-xl flex items-center justify-between transition-colors text-xs shadow">
-        <span class="flex items-center space-x-2"><i class="fa-solid fa-eye"></i><span>ሙሉ ቦርድ (Master Board)</span></span>
+      <button onclick="toggleMasterBoard()" class="w-full border font-bold py-2 px-3.5 rounded-xl flex items-center justify-between transition-colors text-xs shadow duration-200" id="master-board-toggle-btn">
+        <span class="flex items-center space-x-2 text-yellow-500"><i class="fa-solid fa-eye"></i><span>ሙሉ ቦርድ (Master Board)</span></span>
         <i id="master-board-chevron" class="fa-solid fa-chevron-down transition-transform"></i>
       </button>
-      <div id="collapsible-master-board" class="hidden mt-2 bg-[#0c0c0c] border border-[#222] rounded-xl p-2 shadow-inner">
+      <div id="collapsible-master-board" class="hidden mt-2 border rounded-xl p-2 shadow-inner transition-colors duration-200" id="master-board-dropdown">
         <div id="master-board-grid" class="grid grid-cols-5 gap-1"></div>
       </div>
     </div>
 
     <!-- Ticket Matrices Container -->
     <div class="flex-1 overflow-y-auto">
-      <div id="ticket-empty-msg" class="text-center text-gray-300 text-xs py-8 bg-[#141414] border border-[#222] rounded-2xl p-4 shadow">
-        <div class="text-yellow-400 font-bold text-sm mb-1">በዚህ ዙር ካርድ አልመረጡም</div>
-        <p class="text-gray-400 mb-2">ቀጣዩ ድል የርስዎ ነው!</p>
+      <div id="ticket-empty-msg" class="text-center text-xs py-8 border rounded-2xl p-4 shadow transition-colors duration-200">
+        <div class="text-yellow-500 font-bold text-sm mb-1">በዚህ ዙር ካርድ አልመረጡም</div>
+        <p class="opacity-75 mb-2">ቀጣዩ ድል የርስዎ ነው!</p>
         <button onclick="switchPage('home')" class="mt-2 bg-yellow-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs">ካርቴል ምረጥ</button>
       </div>
       <div id="ticket-matrices-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 hidden pb-4"></div>
@@ -218,33 +210,31 @@
   <!-- ==================== PAGE: WALLET ==================== -->
   <div id="page-wallet" class="hidden flex-1 flex flex-col max-w-md mx-auto w-full pb-28 px-4 pt-3">
     <div class="mb-5">
-      <div class="text-[11px] font-black tracking-[0.15em] text-yellow-400 uppercase mb-1.5">
+      <div class="text-[11px] font-black tracking-[0.15em] text-yellow-500 uppercase mb-1.5">
         MY WALLET / ቦርሳ
       </div>
-      <h1 class="text-3xl font-black text-white leading-[1.15] tracking-tight">
+      <h1 class="text-3xl font-black leading-[1.15] tracking-tight">
         ገንዘብህን<br>
-        <span class="text-yellow-400">በቀላሉ አስተዳድር።</span>
+        <span class="text-yellow-500">በቀላሉ አስተዳድር።</span>
       </h1>
-      <p class="text-xs text-gray-400 mt-2 font-medium">የጨዋታ እና ዋና ሂሳብዎን ይከታተሉ።</p>
+      <p class="text-xs opacity-75 mt-2 font-medium">የጨዋታ እና ዋና ሂሳብዎን ይከታተሉ።</p>
     </div>
 
-    <div class="bg-gradient-to-br from-[#191919] via-[#121212] to-[#0a0a0a] border border-[#222] rounded-3xl p-5 mb-4 shadow-2xl relative overflow-hidden">
-      <div class="absolute -top-12 -right-12 w-36 h-36 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div class="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">TOTAL AVAILABLE / ጠቅላላ</div>
+    <div class="border rounded-3xl p-5 mb-4 shadow-2xl relative overflow-hidden transition-colors duration-200" id="wallet-main-card">
+      <div class="text-[10px] font-bold tracking-widest opacity-75 uppercase mb-1">TOTAL AVAILABLE / ጠቅላላ</div>
       <div class="flex items-baseline space-x-2 mb-5">
-        <span id="wallet-page-total" class="text-4xl font-black text-yellow-400 font-mono tracking-tight">0.00</span>
-        <span class="text-xl font-black text-yellow-400">ብር</span>
+        <span id="wallet-page-total" class="text-4xl font-black text-yellow-500 font-mono tracking-tight">0.00</span>
+        <span class="text-xl font-black text-yellow-500">ብር</span>
       </div>
 
-      <div class="border-t border-white/10 pt-4 grid grid-cols-2 gap-3">
-        <div class="bg-[#1b1b1b]/90 border border-white/5 rounded-2xl p-3.5">
-          <div class="text-[11px] text-gray-400 font-bold mb-1">መጫወቻ ሂሳብ (Play)</div>
-          <div id="wallet-page-play" class="text-lg font-black text-white font-mono">0.00 ETB</div>
+      <div class="border-t border-gray-500/20 pt-4 grid grid-cols-2 gap-3">
+        <div class="border rounded-2xl p-3.5 transition-colors duration-200 sub-wallet-box">
+          <div class="text-[11px] opacity-75 font-bold mb-1">መጫወቻ ሂሳብ (Play)</div>
+          <div id="wallet-page-play" class="text-lg font-black font-mono">0.00 ETB</div>
         </div>
-        <div class="bg-[#1b1b1b]/90 border border-white/5 rounded-2xl p-3.5">
-          <div class="text-[11px] text-gray-400 font-bold mb-1">ዋና ሂሳብ (Main)</div>
-          <div id="wallet-page-main" class="text-lg font-black text-white font-mono">0.00 ETB</div>
+        <div class="border rounded-2xl p-3.5 transition-colors duration-200 sub-wallet-box">
+          <div class="text-[11px] opacity-75 font-bold mb-1">ዋና ሂሳብ (Main)</div>
+          <div id="wallet-page-main" class="text-lg font-black font-mono">0.00 ETB</div>
         </div>
       </div>
     </div>
@@ -254,18 +244,18 @@
         <i class="fa-solid fa-arrow-down-left text-sm"></i>
         <span>ገንዘብ አስገባ</span>
       </button>
-      <button onclick="triggerWithdraw()" class="bg-[#141414] hover:bg-[#1c1c1c] text-white border border-yellow-400/40 font-black py-3.5 px-4 rounded-2xl shadow-md transition-transform active:scale-95 flex items-center justify-center space-x-2 text-xs">
-        <i class="fa-solid fa-arrow-up-right text-sm text-yellow-400"></i>
+      <button onclick="triggerWithdraw()" class="border border-yellow-500/40 font-black py-3.5 px-4 rounded-2xl shadow-md transition-transform active:scale-95 flex items-center justify-center space-x-2 text-xs">
+        <i class="fa-solid fa-arrow-up-right text-sm text-yellow-500"></i>
         <span>ገንዘብ አውጣ</span>
       </button>
     </div>
 
-    <div class="bg-[#141414] border border-[#222] rounded-2xl p-4 mb-6 shadow-lg">
-      <h3 class="text-xs font-bold text-yellow-400 mb-2.5 flex items-center space-x-1.5">
+    <div class="border rounded-2xl p-4 mb-6 shadow-lg transition-colors duration-200" id="promo-box">
+      <h3 class="text-xs font-bold text-yellow-500 mb-2.5 flex items-center space-x-1.5">
         <i class="fa-solid fa-ticket"></i><span>ፕሮሞ ኮድ አለዎት?</span>
       </h3>
       <div class="flex space-x-2">
-        <input id="promo-code-input" type="text" placeholder="ፕሮሞ ኮድ እዚህ ያስገቡ" class="flex-1 rounded-xl bg-[#0a0a0a] border border-[#222] p-2.5 text-white text-xs focus:border-yellow-400 outline-none uppercase font-mono">
+        <input id="promo-code-input" type="text" placeholder="ፕሮሞ ኮድ እዚህ ያስገቡ" class="flex-1 rounded-xl border p-2.5 text-xs focus:border-yellow-500 outline-none uppercase font-mono transition-colors duration-200 promo-input-elem">
         <button onclick="submitPromoCode()" class="bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black px-4 py-2.5 rounded-xl text-xs transition-transform active:scale-95">Claim</button>
       </div>
       <p id="promo-result" class="text-xs mt-2 font-medium"></p>
@@ -273,70 +263,70 @@
 
     <div class="flex items-end justify-between mb-3">
       <div>
-        <div class="text-[10px] font-black tracking-[0.15em] text-yellow-400 uppercase mb-0.5">LEDGER / መዝገብ</div>
-        <h3 class="text-lg font-black text-white">የቅርብ ጊዜ እንቅስቃሴ</h3>
+        <div class="text-[10px] font-black tracking-[0.15em] text-yellow-500 uppercase mb-0.5">LEDGER / መዝገብ</div>
+        <h3 class="text-lg font-black">የቅርብ ጊዜ እንቅስቃሴ</h3>
       </div>
-      <button onclick="loadTransactionHistory(); refreshUserData();" aria-label="Refresh history" class="w-10 h-10 rounded-xl bg-[#141414] border border-[#222] text-yellow-400 flex items-center justify-center active:scale-90 transition">
+      <button onclick="loadTransactionHistory(); refreshUserData();" aria-label="Refresh history" class="w-10 h-10 rounded-xl border text-yellow-500 flex items-center justify-center active:scale-90 transition transition-colors duration-200 refresh-btn-box">
         <i class="fa-solid fa-rotate text-sm"></i>
       </button>
     </div>
 
     <div class="grid grid-cols-3 gap-2 mb-3">
       <button id="history-all-btn" onclick="setHistoryFilter('all')" class="history-filter bg-yellow-400 text-slate-950 font-black text-xs rounded-xl py-2 transition-colors">ሁሉም (All)</button>
-      <button id="history-deposit-btn" onclick="setHistoryFilter('deposit')" class="history-filter bg-[#141414] border border-[#222] text-gray-300 font-bold text-xs rounded-xl py-2 transition-colors">ገቢ (Deposit)</button>
-      <button id="history-withdraw-btn" onclick="setHistoryFilter('withdrawal')" class="history-filter bg-[#141414] border border-[#222] text-gray-300 font-bold text-xs rounded-xl py-2 transition-colors">ወጪ (Withdraw)</button>
+      <button id="history-deposit-btn" onclick="setHistoryFilter('deposit')" class="history-filter border font-bold text-xs rounded-xl py-2 transition-colors history-filter-inactive">ገቢ (Deposit)</button>
+      <button id="history-withdraw-btn" onclick="setHistoryFilter('withdrawal')" class="history-filter border font-bold text-xs rounded-xl py-2 transition-colors history-filter-inactive">ወጪ (Withdraw)</button>
     </div>
 
     <div id="transaction-history-list" class="space-y-2.5">
-      <div class="text-center text-gray-500 text-xs py-6 bg-[#141414] border border-[#222] rounded-2xl">Loading...</div>
+      <div class="text-center opacity-75 text-xs py-6 border rounded-2xl transition-colors duration-200 history-loading-box">Loading...</div>
     </div>
   </div>
 
   <!-- DEPOSIT SUBPAGE -->
   <div id="page-deposit" class="hidden flex-1-col max-w-md mx-auto w-full p-4 pb-28">
-    <button onclick="switchPage('wallet')" class="self-start text-yellow-400 mb-3 font-bold text-xs"><i class="fa-solid fa-arrow-left mr-1"></i>ወደ ዋሌት ተመለስ</button>
-    <h2 class="text-xl font-black mb-1 text-yellow-400">📥 በTelebirr ሂሳብ መሙላት</h2>
-    <p class="text-[11px] text-gray-400 mb-4">ከታች ያለውን የTelebirr ሂሳብ ተጠቅመው ክፍያዎን ይፈጽሙ።</p>
+    <button onclick="switchPage('wallet')" class="self-start text-yellow-500 mb-3 font-bold text-xs"><i class="fa-solid fa-arrow-left mr-1"></i>ወደ ዋሌት ተመለስ</button>
+    <h2 class="text-xl font-black mb-1 text-yellow-500">📥 በTelebirr ሂሳብ መሙላት</h2>
+    <p class="text-[11px] opacity-75 mb-4">ከታች ያለውን የTelebirr ሂሳብ ተጠቅመው ክፍያዎን ይፈጽሙ።</p>
 
-    <section class="rounded-2xl border border-yellow-500/40 bg-gradient-to-br from-[#241b08] via-[#17130b] to-[#101010] p-4 mb-4 shadow-lg">
+    <section class="rounded-2xl border border-yellow-500/40 bg-gradient-to-br p-4 mb-4 shadow-lg transition-colors duration-200" id="deposit-card-box">
       <div class="flex items-center justify-between mb-4">
-        <div class="font-black text-sm text-yellow-300"><i class="fa-solid fa-wallet mr-2"></i>የTelebirr ክፍያ መረጃ</div>
-        <span class="text-[9px] font-bold tracking-wider text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2 py-1">PAYMENT ACCOUNT</span>
+        <div class="font-black text-sm text-yellow-500"><i class="fa-solid fa-wallet mr-2"></i>የTelebirr ክፍያ መረጃ</div>
+        <span class="text-[9px] font-bold tracking-wider text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 rounded-full px-2 py-1">PAYMENT ACCOUNT</span>
       </div>
-      <div class="rounded-xl bg-black/30 border border-white/10 p-3 mb-3">
-        <div class="text-[10px] text-gray-400 mb-1">የመለያ ባለቤት ስም</div>
-        <div id="telebirr-account-name" class="text-white font-extrabold text-base break-words">Loading…</div>
+      <div class="rounded-xl border p-3 mb-3 transition-colors duration-200 deposit-inner-box">
+        <div class="text-[10px] opacity-75 mb-1">የመለያ ባለቤት ስም</div>
+        <div id="telebirr-account-name" class="font-extrabold text-base break-words">Loading…</div>
       </div>
-      <div class="rounded-xl bg-black/30 border border-white/10 p-3">
-        <div class="text-[10px] text-gray-400 mb-1">የTelebirr መለያ ቁጥር</div>
+      <div class="rounded-xl border p-3 transition-colors duration-200 deposit-inner-box">
+        <div class="text-[10px] opacity-75 mb-1">የTelebirr መለያ ቁጥር</div>
         <div class="flex items-center justify-between gap-2">
-          <div id="telebirr-account-number" class="text-yellow-300 font-mono font-black text-lg tracking-wide break-all">Loading…</div>
+          <div id="telebirr-account-number" class="text-yellow-500 font-mono font-black text-lg tracking-wide break-all">Loading…</div>
           <button type="button" onclick="copyTelebirrNumber()" class="shrink-0 rounded-lg bg-yellow-400 text-black px-3 py-2 text-[10px] font-black"><i class="fa-regular fa-copy mr-1"></i>Copy</button>
         </div>
       </div>
     </section>
 
-    <label class="block text-xs mb-1 text-gray-300">የላኩት መጠን (ETB)</label>
-    <input id="deposit-amount" type="number" min="100" step="0.01" class="w-full rounded-xl bg-[#141414] border border-[#222] p-3 text-white mb-3 text-xs focus:border-yellow-400 outline-none" placeholder="የላኩትን መጠን ያስገቡ">
-    <label class="block text-xs mb-1 text-gray-300">የክፍያ ማረጋገጫ ቁጥር / Transaction ID</label>
-    <input id="deposit-reference" class="w-full rounded-xl bg-[#141414] border border-[#222] p-3 text-white mb-3 text-xs focus:border-yellow-400 outline-none" placeholder="Transaction ID ያስገቡ">
-    <label class="block text-xs mb-1 text-gray-300">የክፍያ ደረሰኝ Screenshot</label>
-    <input id="deposit-image" type="file" accept="image/png,image/jpeg,image/webp" class="w-full text-xs mb-4 text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-yellow-400 file:text-slate-950 file:font-bold">
+    <label class="block text-xs mb-1 opacity-75">የላኩት መጠን (ETB)</label>
+    <input id="deposit-amount" type="number" min="100" step="0.01" class="w-full rounded-xl border p-3 mb-3 text-xs focus:border-yellow-500 outline-none transition-colors duration-200 generic-input" placeholder="የላኩትን መጠን ያስገቡ">
+    <label class="block text-xs mb-1 opacity-75">የክፍያ ማረጋገጫ ቁጥር / Transaction ID</label>
+    <input id="deposit-reference" class="w-full rounded-xl border p-3 mb-3 text-xs focus:border-yellow-500 outline-none transition-colors duration-200 generic-input" placeholder="Transaction ID ያስገቡ">
+    <label class="block text-xs mb-1 opacity-75">የክፍያ ደረሰኝ Screenshot</label>
+    <input id="deposit-image" type="file" accept="image/png,image/jpeg,image/webp" class="w-full text-xs mb-4 opacity-75 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-yellow-400 file:text-slate-950 file:font-bold">
     <button onclick="submitDeposit()" class="w-full rounded-xl bg-yellow-400 text-slate-950 font-black p-3.5 text-xs shadow-lg"><i class="fa-solid fa-paper-plane mr-2"></i>ጥያቄ ላክ</button>
-    <p id="deposit-result" class="text-xs mt-3 font-medium"></p>
+    <p id="deposit-result" role="status" aria-live="polite" class="text-xs mt-3 font-medium"></p>
   </div>
 
   <!-- WITHDRAW SUBPAGE -->
   <div id="page-withdraw" class="hidden flex-1-col max-w-md mx-auto w-full p-4 pb-28">
-    <button onclick="switchPage('wallet')" class="self-start text-yellow-400 mb-3 font-bold text-xs"><i class="fa-solid fa-arrow-left mr-1"></i> ወደ ዋሌት ተመለስ</button>
+    <button onclick="switchPage('wallet')" class="self-start text-yellow-500 mb-3 font-bold text-xs"><i class="fa-solid fa-arrow-left mr-1"></i> ወደ ዋሌት ተመለስ</button>
     <h2 class="text-xl font-black mb-3 text-rose-500">📤 ገንዘብ ማውጣት</h2>
-    <div class="bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4 text-xs">ቀሪ ዋና ሂሳብ: <b id="withdraw-balance" class="text-yellow-400 font-mono">0.00 ETB</b></div>
-    <label class="block text-xs mb-1 text-gray-300">መጠን (ETB)</label>
-    <input id="withdraw-amount" type="number" min="100" class="w-full rounded-xl bg-[#141414] border border-[#222] p-3 text-white mb-3 text-xs focus:border-yellow-400 outline-none" placeholder="ቢያንስ 100 ETB">
-    <label class="block text-xs mb-1 text-gray-300">የቴሌብር ስም</label>
-    <input id="withdraw-name" class="w-full rounded-xl bg-[#141414] border border-[#222] p-3 text-white mb-3 text-xs focus:border-yellow-400 outline-none" placeholder="የአካውንቱ ባለቤት ስም">
-    <label class="block text-xs mb-1 text-gray-300">የቴሌብር ስልክ ቁጥር</label>
-    <input id="withdraw-account" inputmode="tel" class="w-full rounded-xl bg-[#141414] border border-[#222] p-3 text-white mb-4 text-xs focus:border-yellow-400 outline-none" placeholder="09XXXXXXXX">
+    <div class="border rounded-2xl p-4 mb-4 text-xs transition-colors duration-200 withdraw-balance-box">ቀሪ ዋና ሂሳብ: <b id="withdraw-balance" class="text-yellow-500 font-mono">0.00 ETB</b></div>
+    <label class="block text-xs mb-1 opacity-75">መጠን (ETB)</label>
+    <input id="withdraw-amount" type="number" min="100" class="w-full rounded-xl border p-3 mb-3 text-xs focus:border-yellow-500 outline-none transition-colors duration-200 generic-input" placeholder="ቢያንስ 100 ETB">
+    <label class="block text-xs mb-1 opacity-75">የቴሌብር ስም</label>
+    <input id="withdraw-name" class="w-full rounded-xl border p-3 mb-3 text-xs focus:border-yellow-500 outline-none transition-colors duration-200 generic-input" placeholder="የአካውንቱ ባለቤት ስም">
+    <label class="block text-xs mb-1 opacity-75">የቴሌብር ስልክ ቁጥር</label>
+    <input id="withdraw-account" inputmode="tel" class="w-full rounded-xl border p-3 mb-4 text-xs focus:border-yellow-500 outline-none transition-colors duration-200 generic-input" placeholder="09XXXXXXXX">
     <button onclick="submitWithdrawal()" class="w-full rounded-xl bg-rose-600 text-white font-black p-3.5 text-xs shadow-lg">የማውጣት ጥያቄ ላክ</button>
     <p id="withdraw-result" class="text-xs mt-3 font-medium"></p>
   </div>
@@ -344,10 +334,10 @@
   <!-- ==================== PAGE: RANK ==================== -->
   <div id="page-rank" class="hidden flex-1 flex flex-col max-w-md mx-auto w-full pb-28 px-4 pt-2">
     <div class="text-center mb-4">
-      <h2 class="text-xl font-black text-yellow-400 tracking-wide flex items-center justify-center space-x-2">
+      <h2 class="text-xl font-black text-yellow-500 tracking-wide flex items-center justify-center space-x-2">
         <i class="fa-solid fa-trophy"></i><span>የሳምንቱ አሸናፊዎች</span>
       </h2>
-      <div class="text-[10px] text-gray-400 font-mono mt-1" id="rank-date-subtitle">TOP PLAYERS</div>
+      <div class="text-[10px] opacity-75 font-mono mt-1" id="rank-date-subtitle">TOP PLAYERS</div>
     </div>
     <div class="mb-4" id="rank-podium-container"></div>
     <div id="rank-list-container" class="space-y-2"></div>
@@ -356,87 +346,87 @@
   <!-- ==================== PAGE: PROFILE ==================== -->
   <div id="page-profile" class="hidden flex-1 flex flex-col max-w-md mx-auto w-full pb-28 px-4 pt-2">
     <div class="text-center mb-3">
-      <h2 class="text-xl font-black text-white">የእኔ ፕሮፋይል</h2>
+      <h2 class="text-xl font-black">የእኔ ፕሮፋይል</h2>
     </div>
 
-    <div class="bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4 flex flex-col items-center shadow-lg">
+    <div class="border rounded-2xl p-4 mb-4 flex flex-col items-center shadow-lg transition-colors duration-200 profile-card-box">
       <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-yellow-400 to-amber-600 flex items-center justify-center text-2xl font-black text-slate-950 shadow-md mb-2">
         <span id="profile-avatar-letter">?</span>
       </div>
-      <div class="text-lg font-bold text-white mb-0.5" id="profile-user-name">Loading...</div>
-      <div class="text-xs text-yellow-400 font-mono mb-2" id="profile-user-phone">Loading...</div>
-      <div class="text-[10px] text-gray-400 font-mono bg-[#0a0a0a] px-3 py-1 rounded-lg border border-[#222]">
+      <div class="text-lg font-bold mb-0.5" id="profile-user-name">Loading...</div>
+      <div class="text-xs text-yellow-500 font-mono mb-2" id="profile-user-phone">Loading...</div>
+      <div class="text-[10px] opacity-75 font-mono px-3 py-1 rounded-lg border transition-colors duration-200 profile-id-box">
         ID: #<span id="profile-user-id">Loading...</span>
       </div>
     </div>
 
     <!-- THEME SWITCHER CARD IN PROFILE -->
-    <div class="bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4 flex items-center justify-between shadow-lg">
-      <div class="flex items-center space-x-2.5 text-yellow-400 text-xs font-bold">
+    <div class="border rounded-2xl p-4 mb-4 flex items-center justify-between shadow-lg transition-colors duration-200 profile-card-box">
+      <div class="flex items-center space-x-2.5 text-yellow-500 text-xs font-bold">
         <i class="fa-solid fa-circle-half-stroke text-sm"></i>
         <span>የሰሌዳ ገጽታ (Theme Mode)</span>
       </div>
       <button onclick="toggleThemeMode()" id="profile-theme-btn" class="bg-yellow-400 text-slate-950 px-3 py-1.5 rounded-xl text-xs font-black transition active:scale-95">Dark / Light</button>
     </div>
 
-    <div class="bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4">
-      <div class="text-xs font-bold text-yellow-400 mb-2 flex items-center space-x-1.5">
+    <div class="border rounded-2xl p-4 mb-4 transition-colors duration-200 profile-card-box">
+      <div class="text-xs font-bold text-yellow-500 mb-2 flex items-center space-x-1.5">
         <i class="fa-solid fa-share-nodes"></i><span>የመጋበዣ ሊንክ (Referral)</span>
       </div>
       <div class="flex items-center space-x-2">
-        <div id="referral-link-display" class="flex-1 bg-[#0a0a0a] border border-[#222] rounded-xl px-3 py-2 text-[11px] text-gray-400 font-mono truncate">Loading...</div>
+        <div id="referral-link-display" class="flex-1 border rounded-xl px-3 py-2 text-[11px] opacity-75 font-mono truncate transition-colors duration-200 referral-box">Loading...</div>
         <button onclick="copyReferralLink()" id="btn-copy-link" class="bg-yellow-400 text-slate-950 text-xs font-bold px-3 py-2 rounded-xl">Copy</button>
       </div>
     </div>
 
     <div class="grid grid-cols-2 gap-3 mb-4">
-      <div class="bg-[#141414] border border-[#222] rounded-2xl p-3 text-center">
-        <span class="text-[10px] text-gray-400">የተጫወቱት</span>
-        <div id="stat-games-played" class="text-lg font-mono font-black text-yellow-400 mt-0.5">0</div>
+      <div class="border rounded-2xl p-3 text-center transition-colors duration-200 profile-card-box">
+        <span class="text-[10px] opacity-75">የተጫወቱት</span>
+        <div id="stat-games-played" class="text-lg font-mono font-black text-yellow-500 mt-0.5">0</div>
       </div>
-      <div class="bg-[#141414] border border-[#222] rounded-2xl p-3 text-center">
-        <span class="text-[10px] text-gray-400">ያሸነፉት</span>
-        <div id="stat-games-won" class="text-lg font-mono font-black text-emerald-400 mt-0.5">0.00 ETB</div>
+      <div class="border rounded-2xl p-3 text-center transition-colors duration-200 profile-card-box">
+        <span class="text-[10px] opacity-75">ያሸነፉት</span>
+        <div id="stat-games-won" class="text-lg font-mono font-black text-emerald-500 mt-0.5">0.00 ETB</div>
       </div>
     </div>
 
     <div class="space-y-2">
-      <button id="profile-help-btn" class="w-full bg-[#141414] border border-[#222] hover:bg-[#1a1a1a] rounded-2xl p-3.5 flex justify-between items-center text-xs font-bold">
-        <span class="flex items-center gap-2.5 text-yellow-400"><i class="fa-solid fa-headset text-sm"></i><span>እርዳታ ማግኘት</span></span>
-        <i class="fa-solid fa-chevron-right text-gray-600 text-[10px]"></i>
+      <button id="profile-help-btn" class="w-full border hover:opacity-80 rounded-2xl p-3.5 flex justify-between items-center text-xs font-bold transition-colors duration-200 profile-card-box">
+        <span class="flex items-center gap-2.5 text-yellow-500"><i class="fa-solid fa-headset text-sm"></i><span>እርዳታ ማግኘት</span></span>
+        <i class="fa-solid fa-chevron-right opacity-50 text-[10px]"></i>
       </button>
-      <button id="game-rules-btn" class="w-full bg-[#141414] border border-[#222] hover:bg-[#1a1a1a] rounded-2xl p-3.5 flex justify-between items-center text-xs font-bold">
-        <span class="flex items-center gap-2.5 text-yellow-400"><i class="fa-solid fa-book text-sm"></i><span>የጨዋታ ህጎች</span></span>
-        <i class="fa-solid fa-chevron-right text-gray-600 text-[10px]"></i>
+      <button id="game-rules-btn" class="w-full border hover:opacity-80 rounded-2xl p-3.5 flex justify-between items-center text-xs font-bold transition-colors duration-200 profile-card-box">
+        <span class="flex items-center gap-2.5 text-yellow-500"><i class="fa-solid fa-book text-sm"></i><span>የጨዋታ ህጎች</span></span>
+        <i class="fa-solid fa-chevron-right opacity-50 text-[10px]"></i>
       </button>
     </div>
   </div>
 
   <!-- POPUP: SELECTED CARTELS MINI BAR -->
-  <div id="cartel-popup-panel" class="fixed bottom-16 left-0 right-0 max-w-md mx-auto z-40 bg-[#0d0d0d]/95 backdrop-blur-md border-t border-yellow-500/50 p-3 rounded-t-2xl shadow-2xl hidden">
+  <div id="cartel-popup-panel" class="fixed bottom-16 left-0 right-0 max-w-md mx-auto z-40 backdrop-blur-md border-t border-yellow-500/50 p-3 rounded-t-2xl shadow-2xl hidden transition-colors duration-200">
     <div class="flex justify-between items-center mb-2 px-1">
-      <div class="text-xs font-bold text-white">መረጧቸው: <span id="popup-cartel-count" class="text-yellow-400 font-mono">0</span></div>
-      <div id="popup-total-price" class="text-yellow-400 font-mono font-black text-xs">0 ETB</div>
+      <div class="text-xs font-bold">መረጧቸው: <span id="popup-cartel-count" class="text-yellow-500 font-mono">0</span></div>
+      <div id="popup-total-price" class="text-yellow-500 font-mono font-black text-xs">0 ETB</div>
     </div>
     <div id="popup-cards-wrapper" class="flex space-x-2 overflow-x-auto pb-1"></div>
   </div>
 
   <!-- WINNER MODAL -->
   <div id="winner-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="max-w-xs w-full bg-[#141414] border-2 border-yellow-400 rounded-3xl p-4 shadow-2xl animate-modal text-center max-h-[75vh] flex flex-col overflow-hidden">
+    <div class="max-w-xs w-full border-2 border-yellow-400 rounded-3xl p-4 shadow-2xl animate-modal text-center max-h-[75vh] flex flex-col overflow-hidden transition-colors duration-200" id="winner-modal-box">
       <div class="shrink-0 mb-2">
         <div class="flex justify-between items-center mb-1 px-1">
-          <div id="winner-count-badge" class="text-yellow-400 font-black text-xs">1 አሸናፊ</div>
-          <div id="winner-top-pool" class="text-yellow-400 font-mono font-black text-xs">0.00 ETB</div>
+          <div id="winner-count-badge" class="text-yellow-500 font-black text-xs">1 አሸናፊ</div>
+          <div id="winner-top-pool" class="text-yellow-500 font-mono font-black text-xs">0.00 ETB</div>
         </div>
-        <div id="winner-name-title" class="text-base font-black text-emerald-400 italic tracking-wide">yoni.f11 has won!</div>
-        <div class="bg-[#0c0c0c] border border-[#222] rounded-xl p-2 mt-2">
-          <div class="text-[9px] text-gray-400 uppercase font-bold">TOTAL PRIZE POOL</div>
-          <div id="winner-total-prize" class="text-base font-black text-emerald-400 font-mono mt-0.5">0.00 ETB</div>
+        <div id="winner-name-title" class="text-base font-black text-emerald-500 italic tracking-wide">yoni.f11 has won!</div>
+        <div class="border rounded-xl p-2 mt-2 transition-colors duration-200 winner-pool-box">
+          <div class="text-[9px] opacity-75 uppercase font-bold">TOTAL PRIZE POOL</div>
+          <div id="winner-total-prize" class="text-base font-black text-emerald-500 font-mono mt-0.5">0.00 ETB</div>
         </div>
       </div>
       <div class="flex-1 overflow-y-auto space-y-3 my-2 pr-1" id="winners-list-container"></div>
-      <div class="shrink-0 pt-2 border-t border-white/10">
+      <div class="shrink-0 pt-2 border-t border-gray-500/20">
         <button onclick="closeWinnerModal()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black py-2.5 rounded-xl text-xs uppercase shadow-lg tracking-wider">
           NEXT ROUND: 5S
         </button>
@@ -445,21 +435,21 @@
   </div>
 
   <!-- BOTTOM NAVIGATION BAR -->
-  <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#0d0d0d] border-t border-[#222] px-4 py-2 flex justify-between items-center z-50">
-    <button onclick="switchPage('home')" id="nav-home" class="nav-active flex flex-col items-center space-y-1 text-gray-400 hover:text-yellow-400 w-12 py-1">
+  <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto border-t px-4 py-2 flex justify-between items-center z-50 transition-colors duration-200" id="bottom-nav">
+    <button onclick="switchPage('home')" id="nav-home" class="nav-active flex flex-col items-center space-y-1 opacity-75 hover:opacity-100 w-12 py-1">
       <i class="fa-solid fa-house text-base"></i><span class="text-[9px] font-bold">Home</span>
     </button>
-    <button onclick="switchPage('ticket')" id="nav-ticket" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-yellow-400 w-12 py-1 relative">
+    <button onclick="switchPage('ticket')" id="nav-ticket" class="flex flex-col items-center space-y-1 opacity-75 hover:opacity-100 w-12 py-1 relative">
       <i class="fa-solid fa-ticket text-base"></i><span class="text-[9px] font-bold">Ticket</span>
       <span id="nav-ticket-badge" class="absolute top-0 right-1 bg-red-600 text-white text-[8px] font-black px-1 rounded-full hidden">0</span>
     </button>
-    <button onclick="switchPage('wallet')" id="nav-wallet" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-yellow-400 w-12 py-1">
+    <button onclick="switchPage('wallet')" id="nav-wallet" class="flex flex-col items-center space-y-1 opacity-75 hover:opacity-100 w-12 py-1">
       <i class="fa-solid fa-wallet text-base"></i><span class="text-[9px] font-bold">Wallet</span>
     </button>
-    <button onclick="switchPage('rank')" id="nav-rank" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-yellow-400 w-12 py-1">
+    <button onclick="switchPage('rank')" id="nav-rank" class="flex flex-col items-center space-y-1 opacity-75 hover:opacity-100 w-12 py-1">
       <i class="fa-solid fa-trophy text-base"></i><span class="text-[9px] font-bold">Rank</span>
     </button>
-    <button onclick="switchPage('profile')" id="nav-profile" class="flex flex-col items-center space-y-1 text-gray-400 hover:text-yellow-400 w-12 py-1">
+    <button onclick="switchPage('profile')" id="nav-profile" class="flex flex-col items-center space-y-1 opacity-75 hover:opacity-100 w-12 py-1">
       <i class="fa-solid fa-user text-base"></i><span class="text-[9px] font-bold">Profile</span>
     </button>
   </nav>
@@ -471,7 +461,7 @@
     window.currentUserPhone = "Unknown";
     window.currentUserId = "00000";
 
-    // Theme Management Script
+    // Theme Management Script (Fully Inverting All Elements)
     let isDarkMode = true;
     try {
       const savedTheme = localStorage.getItem('melbet_bingo_theme');
@@ -481,13 +471,138 @@
     function applyTheme() {
       const body = document.getElementById('body-root');
       const themeIcon = document.getElementById('theme-icon');
+      
+      const appHeader = document.getElementById('app-header');
+      const themeBtnElem = document.getElementById('theme-btn-elem');
+      const soundBtnElem = document.getElementById('sound-btn-elem');
+      const walletHeaderBox = document.getElementById('wallet-header-box');
+      
+      const heroBanner = document.getElementById('hero-banner');
+      const countdownCircle = document.getElementById('countdown-circle');
+      const statsCard = document.getElementById('stats-card');
+      const subCardBoxes = document.querySelectorAll('.sub-card-box');
+      const selectedCountBadge = document.getElementById('selected-count-badge');
+      const gridContainerBox = document.getElementById('grid-container-box');
+
+      const viewModeSwitchBox = document.getElementById('view-mode-switch-box');
+      const drawCountBox = document.getElementById('draw-count-box');
+      const ticketHeroBanner = document.getElementById('ticket-hero-banner');
+      const masterBoardToggleBtn = document.getElementById('master-board-toggle-btn');
+      const masterBoardDropdown = document.getElementById('master-board-dropdown');
+      const ticketEmptyMsg = document.getElementById('ticket-empty-msg');
+
+      const walletMainCard = document.getElementById('wallet-main-card');
+      const subWalletBoxes = document.querySelectorAll('.sub-wallet-box');
+      const promoBox = document.getElementById('promo-box');
+      const promoInputElem = document.querySelector('.promo-input-elem');
+      const refreshBtnBox = document.querySelector('.refresh-btn-box');
+      const historyLoadingBox = document.querySelector('.history-loading-box');
+
+      const depositCardBox = document.getElementById('deposit-card-box');
+      const depositInnerBoxes = document.querySelectorAll('.deposit-inner-box');
+      const genericInputs = document.querySelectorAll('.generic-input');
+      const withdrawBalanceBox = document.querySelector('.withdraw-balance-box');
+
+      const profileCardBoxes = document.querySelectorAll('.profile-card-box');
+      const profileIdBox = document.querySelector('.profile-id-box');
+      const referralBox = document.querySelector('.referral-box');
+
+      const cartelPopupPanel = document.getElementById('cartel-popup-panel');
+      const winnerModalBox = document.getElementById('winner-modal-box');
+      const winnerPoolBoxes = document.querySelectorAll('.winner-pool-box');
+      const bottomNav = document.getElementById('bottom-nav');
+
       if (isDarkMode) {
+        // --- DARK MODE STYLES ---
         body.className = "h-full font-sans antialiased flex flex-col overflow-x-hidden select-none bg-[#050505] text-white transition-colors duration-200";
         if (themeIcon) themeIcon.className = "fa-solid fa-moon";
+
+        if(appHeader) appHeader.className = "px-4 py-3 bg-[#0d0d0d] border-b border-[#222] flex justify-between items-center sticky top-0 z-30 shadow-lg transition-colors duration-200";
+        if(themeBtnElem) themeBtnElem.className = "w-9 h-9 rounded-xl bg-[#1a1a1a] border border-[#333] flex items-center justify-center text-yellow-400 active:scale-95 transition";
+        if(soundBtnElem) soundBtnElem.className = "w-9 h-9 rounded-xl bg-[#1a1a1a] border border-[#333] flex items-center justify-center text-yellow-400 active:scale-95 transition";
+        if(walletHeaderBox) walletHeaderBox.className = "bg-[#161616] px-3 py-1.5 rounded-xl border border-[#333] flex flex-col items-end text-xs transition-colors duration-200";
+
+        if(heroBanner) heroBanner.className = "bg-gradient-to-r from-[#181818] via-[#121212] to-[#1e1a0d] border border-yellow-500/30 rounded-3xl px-5 py-4 mb-3 shadow-xl relative overflow-hidden flex items-center justify-between shrink-0 transition-colors duration-200";
+        if(countdownCircle) countdownCircle.className = "w-20 h-20 rounded-full border-2 border-dashed border-yellow-400/60 bg-[#0d0d0d]/70 flex flex-col items-center justify-center shadow-inner transition-colors duration-200";
+        if(statsCard) statsCard.className = "bg-gradient-to-b from-[#161616] to-[#0a0a0a] border border-[#222] rounded-2xl p-4 mb-3 shadow-xl relative overflow-hidden shrink-0 transition-colors duration-200";
+        subCardBoxes.forEach(el => el.className = "border border-[#222] bg-[#111] rounded-xl p-2.5 text-center flex flex-col justify-between transition-colors duration-200 sub-card-box");
+        if(selectedCountBadge) selectedCountBadge.className = "text-xs font-bold bg-[#141414] px-3 py-1 rounded-xl border border-[#222] font-mono transition-colors duration-200";
+        if(gridContainerBox) gridContainerBox.className = "bg-[#101010] border border-[#222] rounded-2xl p-3 flex-1 h-[58vh] min-h-[380px] overflow-y-auto shadow-inner relative transition-colors duration-200";
+
+        if(viewModeSwitchBox) viewModeSwitchBox.className = "bg-[#161616] border border-[#222] rounded-xl p-0.5 flex space-x-1 transition-colors duration-200";
+        if(drawCountBox) drawCountBox.className = "text-xs font-mono font-bold text-yellow-400 bg-[#161616] px-2.5 py-1.5 rounded-xl border border-[#222] shadow-md transition-colors duration-200";
+        if(ticketHeroBanner) ticketHeroBanner.className = "bg-gradient-to-r from-[#1b170e] via-[#141414] to-[#0f0f0f] border border-yellow-500/40 rounded-3xl p-4 mb-3 shadow-2xl relative overflow-hidden flex items-center justify-between shrink-0 transition-colors duration-200";
+        if(masterBoardToggleBtn) masterBoardToggleBtn.className = "w-full bg-[#161616] border border-[#222] hover:bg-[#222] text-yellow-400 font-bold py-2 px-3.5 rounded-xl flex items-center justify-between transition-colors text-xs shadow duration-200";
+        if(masterBoardDropdown) masterBoardDropdown.className = "hidden mt-2 bg-[#0c0c0c] border border-[#222] rounded-xl p-2 shadow-inner transition-colors duration-200";
+        if(ticketEmptyMsg) ticketEmptyMsg.className = "text-center text-gray-300 text-xs py-8 bg-[#141414] border border-[#222] rounded-2xl p-4 shadow transition-colors duration-200";
+
+        if(walletMainCard) walletMainCard.className = "bg-gradient-to-br from-[#191919] via-[#121212] to-[#0a0a0a] border border-[#222] rounded-3xl p-5 mb-4 shadow-2xl relative overflow-hidden transition-colors duration-200";
+        subWalletBoxes.forEach(el => el.className = "bg-[#1b1b1b]/90 border border-white/5 rounded-2xl p-3.5 transition-colors duration-200 sub-wallet-box");
+        if(promoBox) promoBox.className = "bg-[#141414] border border-[#222] rounded-2xl p-4 mb-6 shadow-lg transition-colors duration-200";
+        if(promoInputElem) promoInputElem.className = "flex-1 rounded-xl bg-[#0a0a0a] border border-[#222] p-2.5 text-white text-xs focus:border-yellow-400 outline-none uppercase font-mono transition-colors duration-200 promo-input-elem";
+        if(refreshBtnBox) refreshBtnBox.className = "w-10 h-10 rounded-xl bg-[#141414] border border-[#222] text-yellow-400 flex items-center justify-center active:scale-90 transition transition-colors duration-200 refresh-btn-box";
+        if(historyLoadingBox) historyLoadingBox.className = "text-center text-gray-500 text-xs py-6 bg-[#141414] border border-[#222] rounded-2xl transition-colors duration-200 history-loading-box";
+
+        if(depositCardBox) depositCardBox.className = "rounded-2xl border border-yellow-500/40 bg-gradient-to-br from-[#241b08] via-[#17130b] to-[#101010] p-4 mb-4 shadow-lg transition-colors duration-200";
+        depositInnerBoxes.forEach(el => el.className = "rounded-xl bg-black/30 border border-white/10 p-3 mb-3 transition-colors duration-200 deposit-inner-box");
+        genericInputs.forEach(el => el.className = "w-full rounded-xl bg-[#141414] border border-[#222] p-3 text-white mb-3 text-xs focus:border-yellow-400 outline-none transition-colors duration-200 generic-input");
+        if(withdrawBalanceBox) withdrawBalanceBox.className = "bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4 text-xs transition-colors duration-200 withdraw-balance-box";
+
+        profileCardBoxes.forEach(el => el.className = "bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4 flex flex-col items-center shadow-lg transition-colors duration-200 profile-card-box");
+        if(profileIdBox) profileIdBox.className = "text-[10px] text-gray-400 font-mono bg-[#0a0a0a] px-3 py-1 rounded-lg border border-[#222] transition-colors duration-200 profile-id-box";
+        if(referralBox) referralBox.className = "flex-1 bg-[#0a0a0a] border border-[#222] rounded-xl px-3 py-2 text-[11px] text-gray-400 font-mono truncate transition-colors duration-200 referral-box";
+
+        if(cartelPopupPanel) cartelPopupPanel.className = "fixed bottom-16 left-0 right-0 max-w-md mx-auto z-40 bg-[#0d0d0d]/95 backdrop-blur-md border-t border-yellow-500/50 p-3 rounded-t-2xl shadow-2xl hidden transition-colors duration-200";
+        if(winnerModalBox) winnerModalBox.className = "max-w-xs w-full bg-[#141414] border-2 border-yellow-400 rounded-3xl p-4 shadow-2xl animate-modal text-center max-h-[75vh] flex flex-col overflow-hidden transition-colors duration-200";
+        winnerPoolBoxes.forEach(el => el.className = "bg-[#0c0c0c] border border-[#222] rounded-xl p-2 mt-2 transition-colors duration-200 winner-pool-box");
+        if(bottomNav) bottomNav.className = "fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#0d0d0d] border-t border-[#222] px-4 py-2 flex justify-between items-center z-50 transition-colors duration-200";
+
         try { localStorage.setItem('melbet_bingo_theme', 'dark'); } catch(e){}
       } else {
-        body.className = "h-full font-sans antialiased flex flex-col overflow-x-hidden select-none bg-[#f4f4f4] text-slate-900 transition-colors duration-200";
+        // --- LIGHT / WHITE MODE STYLES (Full Inversion) ---
+        body.className = "h-full font-sans antialiased flex flex-col overflow-x-hidden select-none bg-[#f8f9fa] text-slate-900 transition-colors duration-200";
         if (themeIcon) themeIcon.className = "fa-solid fa-sun";
+
+        if(appHeader) appHeader.className = "px-4 py-3 bg-white border-b border-gray-200 flex justify-between items-center sticky top-0 z-30 shadow-md transition-colors duration-200";
+        if(themeBtnElem) themeBtnElem.className = "w-9 h-9 rounded-xl bg-gray-100 border border-gray-300 flex items-center justify-center text-amber-600 active:scale-95 transition";
+        if(soundBtnElem) soundBtnElem.className = "w-9 h-9 rounded-xl bg-gray-100 border border-gray-300 flex items-center justify-center text-amber-600 active:scale-95 transition";
+        if(walletHeaderBox) walletHeaderBox.className = "bg-gray-100 px-3 py-1.5 rounded-xl border border-gray-300 flex flex-col items-end text-xs transition-colors duration-200";
+
+        if(heroBanner) heroBanner.className = "bg-gradient-to-r from-gray-100 via-white to-amber-50 border border-amber-500/30 rounded-3xl px-5 py-4 mb-3 shadow-xl relative overflow-hidden flex items-center justify-between shrink-0 transition-colors duration-200";
+        if(countdownCircle) countdownCircle.className = "w-20 h-20 rounded-full border-2 border-dashed border-amber-500/60 bg-white/80 flex flex-col items-center justify-center shadow-inner transition-colors duration-200";
+        if(statsCard) statsCard.className = "bg-gradient-to-b from-white to-gray-50 border border-gray-200 rounded-2xl p-4 mb-3 shadow-xl relative overflow-hidden shrink-0 transition-colors duration-200";
+        subCardBoxes.forEach(el => el.className = "border border-gray-200 bg-gray-50 rounded-xl p-2.5 text-center flex flex-col justify-between transition-colors duration-200 sub-card-box");
+        if(selectedCountBadge) selectedCountBadge.className = "text-xs font-bold bg-white px-3 py-1 rounded-xl border border-gray-200 font-mono transition-colors duration-200";
+        if(gridContainerBox) gridContainerBox.className = "bg-white border border-gray-200 rounded-2xl p-3 flex-1 h-[58vh] min-h-[380px] overflow-y-auto shadow-inner relative transition-colors duration-200";
+
+        if(viewModeSwitchBox) viewModeSwitchBox.className = "bg-gray-100 border border-gray-300 rounded-xl p-0.5 flex space-x-1 transition-colors duration-200";
+        if(drawCountBox) drawCountBox.className = "text-xs font-mono font-bold text-amber-600 bg-gray-100 px-2.5 py-1.5 rounded-xl border border-gray-300 shadow-md transition-colors duration-200";
+        if(ticketHeroBanner) ticketHeroBanner.className = "bg-gradient-to-r from-amber-50 via-white to-gray-50 border border-amber-500/40 rounded-3xl p-4 mb-3 shadow-2xl relative overflow-hidden flex items-center justify-between shrink-0 transition-colors duration-200";
+        if(masterBoardToggleBtn) masterBoardToggleBtn.className = "w-full bg-gray-100 border border-gray-300 hover:bg-gray-200 text-amber-600 font-bold py-2 px-3.5 rounded-xl flex items-center justify-between transition-colors text-xs shadow duration-200";
+        if(masterBoardDropdown) masterBoardDropdown.className = "hidden mt-2 bg-white border border-gray-200 rounded-xl p-2 shadow-inner transition-colors duration-200";
+        if(ticketEmptyMsg) ticketEmptyMsg.className = "text-center text-gray-700 text-xs py-8 bg-white border border-gray-200 rounded-2xl p-4 shadow transition-colors duration-200";
+
+        if(walletMainCard) walletMainCard.className = "bg-gradient-to-br from-gray-50 via-white to-amber-50/30 border border-gray-200 rounded-3xl p-5 mb-4 shadow-2xl relative overflow-hidden transition-colors duration-200";
+        subWalletBoxes.forEach(el => el.className = "bg-white border border-gray-200 rounded-2xl p-3.5 transition-colors duration-200 sub-wallet-box");
+        if(promoBox) promoBox.className = "bg-white border border-gray-200 rounded-2xl p-4 mb-6 shadow-lg transition-colors duration-200";
+        if(promoInputElem) promoInputElem.className = "flex-1 rounded-xl bg-gray-50 border border-gray-300 p-2.5 text-slate-900 text-xs focus:border-amber-500 outline-none uppercase font-mono transition-colors duration-200 promo-input-elem";
+        if(refreshBtnBox) refreshBtnBox.className = "w-10 h-10 rounded-xl bg-white border border-gray-300 text-amber-600 flex items-center justify-center active:scale-90 transition transition-colors duration-200 refresh-btn-box";
+        if(historyLoadingBox) historyLoadingBox.className = "text-center text-gray-500 text-xs py-6 bg-white border border-gray-200 rounded-2xl transition-colors duration-200 history-loading-box";
+
+        if(depositCardBox) depositCardBox.className = "rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-50 via-white to-gray-50 p-4 mb-4 shadow-lg transition-colors duration-200";
+        depositInnerBoxes.forEach(el => el.className = "rounded-xl bg-white border border-gray-200 p-3 mb-3 transition-colors duration-200 deposit-inner-box");
+        genericInputs.forEach(el => el.className = "w-full rounded-xl bg-white border border-gray-300 p-3 text-slate-900 mb-3 text-xs focus:border-amber-500 outline-none transition-colors duration-200 generic-input");
+        if(withdrawBalanceBox) withdrawBalanceBox.className = "bg-white border border-gray-200 rounded-2xl p-4 mb-4 text-xs transition-colors duration-200 withdraw-balance-box";
+
+        profileCardBoxes.forEach(el => el.className = "bg-white border border-gray-200 rounded-2xl p-4 mb-4 flex flex-col items-center shadow-lg transition-colors duration-200 profile-card-box");
+        if(profileIdBox) profileIdBox.className = "text-[10px] text-gray-600 font-mono bg-gray-100 px-3 py-1 rounded-lg border border-gray-300 transition-colors duration-200 profile-id-box";
+        if(referralBox) referralBox.className = "flex-1 bg-gray-100 border border-gray-300 rounded-xl px-3 py-2 text-[11px] text-gray-700 font-mono truncate transition-colors duration-200 referral-box";
+
+        if(cartelPopupPanel) cartelPopupPanel.className = "fixed bottom-16 left-0 right-0 max-w-md mx-auto z-40 bg-white/95 backdrop-blur-md border-t border-amber-500/50 p-3 rounded-t-2xl shadow-2xl hidden transition-colors duration-200";
+        if(winnerModalBox) winnerModalBox.className = "max-w-xs w-full bg-white border-2 border-amber-500 rounded-3xl p-4 shadow-2xl animate-modal text-center max-h-[75vh] flex flex-col overflow-hidden transition-colors duration-200";
+        winnerPoolBoxes.forEach(el => el.className = "bg-gray-50 border border-gray-200 rounded-xl p-2 mt-2 transition-colors duration-200 winner-pool-box");
+        if(bottomNav) bottomNav.className = "fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 px-4 py-2 flex justify-between items-center z-50 transition-colors duration-200";
+
         try { localStorage.setItem('melbet_bingo_theme', 'light'); } catch(e){}
       }
     }
@@ -693,17 +808,19 @@
       const singleBtn = document.getElementById('view-mode-single-btn');
       if (mode === 'grid') {
         gridBtn.className = "px-2.5 py-1 rounded-lg text-[10px] font-black bg-yellow-400 text-slate-950 transition";
-        singleBtn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold text-gray-400 hover:text-white transition";
+        singleBtn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold transition";
       } else {
         singleBtn.className = "px-2.5 py-1 rounded-lg text-[10px] font-black bg-yellow-400 text-slate-950 transition";
-        gridBtn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold text-gray-400 hover:text-white transition";
+        gridBtn.className = "px-2.5 py-1 rounded-lg text-[10px] font-bold transition";
       }
       renderTicketMatrices();
     }
 
-    const CLS_FREE  = 'h-8 bg-[#161616] hover:bg-[#222] text-white font-bold text-xs rounded-lg border border-[#222] flex items-center justify-center transition-all';
-    const CLS_MINE  = 'h-8 bg-yellow-400 text-slate-950 font-black text-xs rounded-lg border border-yellow-200 flex items-center justify-center';
-    const CLS_TAKEN = 'h-8 bg-[#1f1208] text-yellow-600 font-bold text-xs rounded-lg border border-yellow-900/40 flex items-center justify-center opacity-60 cursor-not-allowed';
+    function getGridCellClass(st) {
+      if (st === 'mine') return 'h-8 bg-yellow-400 text-slate-950 font-black text-xs rounded-lg border border-yellow-200 flex items-center justify-center';
+      if (st === 'taken') return isDarkMode ? 'h-8 bg-[#1f1208] text-yellow-600 font-bold text-xs rounded-lg border border-yellow-900/40 flex items-center justify-center opacity-60 cursor-not-allowed' : 'h-8 bg-amber-100 text-amber-700 font-bold text-xs rounded-lg border border-amber-300 flex items-center justify-center opacity-70 cursor-not-allowed';
+      return isDarkMode ? 'h-8 bg-[#161616] hover:bg-[#222] text-white font-bold text-xs rounded-lg border border-[#222] flex items-center justify-center transition-all' : 'h-8 bg-white hover:bg-gray-100 text-slate-900 font-bold text-xs rounded-lg border border-gray-300 flex items-center justify-center transition-all';
+    }
 
     function initGrid() {
       gridContainer.innerHTML = '';
@@ -711,7 +828,7 @@
       for (let i = 1; i <= 500; i++) {
         const btn = document.createElement('button');
         btn.id = `cartel-${i}`;
-        btn.className = CLS_FREE;
+        btn.className = getGridCellClass('free');
         btn.innerText = i;
         btn.onclick = () => toggleCartel(i);
         gridContainer.appendChild(btn);
@@ -722,10 +839,15 @@
       const mine = new Set(selectedTickets);
       for (let i = 1; i <= 500; i++) {
         const st = mine.has(i) ? 'mine' : (takenCartels.has(i) ? 'taken' : 'free');
-        if (gridState[i] === st) continue;
+        const cls = getGridCellClass(st);
+        if (gridState[i] === st) {
+          const btn = document.getElementById(`cartel-${i}`);
+          if (btn && btn.className !== cls) btn.className = cls;
+          continue;
+        }
         gridState[i] = st;
         const btn = document.getElementById(`cartel-${i}`);
-        if (btn) btn.className = st === 'mine' ? CLS_MINE : st === 'taken' ? CLS_TAKEN : CLS_FREE;
+        if (btn) btn.className = cls;
       }
     }
 
@@ -747,7 +869,7 @@
           const num = idx * 15 + r;
           const cell = document.createElement('div');
           cell.id = `master-num-${num}`;
-          cell.className = `h-4 bg-[#141414] text-gray-300 font-mono text-[9px] flex items-center justify-center border border-[#1e1e1e] rounded-xs mt-0.5`;
+          cell.className = isDarkMode ? `h-4 bg-[#141414] text-gray-300 font-mono text-[9px] flex items-center justify-center border border-[#1e1e1e] rounded-xs mt-0.5` : `h-4 bg-white text-gray-800 font-mono text-[9px] flex items-center justify-center border border-gray-300 rounded-xs mt-0.5`;
           cell.innerText = num;
           colDiv.appendChild(cell);
         }
@@ -790,7 +912,7 @@
         return;
       }
       resultEl.textContent = '⏳ በመፈተሽ ላይ...';
-      resultEl.className = 'text-xs mt-2 font-medium text-yellow-400';
+      resultEl.className = 'text-xs mt-2 font-medium text-yellow-500';
       try {
         const res = await api('/api/promo/redeem', {
           method: 'POST',
@@ -798,7 +920,7 @@
         });
         if (res.status === 'success') {
           resultEl.textContent = `✅ ${res.message || 'ፕሮሞ ኮዱ በትክክል ሰርቷል!'} (+${res.bonusAdded || 0} ETB Bonus)`;
-          resultEl.className = 'text-xs mt-2 font-medium text-emerald-400';
+          resultEl.className = 'text-xs mt-2 font-medium text-emerald-500';
           codeInput.value = '';
           refreshUserData();
         } else {
@@ -865,21 +987,27 @@
         popupPanel.classList.add('hidden'); return;
       }
       popupPanel.classList.remove('hidden');
+      if(isDarkMode) {
+        cartelPopupPanel.className = "fixed bottom-16 left-0 right-0 max-w-md mx-auto z-40 bg-[#0d0d0d]/95 backdrop-blur-md border-t border-yellow-500/50 p-3 rounded-t-2xl shadow-2xl transition-colors duration-200";
+      } else {
+        cartelPopupPanel.className = "fixed bottom-16 left-0 right-0 max-w-md mx-auto z-40 bg-white/95 backdrop-blur-md border-t border-amber-500/50 p-3 rounded-t-2xl shadow-2xl transition-colors duration-200";
+      }
       document.getElementById('popup-cartel-count').innerText = selectedTickets.length;
       document.getElementById('popup-total-price').innerText = `${selectedTickets.length * TICKET_PRICE} ETB`;
       popupCardsWrapper.innerHTML = '';
       selectedTickets.forEach(ticketId => {
         const matrix = generateMatrix(ticketId);
         const card = document.createElement('div');
-        card.className = 'flex-shrink-0 bg-[#161616] border border-[#222] rounded-xl p-2 w-28 shadow-md relative';
-        let html = `<div class="text-center font-bold text-[10px] text-yellow-400 mb-1">#${ticketId}</div><div class="grid grid-cols-5 gap-0.5 text-center font-mono text-[8px]">`;
+        card.className = isDarkMode ? 'flex-shrink-0 bg-[#161616] border border-[#222] rounded-xl p-2 w-28 shadow-md relative' : 'flex-shrink-0 bg-gray-100 border border-gray-300 rounded-xl p-2 w-28 shadow-md relative';
+        let html = `<div class="text-center font-bold text-[10px] text-yellow-500 mb-1">#${ticketId}</div><div class="grid grid-cols-5 gap-0.5 text-center font-mono text-[8px]">`;
         for (let r = 0; r < 5; r++) {
           for (let c = 0; c < 5; c++) {
             if (r === 2 && c === 2) html += `<div class="bg-yellow-400 text-black h-4 flex items-center justify-center font-bold">★</div>`;
             else {
               const num = matrix[c][r];
               const marked = drawnNumbers.includes(num);
-              html += `<div class="${marked ? 'bg-yellow-400 text-black font-black' : 'bg-[#0a0a0a] text-gray-300'} h-4 flex items-center justify-center rounded-xs">${num}</div>`;
+              let cellBg = marked ? 'bg-yellow-400 text-black font-black' : (isDarkMode ? 'bg-[#0a0a0a] text-gray-300' : 'bg-white text-gray-800');
+              html += `<div class="${cellBg} h-4 flex items-center justify-center rounded-xs">${num}</div>`;
             }
           }
         }
@@ -901,12 +1029,12 @@
       selectedTickets.forEach(ticketId => {
         const matrix = generateMatrix(ticketId);
         const card = document.createElement('div');
-        card.className = 'bg-[#121212] border border-[#222] rounded-2xl p-2.5 shadow-lg flex flex-col justify-between';
+        card.className = isDarkMode ? 'bg-[#121212] border border-[#222] rounded-2xl p-2.5 shadow-lg flex flex-col justify-between' : 'bg-white border border-gray-200 rounded-2xl p-2.5 shadow-lg flex flex-col justify-between';
         
         let html = `
           <div class="flex justify-between items-center mb-1.5 px-0.5">
-            <span class="font-bold text-[11px] text-yellow-400">CARD #${ticketId}</span>
-            <span class="text-[9px] font-mono text-gray-400">MELBET</span>
+            <span class="font-bold text-[11px] text-yellow-500">CARD #${ticketId}</span>
+            <span class="text-[9px] font-mono opacity-60">MELBET</span>
           </div>
           <div class="grid grid-cols-5 gap-0.5 text-center font-black text-[9px] text-yellow-500 mb-1">
             <div>B</div><div>I</div><div>N</div><div>G</div><div>O</div>
@@ -921,7 +1049,7 @@
             } else {
               const num = matrix[c][r];
               const marked = drawnNumbers.includes(num);
-              let cellBg = marked ? 'bg-emerald-600 text-white font-black scale-105 shadow' : 'bg-[#1a1a1a] text-gray-300 border border-white/5';
+              let cellBg = marked ? 'bg-emerald-600 text-white font-black scale-105 shadow' : (isDarkMode ? 'bg-[#1a1a1a] text-gray-300 border border-white/5' : 'bg-gray-100 text-slate-800 border border-gray-200');
               let paddingSize = ticketViewMode === 'single' ? 'p-2 text-xs' : 'p-1.5 text-[10px]';
               html += `<div class="${cellBg} ${paddingSize} rounded-lg transition-all flex items-center justify-center">${num}</div>`;
             }
@@ -968,7 +1096,7 @@
       void ticketCurrentBall.offsetWidth;
       ticketCurrentBall.classList.add('animate-ball');
       if (speak) playCall(num);
-      ticketStatusText.innerHTML = `የወጣው ቁጥር: <strong class="text-yellow-400">${num}</strong>`;
+      ticketStatusText.innerHTML = `የወጣው ቁጥር: <strong class="text-yellow-500">${num}</strong>`;
     }
 
     function statusText(s) {
@@ -998,10 +1126,10 @@
         const scaleClass = winners.length > 1 ? 'scale-[0.95] origin-top' : '';
 
         let html = `
-          <div class="bg-[#121212] border border-[#222] rounded-2xl p-2.5 shadow-md ${scaleClass}">
+          <div class="${isDarkMode ? 'bg-[#121212] border border-[#222]' : 'bg-gray-50 border border-gray-200'} rounded-2xl p-2.5 shadow-md ${scaleClass}">
             <div class="flex justify-between items-center mb-1.5">
-              <span class="font-bold text-[11px] text-yellow-400">CARD #${cartelId}</span>
-              <span class="text-[11px] font-bold text-emerald-400">${esc(w.name)}</span>
+              <span class="font-bold text-[11px] text-yellow-500">CARD #${cartelId}</span>
+              <span class="text-[11px] font-bold text-emerald-500">${esc(w.name)}</span>
             </div>
             <div class="grid grid-cols-5 gap-1 text-center font-black text-[9px] text-yellow-500 mb-1">
               <div>B</div><div>I</div><div>N</div><div>G</div><div>O</div>
@@ -1016,7 +1144,7 @@
             } else {
               const num = matrix[c][r];
               const marked = drawnNumbers.includes(num);
-              let cellBg = marked ? 'bg-emerald-600 text-white font-black' : 'bg-[#1a1a1a] text-gray-300 border border-white/5';
+              let cellBg = marked ? 'bg-emerald-600 text-white font-black' : (isDarkMode ? 'bg-[#1a1a1a] text-gray-300 border border-white/5' : 'bg-white text-gray-800 border border-gray-200');
               html += `<div class="${cellBg} p-1 rounded-lg transition-all flex items-center justify-center text-[10px]">${num}</div>`;
             }
           }
@@ -1131,18 +1259,20 @@
     async function loadTransactionHistory() {
       const box = document.getElementById('transaction-history-list');
       if (!box) return;
-      box.innerHTML = '<div class="text-center text-gray-500 text-xs py-6 bg-[#141414] border border-[#222] rounded-2xl">Loading history…</div>';
+      box.innerHTML = `<div class="text-center opacity-75 text-xs py-6 border rounded-2xl ${isDarkMode ? 'bg-[#141414] border-[#222]' : 'bg-white border-gray-200'}">Loading history…</div>`;
       try {
         const data = await api('/api/wallet/history');
         if (data.status !== 'success') throw new Error();
         walletHistory = Array.isArray(data.transactions) ? data.transactions : [];
         renderTransactionHistory(walletHistory);
-      } catch (e) { box.innerHTML = `<div class="text-center text-rose-400 text-xs py-6 bg-[#141414] border border-[#222] rounded-2xl">Error loading history</div>`; }
+      } catch (e) { box.innerHTML = `<div class="text-center text-rose-400 text-xs py-6 border rounded-2xl ${isDarkMode ? 'bg-[#141414] border-[#222]' : 'bg-white border-gray-200'}">Error loading history</div>`; }
     }
 
     function setHistoryFilter(filter) {
       historyFilter = filter;
-      document.querySelectorAll('.history-filter').forEach(b => b.className = 'history-filter bg-[#141414] border border-[#222] text-gray-300 font-bold text-xs rounded-xl py-2 transition-colors');
+      document.querySelectorAll('.history-filter').forEach(b => {
+        b.className = isDarkMode ? 'history-filter bg-[#141414] border border-[#222] text-gray-300 font-bold text-xs rounded-xl py-2 transition-colors' : 'history-filter bg-white border border-gray-300 text-gray-700 font-bold text-xs rounded-xl py-2 transition-colors';
+      });
       const active = document.getElementById(filter==='all'?'history-all-btn':filter==='deposit'?'history-deposit-btn':'history-withdraw-btn');
       if (active) active.className = 'history-filter bg-yellow-400 text-slate-950 font-black text-xs rounded-xl py-2 transition-colors';
       renderTransactionHistory(walletHistory);
@@ -1168,27 +1298,27 @@
       const box = document.getElementById('transaction-history-list');
       if (!box) return;
       const rows = (transactions || []).filter(t => historyFilter==='all' || (historyFilter==='deposit' ? t.type==='deposit' : t.type==='withdrawal'));
-      if (!rows.length) { box.innerHTML = '<div class="text-center text-gray-500 text-xs py-6 bg-[#141414] border border-[#222] rounded-2xl">ምንም ግብይት የለም</div>'; return; }
+      if (!rows.length) { box.innerHTML = `<div class="text-center opacity-75 text-xs py-6 border rounded-2xl ${isDarkMode ? 'bg-[#141414] border-[#222]' : 'bg-white border-gray-200'}">ምንም ግብይት የለም</div>`; return; }
       box.innerHTML = rows.map(t => {
         const deposit = t.type==='deposit' || ['win','winnings','refund','bonus','deposit_bonus','promo_bonus','auto_deposit_bonus'].includes(t.type);
         const sign = deposit ? '+' : '−';
         const statusTextAm = t.status === 'pending' ? 'በመጠባበቅ ላይ' : (t.status === 'rejected' || t.status === 'failed' ? 'ውድቅ ተደርጓል' : 'ተፈቅዷል');
-        const statusColor = t.status === 'pending' ? 'text-yellow-400 bg-yellow-400/10' : (t.status === 'rejected' || t.status === 'failed' ? 'text-rose-400 bg-rose-500/10' : 'text-emerald-400 bg-emerald-500/10');
+        const statusColor = t.status === 'pending' ? 'text-yellow-500 bg-yellow-400/10' : (t.status === 'rejected' || t.status === 'failed' ? 'text-rose-500 bg-rose-500/10' : 'text-emerald-500 bg-emerald-500/10');
         const subtitle = t.description || t.note || new Date(t.timestamp).toLocaleDateString();
 
         return `
-          <div class="bg-[#141414] border border-[#222] rounded-2xl p-3.5 flex items-center justify-between gap-3">
+          <div class="${isDarkMode ? 'bg-[#141414] border border-[#222]' : 'bg-white border border-gray-200'} rounded-2xl p-3.5 flex items-center justify-between gap-3 shadow-sm transition-colors duration-200">
             <div class="flex items-center space-x-3 min-w-0">
-              <div class="w-10 h-10 rounded-xl ${deposit ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'} flex items-center justify-center shrink-0">
+              <div class="w-10 h-10 rounded-xl ${deposit ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-rose-500/10 text-rose-500 border border-rose-500/20'} flex items-center justify-center shrink-0">
                 <i class="fa-solid ${deposit ? 'fa-arrow-down' : 'fa-arrow-up'} text-sm"></i>
               </div>
               <div class="min-w-0">
-                <div class="font-black text-xs text-white truncate">${esc(getTransactionTitleAm(t.type))}</div>
-                <div class="text-[11px] text-gray-400 truncate mt-0.5">${esc(subtitle)}</div>
+                <div class="font-black text-xs truncate">${esc(getTransactionTitleAm(t.type))}</div>
+                <div class="text-[11px] opacity-75 truncate mt-0.5">${esc(subtitle)}</div>
               </div>
             </div>
             <div class="text-right shrink-0">
-              <div class="font-mono font-black text-xs ${deposit ? 'text-emerald-400' : 'text-rose-400'}">${sign}${Number(t.amount||0).toFixed(0)} ብር</div>
+              <div class="font-mono font-black text-xs ${deposit ? 'text-emerald-500' : 'text-rose-500'}">${sign}${Number(t.amount||0).toFixed(0)} ብር</div>
               <span class="inline-block mt-1 px-2 py-0.5 rounded-md text-[9px] font-bold ${statusColor}">${statusTextAm}</span>
             </div>
           </div>
@@ -1197,35 +1327,6 @@
     }
 
     let walletConfig = null;
-    function cleanDepositInstructions(value, accountNumber) {
-      const number = String(accountNumber || '').replace(/[\s-]/g, '');
-      return String(value || '').split('\n').filter(line => {
-        const lower = line.toLowerCase();
-        const compact = line.replace(/[\s-]/g, '');
-        return !lower.includes('telebirr_account_name') && !lower.includes('telebirr_account_number') &&
-          !lower.includes('account name:') && !lower.includes('account number:') &&
-          !(number && compact.includes(number));
-      }).join('\n').trim();
-    }
-    async function copyTelebirrNumber() {
-      const number = document.getElementById('telebirr-account-number').textContent.trim();
-      if (!number || number === 'Loading…' || number === 'Not configured') return;
-      try {
-        if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(number);
-        else {
-          const field = document.createElement('textarea'); field.value = number;
-          field.style.position = 'fixed'; field.style.opacity = '0'; document.body.appendChild(field);
-          field.select(); document.execCommand('copy'); field.remove();
-        }
-        const result = document.getElementById('deposit-result');
-        result.className = 'text-xs mt-3 font-medium text-emerald-400';
-        result.textContent = 'የTelebirr ቁጥሩ ተቀድቷል።';
-      } catch (e) {
-        const result = document.getElementById('deposit-result');
-        result.className = 'text-xs mt-3 font-medium text-rose-400';
-        result.textContent = 'ቁጥሩን መቅዳት አልተቻለም፤ እባክዎ በእጅ ይቅዱት።';
-      }
-    }
     async function loadWalletConfig() {
       const nameEl = document.getElementById('telebirr-account-name');
       const numberEl = document.getElementById('telebirr-account-number');
@@ -1358,31 +1459,31 @@
 
       podium.innerHTML = `
         <div class="grid grid-cols-3 gap-2">
-          <div class="bg-[#141414] border border-[#222] rounded-2xl p-3 flex flex-col items-center justify-center text-center">
+          <div class="${isDarkMode ? 'bg-[#141414] border border-[#222]' : 'bg-white border border-gray-200'} rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm">
             <div class="w-7 h-7 rounded-full bg-slate-300 text-slate-950 font-bold flex items-center justify-center text-xs mb-1">2</div>
-            <div class="text-xs font-bold text-white truncate max-w-[80px]">${esc(fullList[1].name)}</div>
-            <div class="text-[10px] font-mono text-yellow-400 mt-0.5">${fullList[1].cartels} Cartels</div>
+            <div class="text-xs font-bold truncate max-w-[80px]">${esc(fullList[1].name)}</div>
+            <div class="text-[10px] font-mono text-yellow-500 mt-0.5">${fullList[1].cartels} Cartels</div>
           </div>
-          <div class="bg-[#141414] border border-yellow-400 rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-lg">
+          <div class="${isDarkMode ? 'bg-[#141414] border border-yellow-400' : 'bg-white border border-amber-500'} rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-lg">
             <div class="w-8 h-8 rounded-full bg-yellow-400 text-slate-950 font-black flex items-center justify-center text-sm mb-1"><i class="fa-solid fa-crown"></i></div>
-            <div class="text-xs font-bold text-yellow-400 truncate max-w-[80px]">${esc(fullList[0].name)}</div>
-            <div class="text-xs font-mono font-bold text-yellow-300 mt-0.5">${fullList[0].cartels} Cartels</div>
+            <div class="text-xs font-bold text-yellow-500 truncate max-w-[80px]">${esc(fullList[0].name)}</div>
+            <div class="text-xs font-mono font-bold text-yellow-500 mt-0.5">${fullList[0].cartels} Cartels</div>
           </div>
-          <div class="bg-[#141414] border border-[#222] rounded-2xl p-3 flex flex-col items-center justify-center text-center">
+          <div class="${isDarkMode ? 'bg-[#141414] border border-[#222]' : 'bg-white border border-gray-200'} rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-sm">
             <div class="w-7 h-7 rounded-full bg-amber-700 text-white font-bold flex items-center justify-center text-xs mb-1">3</div>
-            <div class="text-xs font-bold text-white truncate max-w-[80px]">${esc(fullList[2].name)}</div>
-            <div class="text-[10px] font-mono text-yellow-400 mt-0.5">${fullList[2].cartels} Cartels</div>
+            <div class="text-xs font-bold truncate max-w-[80px]">${esc(fullList[2].name)}</div>
+            <div class="text-[10px] font-mono text-yellow-500 mt-0.5">${fullList[2].cartels} Cartels</div>
           </div>
         </div>
       `;
 
       list.innerHTML = fullList.slice(3, 10).map((p, i) => `
-        <div class="flex items-center justify-between p-3 bg-[#141414] rounded-xl border border-[#222] text-xs">
+        <div class="flex items-center justify-between p-3 ${isDarkMode ? 'bg-[#141414] border border-[#222]' : 'bg-white border border-gray-200'} rounded-xl text-xs shadow-sm">
           <div class="flex items-center space-x-3">
-            <div class="w-6 h-6 rounded-lg bg-[#1f1f1f] text-yellow-400 font-bold flex items-center justify-center text-[11px]">${i + 4}</div>
-            <div class="font-bold text-white">${esc(p.name)}</div>
+            <div class="w-6 h-6 rounded-lg ${isDarkMode ? 'bg-[#1f1f1f]' : 'bg-gray-100'} text-yellow-500 font-bold flex items-center justify-center text-[11px]">${i + 4}</div>
+            <div class="font-bold">${esc(p.name)}</div>
           </div>
-          <div class="font-mono text-yellow-400 font-bold">${p.cartels} Cartels</div>
+          <div class="font-mono text-yellow-500 font-bold">${p.cartels} Cartels</div>
         </div>
       `).join('');
     }
