@@ -27,7 +27,6 @@
   <style>
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     body { touch-action: manipulation; user-select: none; }
-    /* Smooth Transition for Theme Shifting */
     body, div, header, nav, button, input, section, span {
       transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
     }
@@ -347,17 +346,15 @@
     <div id="rank-list-container" class="space-y-2"></div>
   </div>
 
-  <!-- ==================== PAGE: PROFILE (UPDATED TO MATCH SCREENSHOT & BRANDING) ==================== -->
+  <!-- ==================== PAGE: PROFILE ==================== -->
   <div id="page-profile" class="hidden flex-1 flex flex-col max-w-md mx-auto w-full pb-28 px-4 pt-2">
     
-    <!-- Profile Hero Card (Matched with Screenshot Style & Melbet Branding) -->
+    <!-- Profile Hero Card -->
     <div class="border rounded-3xl mb-4 shadow-2xl relative overflow-hidden profile-hero-card">
-      <!-- Top Decorative Background Pattern -->
       <div class="h-28 bg-gradient-to-r from-yellow-600/30 via-amber-500/20 to-yellow-400/30 relative flex items-center justify-center">
         <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#ffb700_1px,transparent_1px)] [background-size:16px_16px]"></div>
       </div>
       
-      <!-- Avatar & Badge Wrapper -->
       <div class="px-5 pb-5 pt-0 relative flex flex-col items-center -mt-12 text-center">
         <div class="relative mb-3">
           <div class="w-20 h-20 rounded-full border-4 border-yellow-400 bg-gradient-to-tr from-yellow-400 to-amber-600 flex items-center justify-center text-3xl font-black text-slate-950 shadow-xl">
@@ -374,7 +371,7 @@
       </div>
     </div>
 
-    <!-- Stats Grid Box (Matched with Screenshot 4-Column Layout) -->
+    <!-- Stats Grid Box -->
     <div class="border rounded-2xl p-4 mb-4 shadow-xl profile-card-box">
       <div class="grid grid-cols-4 gap-1 text-center divide-x divide-gray-500/20">
         <div class="px-1">
@@ -396,14 +393,14 @@
       </div>
     </div>
 
-    <!-- Invite & Earn Card (Matched with Screenshot) -->
+    <!-- Invite & Earn Card (Restored Referral Link Functionality) -->
     <div class="border rounded-2xl p-4 mb-4 shadow-lg profile-card-box">
       <div class="text-[10px] font-black tracking-wider text-yellow-500 uppercase mb-1">INVITE & EARN / ጋብዝ እና ተሸለም</div>
       <h3 class="text-sm font-black mb-1">ጓደኞችዎን ይጋብዙ</h3>
-      <p class="text-[11px] opacity-75 mb-3 font-medium">ለእያንዳንዱ አዲስ ተጫዋች ስልክን ሲያረጋግጡ ቦነስ ያገኙ። እስከሁን 100 ሰዎች ጋብዟል፣ 1,820 ብር አግኝቷል።</p>
+      <p class="text-[11px] opacity-75 mb-3 font-medium">ለእያንዳንዱ አዲስ ተጫዋች ሊንክዎን በመላክ ቦነስ ያገኙ።</p>
       
       <div class="flex items-center space-x-2 border border-dashed border-yellow-500/40 rounded-xl p-2 bg-yellow-400/5">
-        <div id="referral-link-display" class="flex-1 font-mono font-bold text-xs text-yellow-500 truncate px-1">3LBP95</div>
+        <div id="referral-link-display" class="flex-1 font-mono font-bold text-xs text-yellow-500 truncate px-1">Loading...</div>
         <button onclick="copyReferralLink()" id="btn-copy-link" class="bg-yellow-400 hover:bg-yellow-500 text-slate-950 text-xs font-black px-3 py-1.5 rounded-lg transition active:scale-95">Copy</button>
       </div>
     </div>
@@ -424,15 +421,6 @@
         <i class="fa-solid fa-chevron-right opacity-50 text-[10px]"></i>
       </button>
     </div>
-  </div>
-
-  <!-- POPUP: SELECTED CARTELS MINI BAR -->
-  <div id="cartel-popup-panel" class="fixed bottom-16 left-0 right-0 max-w-md mx-auto z-40 backdrop-blur-md border-t p-3 rounded-t-2xl shadow-2xl hidden">
-    <div class="flex justify-between items-center mb-2 px-1">
-      <div class="text-xs font-bold">መረጧቸው: <span id="popup-cartel-count" class="text-yellow-500 font-mono">0</span></div>
-      <div id="popup-total-price" class="text-yellow-500 font-mono font-black text-xs">0 ETB</div>
-    </div>
-    <div id="popup-cards-wrapper" class="flex space-x-2 overflow-x-auto pb-1"></div>
   </div>
 
   <!-- WINNER MODAL -->
@@ -485,7 +473,6 @@
     window.currentUserPhone = "Unknown";
     window.currentUserId = "00000";
 
-    // Theme Management Script (Smooth Transition & Zero Glitch)
     let isDarkMode = true;
     try {
       const savedTheme = localStorage.getItem('melbet_bingo_theme');
@@ -530,13 +517,11 @@
       const profileHeroCard = document.querySelector('.profile-hero-card');
       const profileCardBoxes = document.querySelectorAll('.profile-card-box');
 
-      const cartelPopupPanel = document.getElementById('cartel-popup-panel');
       const winnerModalBox = document.getElementById('winner-modal-box');
       const winnerPoolBoxes = document.querySelectorAll('.winner-pool-box');
       const bottomNav = document.getElementById('bottom-nav');
 
       if (isDarkMode) {
-        // --- DARK MODE STYLES ---
         body.className = "h-full font-sans antialiased flex flex-col overflow-x-hidden select-none bg-[#050505] text-white";
         if (themeIcon) themeIcon.className = "fa-solid fa-moon";
 
@@ -574,14 +559,12 @@
         if(profileHeroCard) profileHeroCard.className = "bg-[#141414] border border-[#222] rounded-3xl mb-4 shadow-2xl relative overflow-hidden profile-hero-card";
         profileCardBoxes.forEach(el => el.className = "bg-[#141414] border border-[#222] rounded-2xl p-4 mb-4 shadow-lg profile-card-box");
 
-        if(cartelPopupPanel) cartelPopupPanel.className = "fixed bottom-16 left-0 right-0 max-w-md mx-auto z-40 bg-[#0d0d0d]/95 backdrop-blur-md border-t border-yellow-500/50 p-3 rounded-t-2xl shadow-2xl hidden";
         if(winnerModalBox) winnerModalBox.className = "max-w-xs w-full bg-[#141414] border-2 border-yellow-400 rounded-3xl p-4 shadow-2xl animate-modal text-center max-h-[75vh] flex flex-col overflow-hidden";
         winnerPoolBoxes.forEach(el => el.className = "bg-[#0c0c0c] border border-[#222] rounded-xl p-2 mt-2 winner-pool-box");
         if(bottomNav) bottomNav.className = "fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#0d0d0d] border-t border-[#222] px-4 py-2 flex justify-between items-center z-50";
 
         try { localStorage.setItem('melbet_bingo_theme', 'dark'); } catch(e){}
       } else {
-        // --- LIGHT / WHITE MODE STYLES ---
         body.className = "h-full font-sans antialiased flex flex-col overflow-x-hidden select-none bg-[#f8f9fa] text-slate-900";
         if (themeIcon) themeIcon.className = "fa-solid fa-sun";
 
@@ -619,19 +602,20 @@
         if(profileHeroCard) profileHeroCard.className = "bg-white border border-gray-200 rounded-3xl mb-4 shadow-2xl relative overflow-hidden profile-hero-card";
         profileCardBoxes.forEach(el => el.className = "bg-white border border-gray-200 rounded-2xl p-4 mb-4 shadow-lg profile-card-box");
 
-        if(cartelPopupPanel) cartelPopupPanel.className = "fixed bottom-16 left-0 right-0 max-w-md mx-auto z-40 bg-white/95 backdrop-blur-md border-t border-amber-500/50 p-3 rounded-t-2xl shadow-2xl hidden";
         if(winnerModalBox) winnerModalBox.className = "max-w-xs w-full bg-white border-2 border-amber-500 rounded-3xl p-4 shadow-2xl animate-modal text-center max-h-[75vh] flex flex-col overflow-hidden";
         winnerPoolBoxes.forEach(el => el.className = "bg-gray-50 border border-gray-200 rounded-xl p-2 mt-2 winner-pool-box");
         if(bottomNav) bottomNav.className = "fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white border-t border-gray-200 px-4 py-2 flex justify-between items-center z-50";
 
         try { localStorage.setItem('melbet_bingo_theme', 'light'); } catch(e){}
       }
+      
+      // Refresh Leaderboard UI on theme change to apply proper classes
+      fetchAndRenderLeaderboard();
     }
 
     function toggleThemeMode() {
       isDarkMode = !isDarkMode;
       applyTheme();
-      renderPopupCartels();
       renderTicketMatrices();
       initGrid();
       paintGrid();
@@ -724,8 +708,6 @@
     const selectedCountDisplay = document.getElementById('selected-count');
     const playWalletDisplay = document.getElementById('play-wallet');
     const gameStatusLabel = document.getElementById('game-status-label');
-    const popupPanel = document.getElementById('cartel-popup-panel');
-    const popupCardsWrapper = document.getElementById('popup-cards-wrapper');
 
     const masterBoardGrid = document.getElementById('master-board-grid');
     const collapsibleMasterBoard = document.getElementById('collapsible-master-board');
@@ -771,9 +753,8 @@
       pageProfile.classList.add('hidden');
 
       [navHome, navTicket, navWallet, navRank, navProfile].forEach(el => el.classList.remove('nav-active'));
-      popupPanel.classList.add('hidden');
 
-      if (page === 'home') { pageHome.classList.remove('hidden'); navHome.classList.add('nav-active'); if (selectedTickets.length > 0 && !isDrawingPhase) popupPanel.classList.remove('hidden'); }
+      if (page === 'home') { pageHome.classList.remove('hidden'); navHome.classList.add('nav-active'); }
       else if (page === 'ticket') { pageTicket.classList.remove('hidden'); navTicket.classList.add('nav-active'); renderTicketMatrices(); }
       else if (page === 'wallet') { pageWallet.classList.remove('hidden'); navWallet.classList.add('nav-active'); updateUI(); }
       else if (page === 'deposit') { document.getElementById('page-deposit').classList.remove('hidden'); loadWalletConfig(); }
@@ -951,8 +932,6 @@
         ticketEmptyMsg.classList.remove('hidden');
         ticketMatricesContainer.classList.add('hidden');
       }
-
-      renderPopupCartels();
     }
 
     function seededRandom(seed) { let x = Math.sin(seed++) * 10000; return x - Math.floor(x); }
@@ -967,40 +946,6 @@
         matrix.push(colNumbers);
       }
       return matrix;
-    }
-
-    function renderPopupCartels() {
-      if (selectedTickets.length === 0 || isDrawingPhase || currentPage !== 'home') {
-        popupPanel.classList.add('hidden'); return;
-      }
-      popupPanel.classList.remove('hidden');
-      if(isDarkMode) {
-        cartelPopupPanel.className = "fixed bottom-16 left-0 right-0 max-w-md mx-auto z-40 bg-[#0d0d0d]/95 backdrop-blur-md border-t border-yellow-500/50 p-3 rounded-t-2xl shadow-2xl";
-      } else {
-        cartelPopupPanel.className = "fixed bottom-16 left-0 right-0 max-w-md mx-auto z-40 bg-white/95 backdrop-blur-md border-t border-amber-500/50 p-3 rounded-t-2xl shadow-2xl";
-      }
-      document.getElementById('popup-cartel-count').innerText = selectedTickets.length;
-      document.getElementById('popup-total-price').innerText = `${selectedTickets.length * TICKET_PRICE} ETB`;
-      popupCardsWrapper.innerHTML = '';
-      selectedTickets.forEach(ticketId => {
-        const matrix = generateMatrix(ticketId);
-        const card = document.createElement('div');
-        card.className = isDarkMode ? 'flex-shrink-0 bg-[#161616] border border-[#222] rounded-xl p-2 w-28 shadow-md relative' : 'flex-shrink-0 bg-gray-100 border border-gray-300 rounded-xl p-2 w-28 shadow-md relative';
-        let html = `<div class="text-center font-bold text-[10px] text-yellow-500 mb-1">#${ticketId}</div><div class="grid grid-cols-5 gap-0.5 text-center font-mono text-[8px]">`;
-        for (let r = 0; r < 5; r++) {
-          for (let c = 0; c < 5; c++) {
-            if (r === 2 && c === 2) html += `<div class="bg-yellow-400 text-black h-4 flex items-center justify-center font-bold">★</div>`;
-            else {
-              const num = matrix[c][r];
-              const marked = drawnNumbers.includes(num);
-              let cellBg = marked ? 'bg-yellow-400 text-black font-black' : (isDarkMode ? 'bg-[#0a0a0a] text-gray-300' : 'bg-white text-gray-800');
-              html += `<div class="${cellBg} h-4 flex items-center justify-center rounded-xs">${num}</div>`;
-            }
-          }
-        }
-        card.innerHTML = html + `</div>`;
-        popupCardsWrapper.appendChild(card);
-      });
     }
 
     function renderTicketMatrices() {
@@ -1193,7 +1138,7 @@
 
       paintGrid();
       updateUI();
-      if (s.seq !== lastSeq || phaseChanged) { lastSeq = s.seq; renderPopupCartels(); renderTicketMatrices(); }
+      if (s.seq !== lastSeq || phaseChanged) { lastSeq = s.seq; renderTicketMatrices(); }
     }
 
     async function pollRound() {
@@ -1475,6 +1420,16 @@
         </div>
       `).join('');
     }
+
+    async function displayUserReferralLink() {
+      const linkBox = document.getElementById("referral-link-display");
+      if (!linkBox) return;
+      try {
+        const result = await api('/api/referral-link');
+        if (result.status === 'success' && result.url) linkBox.innerText = result.url;
+      } catch (error) {}
+    }
+    setTimeout(displayUserReferralLink, 500);
 
     function copyReferralLink() {
       const linkBox = document.getElementById("referral-link-display");
