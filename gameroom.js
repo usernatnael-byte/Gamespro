@@ -48,8 +48,7 @@ const ETHIOPIAN_NAMES = [
     "Biniam", "Getachew", "Zemnaw1" ,"Bethelhem",
     "Kalkidan", "Elsabet", "Haymanot", "Hanna", "Rahel",
     "Mimi", "Saron", "Mahi", "Lidia", "Ruth",
-    "Meron", "Eden", "Blen", "Tsgered", "Frehiwot"
-];
+    "Meron", "Eden", "Blen", "Tsgered", "Freh" ];
 
 function seededRandom(seed) {
     let x = Math.sin(seed) * 10000;
