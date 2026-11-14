@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const FirestoreWallet = require('./users');
@@ -144,8 +145,21 @@ async function requireTelegramUser(req, res, next) {
     next();
 }
 
+function parseAdminIds() {
+    const ids = [process.env.ADMIN_ID || '', process.env.ADMIN_IDS || '']
+        .join(',')
+        .split(/[,;\s]+/)
+        .map(v => v.trim())
+        .filter(Boolean);
+    if (ids.length === 0) ids.push('7396414604');
+    return new Set(ids);
+}
+
+const ADMIN_IDS = parseAdminIds();
+
 const wallet = new FirestoreWallet(db);
 const engine = new GameEngine(wallet, 2);
+engine.setAdminIds(ADMIN_IDS);
 
 db.collection('settings').doc('bot_settings').get().then(doc => {
     if (doc.exists) {
@@ -160,12 +174,31 @@ wallet.recover_unsettled()
         process.exit(1);
     });
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+function resolveHtmlFile(...filenames) {
+    const dirs = [__dirname, path.join(__dirname, 'public')];
+    for (const dir of dirs) {
+        for (const name of filenames) {
+            const candidate = path.join(dir, name);
+            if (fs.existsSync(candidate)) return candidate;
+        }
+    }
+    return null;
+}
+
+if (fs.existsSync(path.join(__dirname, 'public'))) {
+    app.use(express.static(path.join(__dirname, 'public')));
+}
+
+app.get(['/', '/index.html'], (req, res) => {
+    const file = resolveHtmlFile('index.html', 'Index.html');
+    if (!file) return res.status(404).send('index.html not found');
+    res.sendFile(file);
 });
 
-app.get(['/admin', '/admin.html'], (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
+app.get(['/admin', '/Admin', '/admin.html', '/Admin.html'], (req, res) => {
+    const file = resolveHtmlFile('admin.html', 'Admin.html');
+    if (!file) return res.status(404).send('admin.html not found');
+    res.sendFile(file);
 });
 
 app.get('/health', (req, res) => {
@@ -179,14 +212,23 @@ const WITHDRAW_MINIMUM = Math.max(100, Number(process.env.WITHDRAW_MINIMUM_ETB |
 const TELEBIRR_NAME = process.env.TELEBIRR_ACCOUNT_NAME || 'Esraeal';
 const TELEBIRR_NUMBER = process.env.TELEBIRR_ACCOUNT_NUMBER || '0949196145';
 const DEPOSIT_INSTRUCTIONS = process.env.DEPOSIT_INSTRUCTIONS || `Telebirr ስም: ${TELEBIRR_NAME}\nቁጥር: ${TELEBIRR_NUMBER}`;
-const ADMIN_IDS = new Set([...(process.env.ADMIN_ID || '7396414604').split(','), ...(process.env.ADMIN_IDS || '').split(',')].map(v => v.trim()).filter(Boolean));
 
 function requireAdmin(req, res, next) {
-    if (!ADMIN_IDS.has(String(req.telegramUserId))) {
+    const uid = String(req.telegramUserId || '');
+    if (!ADMIN_IDS.has(uid) || !engine.isAdmin(uid)) {
         return res.status(403).json({ status: 'error', message: 'Admin access required.' });
     }
     next();
 }
+
+app.get('/api/admin/me', requireAdmin, (req, res) => {
+    res.json({
+        status: 'success',
+        isAdmin: true,
+        userId: String(req.telegramUserId),
+        adminCount: ADMIN_IDS.size
+    });
+});
 
 app.get('/api/admin/room', requireAdmin, (req, res) => {
     try {
@@ -492,4 +534,4 @@ app.listen(PORT, () => {
 });
 
 const bot = require('./bot');
-module.exports = { app, engine, wallet };
+module.exports = { app, engine, wallet, ADMIN_IDS };

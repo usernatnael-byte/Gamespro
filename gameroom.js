@@ -100,6 +100,15 @@ class GameEngine {
         this._pausedAt = null;
         this.on_round_result = null;
 
+        this.adminIds = new Set(
+            [process.env.ADMIN_ID || '', process.env.ADMIN_IDS || '']
+                .join(',')
+                .split(/[,;\s]+/)
+                .map(v => v.trim())
+                .filter(Boolean)
+        );
+        if (this.adminIds.size === 0) this.adminIds.add('7396414604');
+
         this.botSettings = {
             botCount: 20,
             botWinPercent: 20,
@@ -108,6 +117,21 @@ class GameEngine {
         };
 
         this._newRound();
+    }
+
+    setAdminIds(adminIds) {
+        if (!adminIds) return;
+        const list = Array.isArray(adminIds) || adminIds instanceof Set
+            ? Array.from(adminIds)
+            : String(adminIds).split(/[,;\s]+/);
+        const cleaned = list.map(v => String(v).trim()).filter(Boolean);
+        if (cleaned.length > 0) {
+            this.adminIds = new Set(cleaned);
+        }
+    }
+
+    isAdmin(uid) {
+        return this.adminIds.has(String(uid || '').trim());
     }
 
     setBotSettings(settings) {
@@ -326,7 +350,8 @@ class GameEngine {
             pool: Object.keys(this.cartels).length * PRIZE_PER_CARTEL,
             drawn: this.drawn,
             winners: winners,
-            no_winner: this.phase === 'result' ? this.no_winner : false
+            no_winner: this.phase === 'result' ? this.no_winner : false,
+            is_admin: this.isAdmin(uid)
         };
     }
 
@@ -389,8 +414,10 @@ class GameEngine {
             no_winner: this.phase === 'result' ? this.no_winner : false,
             real_players: Array.from(realMap.entries()).map(([uid, cartels]) => ({
                 uid,
+                is_admin: this.isAdmin(uid),
                 cartels: cartels.sort((a, b) => a - b)
             })),
+            admin_ids: Array.from(this.adminIds),
             timing: {
                 selection_seconds: this.selection_seconds,
                 draw_interval: this.draw_interval,
