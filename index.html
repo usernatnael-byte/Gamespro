@@ -275,7 +275,7 @@
   </div>
 
   <!-- DEPOSIT SUBPAGE -->
-  <div id="page-deposit" class="hidden flex-1 flex-col max-w-md mx-auto w-full p-4 pb-28">
+  <div id="page-deposit" class="hidden flex-1-col max-w-md mx-auto w-full p-4 pb-28">
     <button onclick="switchPage('wallet')" class="self-start text-yellow-400 mb-3 font-bold text-xs"><i class="fa-solid fa-arrow-left mr-1"></i>ወደ ዋሌት ተመለስ</button>
     <h2 class="text-xl font-black mb-1 text-yellow-400">📥 በTelebirr ሂሳብ መሙላት</h2>
     <p class="text-[11px] text-gray-400 mb-4">ከታች ያለውን የTelebirr ሂሳብ ተጠቅመው ክፍያዎን ይፈጽሙ።</p>
@@ -409,18 +409,32 @@
     <div id="popup-cards-wrapper" class="flex space-x-2 overflow-x-auto pb-1"></div>
   </div>
 
-  <!-- WINNER MODAL -->
+  <!-- WINNER MODAL (MATCHING SCREENSHOT DESIGN) -->
   <div id="winner-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 hidden">
-    <div class="max-w-xs w-full bg-[#141414] border-2 border-yellow-400 rounded-3xl p-5 shadow-2xl animate-modal text-center">
-      <div class="text-[10px] font-black text-yellow-400 uppercase tracking-widest mb-1">🎉 አሸናፊ (WINNER) 🎉</div>
-      <div class="text-4xl font-black text-yellow-400 tracking-wider my-2">BINGO!</div>
-      <div id="winner-share-status" class="text-sm font-bold text-yellow-300 mb-2"></div>
-      <div class="bg-[#0c0c0c] border border-mel-border rounded-2xl p-3 mb-3">
-        <div class="text-[9px] text-gray-400 uppercase">ጠቅላላ ሽልማት</div>
-        <div id="winner-total-prize" class="text-xl font-black text-white font-mono">0.00 ETB</div>
+    <div class="max-w-xs w-full bg-[#141414] border-2 border-yellow-400 rounded-3xl p-5 shadow-2xl animate-modal text-center max-h-[90vh] overflow-y-auto">
+      
+      <!-- Top Winner Count & Pool Header -->
+      <div class="flex justify-between items-center mb-2 px-1">
+        <div id="winner-count-badge" class="text-yellow-400 font-black text-xs">1 አሸናፊ</div>
+        <div id="winner-top-pool" class="text-yellow-400 font-mono font-black text-xs">0.00 ETB</div>
       </div>
-      <div class="bg-[#0c0c0c] border border-mel-border rounded-2xl p-2 max-h-40 overflow-y-auto mb-3" id="winners-list-container"></div>
-      <button onclick="closeWinnerModal()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black py-2.5 rounded-xl text-xs uppercase shadow-lg">ቀጥል</button>
+
+      <!-- Winner Name Title -->
+      <div id="winner-name-title" class="text-lg font-black text-emerald-400 italic mb-3 tracking-wide">yoni.f11 has won!</div>
+
+      <!-- Total Prize Box -->
+      <div class="bg-[#0c0c0c] border border-mel-border rounded-2xl p-2.5 mb-3">
+        <div class="text-[9px] text-gray-400 uppercase font-bold">TOTAL PRIZE POOL</div>
+        <div id="winner-total-prize" class="text-lg font-black text-emerald-400 font-mono mt-0.5">0.00 ETB</div>
+      </div>
+
+      <!-- Winners List / Matrices Container -->
+      <div class="space-y-4 mb-4" id="winners-list-container"></div>
+
+      <!-- Next Round / Continue Button -->
+      <button onclick="closeWinnerModal()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black py-3 rounded-xl text-xs uppercase shadow-lg tracking-wider">
+        NEXT ROUND: 5S
+      </button>
     </div>
   </div>
 
@@ -900,9 +914,47 @@
       if (s.no_winner || winners.length === 0) { ticketStatusText.innerText = 'ምንም አሸናፊ የለም'; return; }
       if (winners.some(w => w.mine)) refreshUserData();
       playCall('bingo');
-      document.getElementById('winner-total-prize').innerText = `${Number(s.pool).toFixed(2)} ETB`;
-      document.getElementById('winner-share-status').innerText = winners.length > 1 ? 'በጋራ አሸንፈዋል!' : '';
-      winnersListContainer.innerHTML = winners.map(w => `<div class="bg-[#0a0a0a] border border-mel-border rounded-xl p-2 flex justify-between items-center text-xs"><span class="text-yellow-300 font-bold">${esc(w.name)}</span><span class="text-yellow-400 font-mono font-bold">${Number(w.prize).toFixed(2)} ETB</span></div>`).join('');
+      
+      const totalPool = Number(s.pool || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('winner-top-pool').innerText = `${totalPool} ETB`;
+      document.getElementById('winner-total-prize').innerText = `${totalPool} ETB`;
+      document.getElementById('winner-count-badge').innerText = `${winners.length} አሸናፊ`;
+      
+      const firstWinnerName = winners[0]?.name || 'Player';
+      document.getElementById('winner-name-title').innerText = `${firstWinnerName} has won!`;
+
+      winnersListContainer.innerHTML = winners.map(w => {
+        const cartelId = w.cartel || w.cartelId || 38;
+        const matrix = generateMatrix(cartelId);
+        const scaleClass = winners.length > 1 ? 'scale-[0.9] origin-top' : '';
+
+        let html = `
+          <div class="bg-[#121212] border border-mel-border rounded-2xl p-3 shadow-md ${scaleClass}">
+            <div class="flex justify-between items-center mb-2">
+              <span class="font-bold text-xs text-yellow-400">CARD #${cartelId}</span>
+              <span class="text-xs font-bold text-emerald-400">${esc(w.name)}</span>
+            </div>
+            <div class="grid grid-cols-5 gap-1 text-center font-black text-[10px] text-yellow-500 mb-1">
+              <div>B</div><div>I</div><div>N</div><div>G</div><div>O</div>
+            </div>
+            <div class="grid grid-cols-5 gap-1 text-center text-xs font-mono font-bold">
+        `;
+
+        for (let r = 0; r < 5; r++) {
+          for (let c = 0; c < 5; c++) {
+            if (r === 2 && c === 2) {
+              html += `<div class="bg-amber-600 text-slate-950 font-black p-1.5 rounded-lg flex items-center justify-center text-[10px]">★</div>`;
+            } else {
+              const num = matrix[c][r];
+              const marked = drawnNumbers.includes(num);
+              let cellBg = marked ? 'bg-emerald-600 text-white font-black' : 'bg-[#1a1a1a] text-gray-300 border border-white/5';
+              html += `<div class="${cellBg} p-1.5 rounded-lg transition-all flex items-center justify-center text-[11px]">${num}</div>`;
+            }
+          }
+        }
+        html += `</div></div>`;
+        return html;
+      }).join('');
       
       if (currentPage === 'home' || currentPage === 'ticket') {
         winnerModal.classList.remove('hidden');
