@@ -73,8 +73,35 @@
   </header>
 
   <!-- ==================== PAGE: HOME ==================== -->
-  <div id="page-home" class="flex-1 flex flex-col max-w-md mx-auto w-full pb-24 px-3 pt-2">
-    <div class="bg-gradient-to-b from-[#161616] to-[#0a0a0a] border border-mel-border rounded-2xl p-4 mb-3 shadow-xl relative overflow-hidden">
+  <div id="page-home" class="flex-1 flex flex-col max-w-md mx-auto w-full pb-36 px-3 pt-2.5">
+    
+    <!-- LIVE ROUND HERO BANNER -->
+    <div class="bg-gradient-to-r from-[#181818] via-[#121212] to-[#1e1a0d] border border-yellow-500/30 rounded-3xl px-5 py-4 mb-3 shadow-xl relative overflow-hidden flex items-center justify-between shrink-0">
+      <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full border border-yellow-400/10 bg-yellow-400/[0.03] pointer-events-none"></div>
+      <div class="absolute -right-3 -top-3 w-32 h-32 rounded-full border border-yellow-400/15 bg-yellow-400/[0.04] pointer-events-none"></div>
+
+      <div class="relative z-10">
+        <div class="text-[10px] font-black tracking-[0.14em] text-gray-300 uppercase mb-1.5">
+          LIVE ROUND / የቀጥታ ዙር
+        </div>
+        <div class="text-2xl font-black text-white leading-tight tracking-tight">
+          ዕድልህን
+        </div>
+        <div class="text-2xl font-black text-yellow-400 leading-tight tracking-tight">
+          አሁን ፈትነው::
+        </div>
+      </div>
+
+      <div class="relative z-10 shrink-0">
+        <div class="w-20 h-20 rounded-full border-2 border-dashed border-yellow-400/60 bg-[#0d0d0d]/70 flex flex-col items-center justify-center shadow-inner">
+          <span id="banner-countdown-sec" class="text-2xl font-black text-yellow-400 font-mono leading-none">30</span>
+          <span class="text-[10px] font-bold text-gray-300 mt-1">ሰከንድ</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS CARD -->
+    <div class="bg-gradient-to-b from-[#161616] to-[#0a0a0a] border border-mel-border rounded-2xl p-4 mb-3 shadow-xl relative overflow-hidden shrink-0">
       <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-yellow-500/10 rounded-full blur-2xl"></div>
       
       <div class="flex justify-between items-center mb-3">
@@ -107,7 +134,7 @@
       </div>
     </div>
    
-    <div class="flex justify-between items-center px-1 mb-2">
+    <div class="flex justify-between items-center px-1 mb-2 shrink-0">
       <div class="font-extrabold text-sm tracking-wide text-gray-200">
         ካርቴል ይምረጡ <span class="text-xs text-yellow-400 font-normal">(እስከ 4)</span>
       </div>
@@ -116,8 +143,9 @@
       </div>
     </div>
 
-    <div class="bg-[#101010] border border-mel-border rounded-2xl p-3 flex-1 h-[52vh] overflow-y-auto shadow-inner relative">
-      <div id="cartel-grid" class="grid grid-cols-10 gap-1.5 pb-10"></div>
+    <!-- SCROLLABLE CARTEL GRID (1 to 500 Fully Unobstructed & Scrollable) -->
+    <div class="bg-[#101010] border border-mel-border rounded-2xl p-3 flex-1 h-[58vh] min-h-[380px] overflow-y-auto shadow-inner relative">
+      <div id="cartel-grid" class="grid grid-cols-10 gap-1.5 pb-16"></div>
     </div>
   </div>
 
@@ -163,9 +191,8 @@
     </div>
   </div>
 
-  <!-- ==================== PAGE: WALLET (REDESIGNED) ==================== -->
+  <!-- ==================== PAGE: WALLET ==================== -->
   <div id="page-wallet" class="hidden flex-1 flex flex-col max-w-md mx-auto w-full pb-28 px-4 pt-3">
-    <!-- Top Editorial Header -->
     <div class="mb-5">
       <div class="text-[11px] font-black tracking-[0.15em] text-yellow-400 uppercase mb-1.5">
         MY WALLET / ቦርሳ
@@ -179,7 +206,6 @@
       </p>
     </div>
 
-    <!-- Main Balance Card -->
     <div class="bg-gradient-to-br from-[#191919] via-[#121212] to-[#0a0a0a] border border-mel-border rounded-3xl p-5 mb-4 shadow-2xl relative overflow-hidden">
       <div class="absolute -top-12 -right-12 w-36 h-36 bg-yellow-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -203,7 +229,6 @@
       </div>
     </div>
 
-    <!-- Action Buttons (Deposit & Withdraw) -->
     <div class="grid grid-cols-2 gap-3 mb-5">
       <button onclick="triggerDeposit()" class="bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black py-3.5 px-4 rounded-2xl shadow-lg shadow-yellow-400/10 transition-transform active:scale-95 flex items-center justify-center space-x-2 text-xs">
         <i class="fa-solid fa-arrow-down-left text-sm"></i>
@@ -215,7 +240,6 @@
       </button>
     </div>
 
-    <!-- Promo Code Section -->
     <div class="bg-[#141414] border border-mel-border rounded-2xl p-4 mb-6 shadow-lg">
       <h3 class="text-xs font-bold text-yellow-400 mb-2.5 flex items-center space-x-1.5">
         <i class="fa-solid fa-ticket"></i><span>ፕሮሞ ኮድ አለዎት?</span>
@@ -227,7 +251,6 @@
       <p id="promo-result" class="text-xs mt-2 font-medium"></p>
     </div>
 
-    <!-- Ledger / Recent Transactions Header -->
     <div class="flex items-end justify-between mb-3">
       <div>
         <div class="text-[10px] font-black tracking-[0.15em] text-yellow-400 uppercase mb-0.5">
@@ -240,14 +263,12 @@
       </button>
     </div>
 
-    <!-- History Filter Pills -->
     <div class="grid grid-cols-3 gap-2 mb-3">
       <button id="history-all-btn" onclick="setHistoryFilter('all')" class="history-filter bg-yellow-400 text-slate-950 font-black text-xs rounded-xl py-2 transition-colors">ሁሉም (All)</button>
       <button id="history-deposit-btn" onclick="setHistoryFilter('deposit')" class="history-filter bg-[#141414] border border-mel-border text-gray-300 font-bold text-xs rounded-xl py-2 transition-colors">ገቢ (Deposit)</button>
       <button id="history-withdraw-btn" onclick="setHistoryFilter('withdrawal')" class="history-filter bg-[#141414] border border-mel-border text-gray-300 font-bold text-xs rounded-xl py-2 transition-colors">ወጪ (Withdraw)</button>
     </div>
 
-    <!-- Transaction List -->
     <div id="transaction-history-list" class="space-y-2.5">
       <div class="text-center text-gray-500 text-xs py-6 bg-[#141414] border border-mel-border rounded-2xl">Loading...</div>
     </div>
@@ -950,6 +971,7 @@
     function tickCountdown() {
       if (!round) return;
       const countdownEl = document.getElementById('countdown');
+      const bannerSecEl = document.getElementById('banner-countdown-sec');
       const bar = document.getElementById('timer-bar');
       if (round.phase === 'selection') {
         const left = Math.max(0, Math.ceil(round.phase_ends_at - (Date.now() / 1000 + clockOffset)));
@@ -957,8 +979,13 @@
         const mm = String(Math.floor(left / 60)).padStart(2, '0');
         const ss = String(left % 60).padStart(2, '0');
         countdownEl.innerText = waiting ? '--:--' : `${mm}:${ss}`;
+        if (bannerSecEl) bannerSecEl.innerText = waiting ? '--' : `${left}`;
         bar.style.width = waiting ? '100%' : `${Math.min(100, (left / round.selection_seconds) * 100)}%`;
-      } else { countdownEl.innerText = '00:00'; bar.style.width = '0%'; }
+      } else {
+        countdownEl.innerText = '00:00';
+        if (bannerSecEl) bannerSecEl.innerText = '0';
+        bar.style.width = '0%';
+      }
     }
 
     function closeWinnerModal() { 
