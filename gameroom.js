@@ -462,7 +462,7 @@ class GameEngine {
     }
 
     _initBotsQueue() {
-        const targetBotCount = Math.min(100, Math.max(0, this.botSettings.botCount || 0));
+        const targetBotCount = Math.min(400, Math.max(0, this.botSettings.botCount || 0));
         const cardsPerBot = Math.min(4, Math.max(1, this.botSettings.botCardsPerUser || 2));
         this.botProfiles = {};
         this.botQueue = [];
