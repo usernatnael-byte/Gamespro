@@ -81,8 +81,6 @@ function askForContact(ctx) {
     );
 }
 
-
-
 async function showMainMenu(ctx) {
     const replyMarkup = {
         inline_keyboard: [
@@ -111,10 +109,6 @@ async function showMainMenu(ctx) {
         { reply_markup: replyMarkup }
     );
 }
-
-
-
-// Handle callback queries for the primary inline menu buttons (ዳታቤዝ እና ሌሎች ሎጂኮች)
 
 bot.on('callback_query', async (ctx) => {
     const action = ctx.callbackQuery?.data;
@@ -160,7 +154,7 @@ bot.on('callback_query', async (ctx) => {
 
         return ctx.telegram.sendMessage(
             chatId,
-            `🎁 ጓደኛዎን ይጋብዙ። በሊንክዎ ተመዝግቦ ስልኩን ሲያረጋግጥ 20 ETB Bonus ያገኛሉ።\n\n${link}`,
+            `🎁 ጓደኛዎን ይጋብዙ! በሊንክዎ ተመዝግቦ ስልኩን ሲያረጋግጥ ${REFERRAL_BONUS} ETB Bonus ወደ Bonus Balance ገቢ ይሆንልዎታል (ቦቱም ወዲያውኑ ያሳውቅዎታል)።\n\n${link}`,
             Markup.inlineKeyboard([
                 [Markup.button.url(
                     '📨 ሊንኩን አጋራ',
@@ -195,104 +189,150 @@ async function completeRegistration(ctx, phoneNumber) {
     const userRef = db.collection('users').doc(uid);
     const pendingRef = db.collection('pending_registrations').doc(uid);
 
+    let referralResult = { awarded: false, referrerId: null, newBonus: 0, referralCount: 0 };
+
     await db.runTransaction(async tx => {
         const userSnap = await tx.get(userRef);
         const pendingSnap = await tx.get(pendingRef);
+        const existingData = userSnap.exists ? (userSnap.data() || {}) : {};
 
-        if (userSnap.exists) {
+        if (userSnap.exists && existingData.phone_number) {
             tx.set(userRef, {
                 phone_number: phoneNumber,
                 channel_joined: true
             }, { merge: true });
-
             return;
         }
 
-        const pending = pendingSnap.exists ? pendingSnap.data() : {};
+        const pending = pendingSnap.exists ? (pendingSnap.data() || {}) : {};
+        const rawReferrer = pending.referrer_id || existingData.referred_by || null;
+        const referrerId = rawReferrer && String(rawReferrer) !== uid ? String(rawReferrer) : null;
 
-        const referrerId =
-            pending.referrer_id && String(pending.referrer_id) !== uid
-                ? String(pending.referrer_id)
-                : null;
-
-        const referrerRef = referrerId
-            ? db.collection('users').doc(referrerId)
-            : null;
-
-        const referrerSnap = referrerRef
-            ? await tx.get(referrerRef)
-            : null;
+        const referrerRef = referrerId ? db.collection('users').doc(referrerId) : null;
+        const referrerSnap = referrerRef ? await tx.get(referrerRef) : null;
 
         const now = new Date().toISOString();
+        const invitedLabel = [ctx.from.first_name, ctx.from.last_name].filter(Boolean).join(' ').trim()
+            || (ctx.from.username ? `@${ctx.from.username}` : uid);
 
-        tx.set(userRef, {
-            telegram_id: uid,
-            first_name: ctx.from.first_name || '',
-            username: ctx.from.username || '',
-            phone_number: phoneNumber,
-            balance: 0,
-            bonus: REGISTRATION_BONUS,
-            channel_joined: true,
-            has_deposited: false,
-            referral_code: uid,
-            referred_by: referrerSnap?.exists ? referrerId : null,
-            created_at: Date.now(),
-            transactions: [{
-                type: 'bonus',
-                amount: REGISTRATION_BONUS,
-                source: 'registration',
-                timestamp: now
-            }]
-        });
+        if (!userSnap.exists) {
+            tx.set(userRef, {
+                telegram_id: uid,
+                first_name: ctx.from.first_name || '',
+                username: ctx.from.username || '',
+                phone_number: phoneNumber,
+                balance: 0,
+                bonus: REGISTRATION_BONUS,
+                channel_joined: true,
+                has_deposited: false,
+                referral_code: uid,
+                referred_by: referrerSnap?.exists ? referrerId : null,
+                created_at: Date.now(),
+                transactions: [{
+                    type: 'bonus',
+                    wallet: 'bonus',
+                    amount: REGISTRATION_BONUS,
+                    source: 'registration',
+                    description: 'የምዝገባ ቦነስ (Registration Bonus)',
+                    timestamp: now
+                }]
+            });
+        } else {
+            tx.set(userRef, {
+                first_name: ctx.from.first_name || existingData.first_name || '',
+                username: ctx.from.username || existingData.username || '',
+                phone_number: phoneNumber,
+                channel_joined: true,
+                referred_by: referrerSnap?.exists && !existingData.referred_by ? referrerId : (existingData.referred_by || null)
+            }, { merge: true });
+        }
 
-        if (referrerSnap?.exists) {
-            const rd = referrerSnap.data();
-
+        if (referrerSnap?.exists && (!existingData.referred_by || !userSnap.exists)) {
+            const rd = referrerSnap.data() || {};
             const referred = Array.isArray(rd.referred_users)
-                ? rd.referred_users
+                ? rd.referred_users.map(String)
                 : [];
 
             if (!referred.includes(uid)) {
-                const txs = Array.isArray(rd.transactions)
-                    ? rd.transactions
-                    : [];
+                const prevBonus = Number(rd.bonus || 0);
+                const nextBonus = Math.round((prevBonus + REFERRAL_BONUS) * 100) / 100;
+                const nextCount = Number(rd.referral_count || 0) + 1;
+                const txs = Array.isArray(rd.transactions) ? rd.transactions : [];
 
-                txs.push({
-                    type: 'bonus',
-                    amount: REFERRAL_BONUS,
-                    source: 'referral',
-                    referred_user: uid,
-                    timestamp: now
-                });
+                const nextTxs = [
+                    ...txs,
+                    {
+                        type: 'referral',
+                        wallet: 'bonus',
+                        amount: REFERRAL_BONUS,
+                        source: 'referral',
+                        description: `የጓደኛ ግብዣ ቦነስ (${invitedLabel})`,
+                        referred_user: uid,
+                        timestamp: now
+                    }
+                ];
 
                 tx.update(referrerRef, {
-                    bonus: Number(rd.bonus || 0) + REFERRAL_BONUS,
+                    bonus: nextBonus,
                     referred_users: [...referred, uid],
-                    referral_count: Number(rd.referral_count || 0) + 1,
-                    transactions: txs
+                    referral_count: nextCount,
+                    transactions: nextTxs
                 });
+
+                referralResult = {
+                    awarded: true,
+                    referrerId,
+                    newBonus: nextBonus,
+                    referralCount: nextCount
+                };
             }
         }
 
-        tx.delete(pendingRef);
+        if (pendingSnap.exists) {
+            tx.delete(pendingRef);
+        }
     });
+
+    if (referralResult.awarded && referralResult.referrerId) {
+        try {
+            const serverPath = require.resolve('./server');
+            const srv = require.cache[serverPath]?.exports;
+            srv?.engine?.invalidateBalanceCache?.(referralResult.referrerId);
+        } catch (_) {}
+
+        const invitedName = [ctx.from.first_name, ctx.from.last_name].filter(Boolean).join(' ').trim()
+            || (ctx.from.username ? `@${ctx.from.username}` : 'አዲስ ተጫዋች');
+
+        await bot.telegram.sendMessage(
+            referralResult.referrerId,
+            `🎉 እንኳን ደስ አለዎት!\n\n` +
+            `👤 የጋበዙት ተጫዋች (${invitedName}) በሪፈራል ሊንክዎ በተሳካ ሁኔታ ተመዝግቧል።\n` +
+            `🎁 +${money(REFERRAL_BONUS)} ወደ Bonus Balance ገብቶልዎታል!\n` +
+            `💰 አዲስ Bonus Balance: ${money(referralResult.newBonus)}\n` +
+            `👥 ጠቅላላ የጋበዟቸው ተጫዋቾች: ${referralResult.referralCount}`
+        ).catch(err => console.warn('Referral bonus notification failed:', err.message));
+    }
+
+    return referralResult;
 }
 
 bot.start(async ctx => {
     try {
         const uid = String(ctx.from.id);
-        const payload = String(ctx.startPayload || '').toLowerCase();
+        const rawPayload = String(ctx.startPayload || (ctx.message?.text?.split(/\s+/)[1]) || '').trim();
+        const payload = rawPayload.toLowerCase();
 
         if (payload.startsWith('ref_')) {
             const referrerId = payload.slice(4).replace(/[^0-9]/g, '');
 
             if (referrerId && referrerId !== uid) {
                 const existing = await db.collection('users').doc(uid).get();
+                const alreadyRegistered = existing.exists && Boolean(existing.data()?.phone_number);
 
-                if (!existing.exists) {
+                if (!alreadyRegistered) {
                     await db.collection('pending_registrations')
                         .doc(uid)
-                        .set({ referrer_id: referrerId }, { merge: true });
+                        .set({ referrer_id: referrerId, updated_at: Date.now() }, { merge: true });
                 }
             }
         }
@@ -319,7 +359,6 @@ bot.start(async ctx => {
         ctx.reply('⚠️ ጊዜያዊ ችግር ተፈጥሯል። እባክዎ /start እንደገና ይላኩ።');
     }
 });
-
 
 bot.action('verify_channel', async ctx => {
     await ctx.answerCbQuery();
