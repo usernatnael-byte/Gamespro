@@ -364,53 +364,97 @@ class AdminControlTools {
     }
 
     async getOverview(fresh = false) {
-        if (!fresh && overviewCache.data && Date.now() - overviewCache.at < 15000) {
+        if (!fresh && overviewCache.data && Date.now() - overviewCache.at < 30000) {
             return overviewCache.data;
         }
         if (overviewInFlight) return overviewInFlight;
 
+        const safeNum = (v) => {
+            const n = Number(v);
+            return Number.isFinite(n) ? n : 0;
+        };
+        const toMs = (val) => {
+            if (!val) return 0;
+            if (typeof val === 'number') return Number.isFinite(val) ? val : 0;
+            if (typeof val === 'object') {
+                if (typeof val.toMillis === 'function') return val.toMillis();
+                if (Number.isFinite(Number(val.seconds))) return Number(val.seconds) * 1000;
+                if (Number.isFinite(Number(val._seconds))) return Number(val._seconds) * 1000;
+            }
+            if (typeof val === 'string' && /^\d+$/.test(val)) return Number(val);
+            const parsed = Date.parse(val);
+            return Number.isNaN(parsed) ? 0 : parsed;
+        };
+
         overviewInFlight = (async () => {
-            const getUsers = () => this.db.collection('users').select('balance', 'bonus', 'transactions').get()
-                .catch(() => this.db.collection('users').get());
-            const getRoundsCount = async () => {
+            const safeUsersQuery = async () => {
                 try {
-                    if (typeof this.db.collection('rounds').count === 'function') {
-                        const agg = await this.db.collection('rounds').count().get();
-                        return agg.data().count || 0;
+                    return await this.db.collection('users').select('balance', 'bonus', 'transactions').get();
+                } catch (_) {
+                    return await this.db.collection('users').get();
+                }
+            };
+            const safeDepositsQuery = async () => {
+                try {
+                    return await this.db.collection('deposit_requests').select('status', 'amount', 'created_at', 'created_at_iso').get();
+                } catch (_) {
+                    return await this.db.collection('deposit_requests').get();
+                }
+            };
+            const safeWithdrawalsQuery = async () => {
+                try {
+                    return await this.db.collection('withdrawal_requests').select('status', 'amount', 'created_at').get();
+                } catch (_) {
+                    return await this.db.collection('withdrawal_requests').get();
+                }
+            };
+            const safeRoundsCount = async () => {
+                try {
+                    const col = this.db.collection('rounds');
+                    if (typeof col.count === 'function') {
+                        const agg = await col.count().get();
+                        const data = typeof agg?.data === 'function' ? agg.data() : null;
+                        if (data && Number.isFinite(Number(data.count))) return Number(data.count);
                     }
                 } catch (_) {}
-                const snap = await this.db.collection('rounds').select().get().catch(() => ({ size: 0 }));
-                return snap.size || 0;
+                try {
+                    const snap = await this.db.collection('rounds').select().get();
+                    return snap?.size || 0;
+                } catch (_) {
+                    try {
+                        const snap = await this.db.collection('rounds').get();
+                        return snap?.size || 0;
+                    } catch (_) {
+                        return overviewCache.data?.rounds || 0;
+                    }
+                }
             };
 
             const [usersSnap, depositsSnap, withdrawalsSnap, roundsCount] = await Promise.all([
-                getUsers(),
-                this.db.collection('deposit_requests').select('status', 'amount', 'created_at', 'created_at_iso').get().catch(() => this.db.collection('deposit_requests').get()),
-                this.db.collection('withdrawal_requests').select('status', 'amount', 'created_at').get().catch(() => this.db.collection('withdrawal_requests').get()),
-                getRoundsCount()
+                safeUsersQuery(),
+                safeDepositsQuery(),
+                safeWithdrawalsQuery(),
+                safeRoundsCount()
             ]);
 
             const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-            const toMs = (val) => {
-                if (typeof val === 'number') return val;
-                if (typeof val === 'string' && /^\d+$/.test(val)) return Number(val);
-                const parsed = Date.parse(val);
-                return Number.isNaN(parsed) ? 0 : parsed;
-            };
 
             let mainBalance = 0;
             let bonusBalance = 0;
             let weeklyWinnings = 0;
 
-            for (const doc of usersSnap.docs) {
-                const u = doc.data() || {};
-                mainBalance += Number(u.balance || 0);
-                bonusBalance += Number(u.bonus || 0);
+            const userDocs = Array.isArray(usersSnap?.docs) ? usersSnap.docs : [];
+            for (const doc of userDocs) {
+                if (!doc) continue;
+                const u = (typeof doc.data === 'function' ? doc.data() : null) || {};
+                mainBalance += safeNum(u.balance);
+                bonusBalance += safeNum(u.bonus);
                 if (Array.isArray(u.transactions)) {
                     for (const t of u.transactions) {
-                        if (['win', 'winnings'].includes(t.type)) {
+                        if (!t || typeof t !== 'object') continue;
+                        if (t.type === 'win' || t.type === 'winnings') {
                             const ts = toMs(t.timestamp || t.created_at);
-                            if (ts >= weekAgo) weeklyWinnings += Number(t.amount || 0);
+                            if (ts >= weekAgo) weeklyWinnings += safeNum(t.amount);
                         }
                     }
                 }
@@ -418,24 +462,28 @@ class AdminControlTools {
 
             let pendingDeposits = 0;
             let weeklyDeposits = 0;
-            for (const doc of depositsSnap.docs) {
-                const r = doc.data() || {};
+            const depositDocs = Array.isArray(depositsSnap?.docs) ? depositsSnap.docs : [];
+            for (const doc of depositDocs) {
+                if (!doc) continue;
+                const r = (typeof doc.data === 'function' ? doc.data() : null) || {};
                 if (r.status === 'pending') pendingDeposits++;
                 const ts = toMs(r.created_at || r.created_at_iso);
-                if (r.status === 'approved' && ts >= weekAgo) weeklyDeposits += Number(r.amount || 0);
+                if (r.status === 'approved' && ts >= weekAgo) weeklyDeposits += safeNum(r.amount);
             }
 
             let pendingWithdrawals = 0;
             let weeklyWithdrawals = 0;
-            for (const doc of withdrawalsSnap.docs) {
-                const r = doc.data() || {};
+            const withdrawalDocs = Array.isArray(withdrawalsSnap?.docs) ? withdrawalsSnap.docs : [];
+            for (const doc of withdrawalDocs) {
+                if (!doc) continue;
+                const r = (typeof doc.data === 'function' ? doc.data() : null) || {};
                 if (r.status === 'pending') pendingWithdrawals++;
                 const ts = toMs(r.created_at);
-                if (r.status !== 'rejected' && ts >= weekAgo) weeklyWithdrawals += Number(r.amount || 0);
+                if (r.status !== 'rejected' && ts >= weekAgo) weeklyWithdrawals += safeNum(r.amount);
             }
 
             const stats = {
-                users: usersSnap.size,
+                users: usersSnap?.size ?? userDocs.length,
                 mainBalance,
                 bonusBalance,
                 pendingDeposits,
@@ -918,7 +966,7 @@ app.get('/api/admin/overview', async (req, res) => {
         res.json({ status: 'success', stats });
     } catch (e) {
         console.error('Admin overview error:', e);
-        res.status(500).json({ status: 'error', message: 'Could not load overview.' });
+        res.status(500).json({ status: 'error', message: e?.message ? `Could not load overview: ${e.message}` : 'Could not load overview.' });
     }
 });
 

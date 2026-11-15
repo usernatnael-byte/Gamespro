@@ -908,13 +908,13 @@ class AdminControlTools {
 
     setTimeout(() => {
       if (this.activeView === 'live-room') {
-        this.loadOverview().catch(() => {});
+        this.loadOverview(false, { silent: true });
       }
     }, 900);
 
     this.bgSyncTimer = setInterval(() => {
       if (!this.liveStreamingEnabled || document.hidden) return;
-      if (this.activeView === 'overview') this.loadOverview().catch(() => {});
+      if (this.activeView === 'overview') this.loadOverview(false, { silent: true });
       else if (this.activeView === 'requests') this.loadRequests().catch(() => {});
     }, 25000);
   }
@@ -960,7 +960,7 @@ class AdminControlTools {
     window.scrollTo({ top: 0, behavior: 'auto' });
 
     if (target === 'live-room' && !this.currentRoomState) this.loadLiveRoom();
-    else if (target === 'overview' && this.isStale('overview', 20000)) this.loadOverview().catch(() => {});
+    else if (target === 'overview' && this.isStale('overview', 20000)) this.loadOverview(false, { silent: false });
     else if (target === 'bot-settings' && this.isStale('bot-settings', 30000)) this.loadBotSettings().catch(() => {});
     else if (target === 'promo' && this.isStale('promo', 30000)) this.loadPromoAndBonusSettings().catch(() => {});
     else if (target === 'requests' && this.isStale('requests', 15000)) this.loadRequests().catch(() => {});
@@ -1482,34 +1482,65 @@ class AdminControlTools {
       `</tbody></table></div>`;
   }
 
-  async loadOverview(fresh = false) {
-    const d = await this.api('/api/admin/overview' + (fresh ? '?fresh=1' : ''));
-    this.loadedAt.overview = Date.now();
-    const s = d.stats;
-    document.getElementById('stats').innerHTML = [
-      ['ተጠቃሚዎች', s.users],
-      ['Main Balance', Number(s.mainBalance).toFixed(2) + ' ETB'],
-      ['Bonus Balance', Number(s.bonusBalance).toFixed(2) + ' ETB'],
-      ['Pending Deposit', s.pendingDeposits],
-      ['Pending Withdrawal', s.pendingWithdrawals],
-      ['የጨዋታ ዙሮች', s.rounds]
-    ].map((x) => `<div class="stat-box"><div class="muted" style="font-size:12px;">${x[0]}</div><div class="num mono">${x[1]}</div></div>`).join('');
+  async loadOverview(fresh = false, opts = {}) {
+    const silent = Boolean(opts && opts.silent);
+    const statsEl = document.getElementById('stats');
+    const weeklyEl = document.getElementById('weekly');
+    if (!silent && !this.loadedAt.overview) {
+      if (statsEl) statsEl.innerHTML = '<div class="stat-box"><div class="muted">Loading overview...</div><div class="num mono">—</div></div>';
+      if (weeklyEl) weeklyEl.innerHTML = '<span class="muted">መረጃ በመጫን ላይ...</span>';
+    }
+    try {
+      const d = await this.api('/api/admin/overview' + (fresh ? '?fresh=1' : ''), { timeoutMs: 25000 });
+      const s = d && typeof d.stats === 'object' && d.stats ? d.stats : null;
+      if (!s) throw new Error('የOverview መረጃ ባዶ ነው — እባክዎ ደግመው ይሞክሩ');
+      this.loadedAt.overview = Date.now();
+      const num = (v) => {
+        const n = Number(v);
+        return Number.isFinite(n) ? n : 0;
+      };
+      if (statsEl) {
+        statsEl.innerHTML = [
+          ['ተጠቃሚዎች', num(s.users)],
+          ['Main Balance', num(s.mainBalance).toFixed(2) + ' ETB'],
+          ['Bonus Balance', num(s.bonusBalance).toFixed(2) + ' ETB'],
+          ['Pending Deposit', num(s.pendingDeposits)],
+          ['Pending Withdrawal', num(s.pendingWithdrawals)],
+          ['የጨዋታ ዙሮች', num(s.rounds)]
+        ].map((x) => `<div class="stat-box"><div class="muted" style="font-size:12px;">${x[0]}</div><div class="num mono">${x[1]}</div></div>`).join('');
+      }
 
-    const vals = [
-      ['Deposit', s.weeklyDeposits],
-      ['Withdrawal requests', s.weeklyWithdrawals],
-      ['Winnings recorded', s.weeklyWinnings]
-    ];
-    const max = Math.max(1, ...vals.map((x) => Number(x[1])));
-    document.getElementById('weekly').innerHTML = vals.map((x) => `
-      <div class="weekly-item">
-        <div class="weekly-head"><span>${x[0]}</span><b class="mono">${Number(x[1]).toFixed(2)} ETB</b></div>
-        <div class="bar"><i style="width:${Math.max(0, Number(x[1]) / max * 100)}%"></i></div>
-      </div>
-    `).join('') + '<p class="muted" style="font-size:12px;margin:10px 0 0;">የሪፖርቱ ጊዜ: ያለፉት 7 ቀናት።</p>';
+      const vals = [
+        ['Deposit', num(s.weeklyDeposits)],
+        ['Withdrawal requests', num(s.weeklyWithdrawals)],
+        ['Winnings recorded', num(s.weeklyWinnings)]
+      ];
+      const max = Math.max(1, ...vals.map((x) => x[1]));
+      if (weeklyEl) {
+        weeklyEl.innerHTML = vals.map((x) => `
+          <div class="weekly-item">
+            <div class="weekly-head"><span>${x[0]}</span><b class="mono">${x[1].toFixed(2)} ETB</b></div>
+            <div class="bar"><i style="width:${Math.max(0, x[1] / max * 100)}%"></i></div>
+          </div>
+        `).join('') + '<p class="muted" style="font-size:12px;margin:10px 0 0;">የሪፖርቱ ጊዜ: ያለፉት 7 ቀናት።</p>';
+      }
 
-    const totalPending = Number(s.pendingDeposits || 0) + Number(s.pendingWithdrawals || 0);
-    this.updatePendingCounters(totalPending);
+      const totalPending = num(s.pendingDeposits) + num(s.pendingWithdrawals);
+      this.updatePendingCounters(totalPending);
+    } catch (e) {
+      if (!silent || fresh || this.activeView === 'overview') {
+        this.fail(e);
+      }
+      if (!this.loadedAt.overview) {
+        const msg = this.esc(e?.message || 'Overview መጫን አልተቻለም።');
+        if (statsEl) {
+          statsEl.innerHTML = `<div class="stat-box" style="grid-column:1 / -1;"><div class="muted" style="margin-bottom:8px;">Overview መጫን አልተቻለም: ${msg}</div><button type="button" class="secondary sm" onclick="loadOverview(true)">↻ ደግመው ይሞክሩ (Retry)</button></div>`;
+        }
+        if (weeklyEl) {
+          weeklyEl.innerHTML = `<div class="muted">የ7 ቀን ሪፖርት መጫን አልተቻለም: ${msg}</div>`;
+        }
+      }
+    }
   }
 
   updatePendingCounters(count) {
