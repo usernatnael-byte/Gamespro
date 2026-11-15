@@ -3,6 +3,7 @@ const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const zlib = require('zlib');
 const FirestoreWallet = require('./users');
 const { GameEngine } = require('./gameroom');
 const { admin, db } = require('./firebase');
@@ -60,7 +61,7 @@ function verifyTelegramInitData(initData) {
 
 const membershipCache = new Map();
 const membershipChecks = new Map();
-const MEMBERSHIP_CACHE_MS = 30 * 1000;
+const MEMBERSHIP_CACHE_MS = 120 * 1000;
 
 async function isChannelMember(userId) {
     const uid = String(userId);
@@ -92,6 +93,18 @@ async function isChannelMember(userId) {
     }
 }
 
+function parseAdminIds() {
+    const ids = [process.env.ADMIN_ID || '', process.env.ADMIN_IDS || '']
+        .join(',')
+        .split(/[,;\s]+/)
+        .map(v => v.trim())
+        .filter(Boolean);
+    if (ids.length === 0) ids.push('7396414604');
+    return new Set(ids);
+}
+
+const ADMIN_IDS = parseAdminIds();
+
 const connectedClients = new Map();
 const CONNECTED_TTL_MS = 20 * 1000;
 
@@ -113,11 +126,36 @@ function getConnectedCount() {
     return count;
 }
 
+const blockedUsersCache = new Map();
+const BLOCKED_CACHE_MS = 30 * 1000;
+
+async function isUserBlocked(uid) {
+    const key = String(uid);
+    const cached = blockedUsersCache.get(key);
+    if (cached && Date.now() - cached.at < BLOCKED_CACHE_MS) {
+        return cached.blocked;
+    }
+    const userDoc = await db.collection('users').doc(key).get();
+    const blocked = Boolean(userDoc.exists && userDoc.data().blocked);
+    blockedUsersCache.set(key, { blocked, at: Date.now() });
+    return blocked;
+}
+
+let overviewCache = { data: null, at: 0 };
+let requestsCache = { data: null, at: 0 };
+let overviewInFlight = null;
+let requestsInFlight = null;
+function invalidateAdminCaches() {
+    overviewCache.at = 0;
+    requestsCache.at = 0;
+}
+
 async function requireTelegramUser(req, res, next) {
-    const user = verifyTelegramInitData(req.get('X-Telegram-Init-Data'));
+    const rawInitData = req.get('X-Telegram-Init-Data') || (typeof req.query.initData === 'string' ? req.query.initData : '');
+    const user = verifyTelegramInitData(rawInitData);
 
     if (!user) {
-        const adminKey = req.get('X-Admin-Key');
+        const adminKey = req.get('X-Admin-Key') || (typeof req.query.adminKey === 'string' ? req.query.adminKey : '');
         const configuredSecret = process.env.ADMIN_SECRET;
         if (process.env.REQUIRE_TELEGRAM_AUTH === 'true' && !(configuredSecret && adminKey === configuredSecret)) {
             return res.status(401).json({ status: 'error', message: 'Telegram authentication required.' });
@@ -134,8 +172,15 @@ async function requireTelegramUser(req, res, next) {
 
     req.telegramUser = user;
     req.telegramUserId = String(user.id);
-    const userDoc = await db.collection('users').doc(req.telegramUserId).get();
-    if (userDoc.exists && userDoc.data().blocked) return res.status(403).json({status:'error',message:'Account is blocked.'});
+
+    // Admins bypass blocked & channel membership checks for zero-lag control
+    if (ADMIN_IDS.has(req.telegramUserId) && req.path.startsWith('/admin')) {
+        return next();
+    }
+
+    if (await isUserBlocked(req.telegramUserId)) {
+        return res.status(403).json({ status: 'error', message: 'Account is blocked.' });
+    }
 
     if (BOT_CHANNEL_ID) {
         try {
@@ -153,18 +198,6 @@ async function requireTelegramUser(req, res, next) {
 
     next();
 }
-
-function parseAdminIds() {
-    const ids = [process.env.ADMIN_ID || '', process.env.ADMIN_IDS || '']
-        .join(',')
-        .split(/[,;\s]+/)
-        .map(v => v.trim())
-        .filter(Boolean);
-    if (ids.length === 0) ids.push('7396414604');
-    return new Set(ids);
-}
-
-const ADMIN_IDS = parseAdminIds();
 
 const wallet = new FirestoreWallet(db);
 const engine = new GameEngine(wallet, 2);
@@ -194,24 +227,71 @@ function resolveHtmlFile(...filenames) {
     return null;
 }
 
+const htmlFileCache = new Map();
+function sendCompressedHtml(req, res, filePath) {
+    try {
+        const stat = fs.statSync(filePath);
+        let entry = htmlFileCache.get(filePath);
+        if (!entry || entry.mtimeMs !== stat.mtimeMs) {
+            const raw = fs.readFileSync(filePath);
+            const gzip = zlib.gzipSync(raw, { level: 6 });
+            entry = { mtimeMs: stat.mtimeMs, raw, gzip };
+            htmlFileCache.set(filePath, entry);
+        }
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Vary', 'Accept-Encoding');
+        const accept = String(req.headers['accept-encoding'] || '');
+        if (accept.includes('gzip')) {
+            res.setHeader('Content-Encoding', 'gzip');
+            return res.send(entry.gzip);
+        }
+        return res.send(entry.raw);
+    } catch (e) {
+        return res.sendFile(filePath);
+    }
+}
+
 if (fs.existsSync(path.join(__dirname, 'public'))) {
-    app.use(express.static(path.join(__dirname, 'public')));
+    app.use(express.static(path.join(__dirname, 'public'), { maxAge: '5m' }));
 }
 
 app.get(['/', '/index.html'], (req, res) => {
     const file = resolveHtmlFile('index.html', 'Index.html');
     if (!file) return res.status(404).send('index.html not found');
-    res.sendFile(file);
+    sendCompressedHtml(req, res, file);
 });
 
 app.get(['/admin', '/Admin', '/admin.html', '/Admin.html'], (req, res) => {
     const file = resolveHtmlFile('admin.html', 'Admin.html');
     if (!file) return res.status(404).send('admin.html not found');
-    res.sendFile(file);
+    sendCompressedHtml(req, res, file);
 });
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
+});
+
+app.use('/api', (req, res, next) => {
+    if (req.path.endsWith('/stream')) return next();
+    const accept = String(req.headers['accept-encoding'] || '');
+    if (!accept.includes('gzip')) return next();
+
+    const origJson = res.json.bind(res);
+    res.json = (body) => {
+        if (res.headersSent) return origJson(body);
+        const raw = Buffer.from(JSON.stringify(body));
+        if (raw.length < 1024) return origJson(body);
+        zlib.gzip(raw, { level: 6 }, (err, zipped) => {
+            if (err || res.headersSent) return origJson(body);
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.setHeader('Content-Encoding', 'gzip');
+            res.setHeader('Vary', 'Accept-Encoding');
+            res.send(zipped);
+        });
+        return res;
+    };
+    next();
 });
 
 app.use('/api', requireTelegramUser);
@@ -222,222 +302,230 @@ const TELEBIRR_NAME = process.env.TELEBIRR_ACCOUNT_NAME || 'Esraeal';
 const TELEBIRR_NUMBER = process.env.TELEBIRR_ACCOUNT_NUMBER || '0949196145';
 const DEPOSIT_INSTRUCTIONS = process.env.DEPOSIT_INSTRUCTIONS || `Telebirr ስም: ${TELEBIRR_NAME}\nቁጥር: ${TELEBIRR_NUMBER}`;
 
-function requireAdmin(req, res, next) {
-    const uid = String(req.telegramUserId || '');
-    if (!ADMIN_IDS.has(uid) || !engine.isAdmin(uid)) {
-        return res.status(403).json({ status: 'error', message: 'Admin access required.' });
+class AdminControlTools {
+    constructor({ db, engine, adminIds, getConnectedCount, getBot, blockedUsersCache, invalidateCaches }) {
+        this.db = db;
+        this.engine = engine;
+        this.adminIds = adminIds;
+        this.getConnectedCount = getConnectedCount;
+        this.getBot = getBot;
+        this.blockedUsersCache = blockedUsersCache;
+        this.invalidateCaches = invalidateCaches;
     }
-    next();
-}
 
-app.use('/api/admin', requireAdmin);
-
-app.get('/api/admin/me', (req, res) => {
-    res.json({
-        status: 'success',
-        isAdmin: true,
-        userId: String(req.telegramUserId),
-        adminCount: ADMIN_IDS.size
-    });
-});
-
-app.get('/api/admin/room', (req, res) => {
-    try {
-        res.json({
-            status: 'success',
-            room: engine.get_admin_state(getConnectedCount())
-        });
-    } catch (e) {
-        res.status(500).json({ status: 'error', message: 'Could not load live room state.' });
+    isAuthorized(uid) {
+        const id = String(uid || '');
+        return this.adminIds.has(id) && this.engine.isAdmin(id);
     }
-});
 
-app.post('/api/admin/room/control', async (req, res) => {
-    const { action, selection_seconds, draw_interval, result_seconds, min_players } = req.body || {};
-    try {
+    getRoomState() {
+        return this.engine.get_admin_state(this.getConnectedCount());
+    }
+
+    async controlRoom(payload = {}) {
+        const {
+            action,
+            number,
+            cartel,
+            selection_seconds,
+            draw_interval,
+            result_seconds,
+            min_players,
+            ticket_price,
+            prize_per_cartel
+        } = payload;
+
         let ok = false;
         let message = 'Unknown action';
 
-        if (action === 'pause') {
-            [ok, message] = engine.pause();
-        } else if (action === 'resume') {
-            [ok, message] = engine.resume();
-        } else if (action === 'force_start') {
-            [ok, message] = await engine.force_start();
-        } else if (action === 'draw_next') {
-            [ok, message] = engine.draw_next();
-        } else if (action === 'inject_bots') {
-            [ok, message] = engine.inject_bots_now();
-        } else if (action === 'reset_round') {
-            [ok, message] = await engine.reset_round();
-        } else if (action === 'update_timing') {
-            [ok, message] = engine.update_timing({ selection_seconds, draw_interval, result_seconds, min_players });
-        } else {
-            return res.status(400).json({ status: 'error', message: 'Unsupported room control action.' });
-        }
-
-        if (!ok) {
-            return res.status(400).json({
-                status: 'error',
-                message,
-                room: engine.get_admin_state(getConnectedCount())
+        if (action === 'pause') [ok, message] = this.engine.pause();
+        else if (action === 'resume') [ok, message] = this.engine.resume();
+        else if (action === 'force_start') [ok, message] = await this.engine.force_start();
+        else if (action === 'draw_next') [ok, message] = this.engine.draw_next();
+        else if (action === 'call_number') [ok, message] = this.engine.call_number(number);
+        else if (action === 'inject_bots') [ok, message] = this.engine.inject_bots_now();
+        else if (action === 'clear_bots') [ok, message] = this.engine.clear_bots();
+        else if (action === 'remove_cartel') [ok, message] = this.engine.remove_cartel(cartel);
+        else if (action === 'reset_round') [ok, message] = await this.engine.reset_round();
+        else if (action === 'update_timing') {
+            [ok, message] = this.engine.update_timing({
+                selection_seconds,
+                draw_interval,
+                result_seconds,
+                min_players,
+                ticket_price,
+                prize_per_cartel
             });
+        } else {
+            return { ok: false, statusCode: 400, message: 'Unsupported room control action.', room: this.getRoomState() };
         }
 
-        res.json({
-            status: 'success',
-            message,
-            room: engine.get_admin_state(getConnectedCount())
-        });
-    } catch (e) {
-        console.error('Admin room control error:', e);
-        res.status(500).json({ status: 'error', message: 'Room control failed.' });
+        return { ok, statusCode: ok ? 200 : 400, message, room: this.getRoomState() };
     }
-});
 
-app.get('/api/admin/overview', async (req, res) => {
-    try {
-        const [usersSnap, depositsSnap, withdrawalsSnap, roundsSnap] = await Promise.all([
-            db.collection('users').get(),
-            db.collection('deposit_requests').get(),
-            db.collection('withdrawal_requests').get(),
-            db.collection('rounds').get().catch(() => ({ size: 0, docs: [] }))
-        ]);
+    async getOverview(fresh = false) {
+        if (!fresh && overviewCache.data && Date.now() - overviewCache.at < 15000) {
+            return overviewCache.data;
+        }
+        if (overviewInFlight) return overviewInFlight;
 
-        const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-        const toMs = (val) => {
-            if (typeof val === 'number') return val;
-            if (typeof val === 'string' && /^\d+$/.test(val)) return Number(val);
-            const parsed = Date.parse(val);
-            return Number.isNaN(parsed) ? 0 : parsed;
-        };
+        overviewInFlight = (async () => {
+            const getUsers = () => this.db.collection('users').select('balance', 'bonus', 'transactions').get()
+                .catch(() => this.db.collection('users').get());
+            const getRoundsCount = async () => {
+                try {
+                    if (typeof this.db.collection('rounds').count === 'function') {
+                        const agg = await this.db.collection('rounds').count().get();
+                        return agg.data().count || 0;
+                    }
+                } catch (_) {}
+                const snap = await this.db.collection('rounds').select().get().catch(() => ({ size: 0 }));
+                return snap.size || 0;
+            };
 
-        let mainBalance = 0;
-        let bonusBalance = 0;
-        let weeklyWinnings = 0;
+            const [usersSnap, depositsSnap, withdrawalsSnap, roundsCount] = await Promise.all([
+                getUsers(),
+                this.db.collection('deposit_requests').select('status', 'amount', 'created_at', 'created_at_iso').get().catch(() => this.db.collection('deposit_requests').get()),
+                this.db.collection('withdrawal_requests').select('status', 'amount', 'created_at').get().catch(() => this.db.collection('withdrawal_requests').get()),
+                getRoundsCount()
+            ]);
 
-        for (const doc of usersSnap.docs) {
-            const u = doc.data() || {};
-            mainBalance += Number(u.balance || 0);
-            bonusBalance += Number(u.bonus || 0);
-            if (Array.isArray(u.transactions)) {
-                for (const t of u.transactions) {
-                    if (['win', 'winnings'].includes(t.type)) {
-                        const ts = toMs(t.timestamp || t.created_at);
-                        if (ts >= weekAgo) weeklyWinnings += Number(t.amount || 0);
+            const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+            const toMs = (val) => {
+                if (typeof val === 'number') return val;
+                if (typeof val === 'string' && /^\d+$/.test(val)) return Number(val);
+                const parsed = Date.parse(val);
+                return Number.isNaN(parsed) ? 0 : parsed;
+            };
+
+            let mainBalance = 0;
+            let bonusBalance = 0;
+            let weeklyWinnings = 0;
+
+            for (const doc of usersSnap.docs) {
+                const u = doc.data() || {};
+                mainBalance += Number(u.balance || 0);
+                bonusBalance += Number(u.bonus || 0);
+                if (Array.isArray(u.transactions)) {
+                    for (const t of u.transactions) {
+                        if (['win', 'winnings'].includes(t.type)) {
+                            const ts = toMs(t.timestamp || t.created_at);
+                            if (ts >= weekAgo) weeklyWinnings += Number(t.amount || 0);
+                        }
                     }
                 }
             }
-        }
 
-        let pendingDeposits = 0;
-        let weeklyDeposits = 0;
-        for (const doc of depositsSnap.docs) {
-            const r = doc.data() || {};
-            if (r.status === 'pending') pendingDeposits++;
-            const ts = toMs(r.created_at || r.created_at_iso);
-            if (r.status === 'approved' && ts >= weekAgo) {
-                weeklyDeposits += Number(r.amount || 0);
+            let pendingDeposits = 0;
+            let weeklyDeposits = 0;
+            for (const doc of depositsSnap.docs) {
+                const r = doc.data() || {};
+                if (r.status === 'pending') pendingDeposits++;
+                const ts = toMs(r.created_at || r.created_at_iso);
+                if (r.status === 'approved' && ts >= weekAgo) weeklyDeposits += Number(r.amount || 0);
             }
-        }
 
-        let pendingWithdrawals = 0;
-        let weeklyWithdrawals = 0;
-        for (const doc of withdrawalsSnap.docs) {
-            const r = doc.data() || {};
-            if (r.status === 'pending') pendingWithdrawals++;
-            const ts = toMs(r.created_at);
-            if (r.status !== 'rejected' && ts >= weekAgo) {
-                weeklyWithdrawals += Number(r.amount || 0);
+            let pendingWithdrawals = 0;
+            let weeklyWithdrawals = 0;
+            for (const doc of withdrawalsSnap.docs) {
+                const r = doc.data() || {};
+                if (r.status === 'pending') pendingWithdrawals++;
+                const ts = toMs(r.created_at);
+                if (r.status !== 'rejected' && ts >= weekAgo) weeklyWithdrawals += Number(r.amount || 0);
             }
-        }
 
-        res.json({
-            status: 'success',
-            stats: {
+            const stats = {
                 users: usersSnap.size,
                 mainBalance,
                 bonusBalance,
                 pendingDeposits,
                 pendingWithdrawals,
-                rounds: roundsSnap.size || 0,
+                rounds: roundsCount,
                 weeklyDeposits,
                 weeklyWithdrawals,
                 weeklyWinnings
+            };
+            overviewCache = { data: stats, at: Date.now() };
+            return stats;
+        })();
+
+        try {
+            return await overviewInFlight;
+        } finally {
+            overviewInFlight = null;
+        }
+    }
+
+    async getRequests(fresh = false) {
+        if (!fresh && requestsCache.data && Date.now() - requestsCache.at < 10000) {
+            return requestsCache.data;
+        }
+        if (requestsInFlight) return requestsInFlight;
+
+        requestsInFlight = (async () => {
+            const [depositsSnap, withdrawalsSnap] = await Promise.all([
+                this.db.collection('deposit_requests').get(),
+                this.db.collection('withdrawal_requests').get()
+            ]);
+
+            const requests = [];
+            for (const doc of depositsSnap.docs) {
+                const r = doc.data() || {};
+                requests.push({
+                    id: doc.id,
+                    type: 'deposit',
+                    user_id: String(r.user_id || ''),
+                    amount: Number(r.amount || 0),
+                    status: r.status || 'pending',
+                    created_at: Number(r.created_at || Date.parse(r.created_at_iso) || 0),
+                    reference: r.reference || '',
+                    receipt_text: r.receipt_text || '',
+                    receipt_image: r.receipt_image || '',
+                    photo_file_id: r.photo_file_id || ''
+                });
             }
-        });
-    } catch (e) {
-        console.error('Admin overview error:', e);
-        res.status(500).json({ status: 'error', message: 'Could not load overview.' });
-    }
-});
 
-app.get('/api/admin/requests', async (req, res) => {
-    try {
-        const [depositsSnap, withdrawalsSnap] = await Promise.all([
-            db.collection('deposit_requests').get(),
-            db.collection('withdrawal_requests').get()
-        ]);
+            for (const doc of withdrawalsSnap.docs) {
+                const r = doc.data() || {};
+                requests.push({
+                    id: doc.id,
+                    type: 'withdrawal',
+                    user_id: String(r.user_id || ''),
+                    amount: Number(r.amount || 0),
+                    status: r.status || 'pending',
+                    created_at: Number(r.created_at || 0),
+                    payout_name: r.payout_name || '',
+                    payout_account: r.payout_account || ''
+                });
+            }
 
-        const requests = [];
-        for (const doc of depositsSnap.docs) {
-            const r = doc.data() || {};
-            requests.push({
-                id: doc.id,
-                type: 'deposit',
-                user_id: String(r.user_id || ''),
-                amount: Number(r.amount || 0),
-                status: r.status || 'pending',
-                created_at: Number(r.created_at || Date.parse(r.created_at_iso) || 0),
-                reference: r.reference || '',
-                receipt_text: r.receipt_text || '',
-                receipt_image: r.receipt_image || '',
-                photo_file_id: r.photo_file_id || ''
+            requests.sort((a, b) => {
+                if (a.status === 'pending' && b.status !== 'pending') return -1;
+                if (b.status === 'pending' && a.status !== 'pending') return 1;
+                return (b.created_at || 0) - (a.created_at || 0);
             });
+
+            const sliced = requests.slice(0, 200);
+            requestsCache = { data: sliced, at: Date.now() };
+            return sliced;
+        })();
+
+        try {
+            return await requestsInFlight;
+        } finally {
+            requestsInFlight = null;
         }
-
-        for (const doc of withdrawalsSnap.docs) {
-            const r = doc.data() || {};
-            requests.push({
-                id: doc.id,
-                type: 'withdrawal',
-                user_id: String(r.user_id || ''),
-                amount: Number(r.amount || 0),
-                status: r.status || 'pending',
-                created_at: Number(r.created_at || 0),
-                payout_name: r.payout_name || '',
-                payout_account: r.payout_account || ''
-            });
-        }
-
-        requests.sort((a, b) => {
-            if (a.status === 'pending' && b.status !== 'pending') return -1;
-            if (b.status === 'pending' && a.status !== 'pending') return 1;
-            return (b.created_at || 0) - (a.created_at || 0);
-        });
-
-        res.json({ status: 'success', requests: requests.slice(0, 200) });
-    } catch (e) {
-        console.error('Admin requests error:', e);
-        res.status(500).json({ status: 'error', message: 'Could not load requests.' });
-    }
-});
-
-app.post('/api/admin/review', async (req, res) => {
-    const { id, type, approve } = req.body || {};
-    if (!id || !['deposit', 'withdrawal'].includes(type) || typeof approve !== 'boolean') {
-        return res.status(400).json({ status: 'error', message: 'Invalid review payload.' });
     }
 
-    const colName = type === 'deposit' ? 'deposit_requests' : 'withdrawal_requests';
-    const reqRef = db.collection(colName).doc(String(id));
+    async reviewRequest({ id, type, approve, adminId }) {
+        const colName = type === 'deposit' ? 'deposit_requests' : 'withdrawal_requests';
+        const reqRef = this.db.collection(colName).doc(String(id));
 
-    try {
         let targetUserId = null;
         let targetAmount = 0;
         let bonusAwarded = 0;
 
-        await db.runTransaction(async (tx) => {
+        await this.db.runTransaction(async (tx) => {
             const reqSnap = await tx.get(reqRef);
             if (!reqSnap.exists) throw new Error('REQUEST_NOT_FOUND');
             const r = reqSnap.data();
@@ -445,7 +533,7 @@ app.post('/api/admin/review', async (req, res) => {
 
             targetUserId = String(r.user_id);
             targetAmount = Number(r.amount || 0);
-            const userRef = db.collection('users').doc(targetUserId);
+            const userRef = this.db.collection('users').doc(targetUserId);
             const userSnap = await tx.get(userRef);
             const u = userSnap.exists ? userSnap.data() : {};
             const txs = Array.isArray(u.transactions) ? u.transactions : [];
@@ -453,13 +541,13 @@ app.post('/api/admin/review', async (req, res) => {
 
             let autoBonusCfg = null;
             if (type === 'deposit' && approve) {
-                const bonusSnap = await tx.get(db.collection('settings').doc('auto_bonus'));
+                const bonusSnap = await tx.get(this.db.collection('settings').doc('auto_bonus'));
                 if (bonusSnap.exists) autoBonusCfg = bonusSnap.data();
             }
 
             tx.update(reqRef, {
                 status: approve ? 'approved' : 'rejected',
-                reviewed_by: String(req.telegramUserId),
+                reviewed_by: String(adminId),
                 reviewed_at: Date.now()
             });
 
@@ -478,11 +566,9 @@ app.post('/api/admin/review', async (req, res) => {
                     }];
 
                     if (autoBonusCfg && autoBonusCfg.enabled && targetAmount >= Number(autoBonusCfg.minDeposit || 0)) {
-                        if (autoBonusCfg.type === 'percent') {
-                            bonusAwarded = Math.round((targetAmount * Number(autoBonusCfg.value || 0) / 100) * 100) / 100;
-                        } else {
-                            bonusAwarded = Number(autoBonusCfg.value || 0);
-                        }
+                        bonusAwarded = autoBonusCfg.type === 'percent'
+                            ? Math.round((targetAmount * Number(autoBonusCfg.value || 0) / 100) * 100) / 100
+                            : Number(autoBonusCfg.value || 0);
                         if (bonusAwarded > 0) {
                             currentBonus += bonusAwarded;
                             newTxs.push({
@@ -507,7 +593,6 @@ app.post('/api/admin/review', async (req, res) => {
                     else tx.set(userRef, updates, { merge: true });
                 }
             } else {
-                // withdrawal
                 if (approve) {
                     tx.update(userRef, {
                         transactions: [...txs, {
@@ -537,7 +622,10 @@ app.post('/api/admin/review', async (req, res) => {
             }
         });
 
-        if (targetUserId && typeof bot !== 'undefined' && bot?.telegram) {
+        this.invalidateCaches();
+        if (targetUserId) this.engine.invalidateBalanceCache(targetUserId);
+        const tgBot = this.getBot();
+        if (targetUserId && tgBot?.telegram) {
             const msg = type === 'deposit'
                 ? (approve
                     ? `✅ ${targetAmount.toFixed(2)} ETB ዲፖዚትዎ ተፈቅዷል!${bonusAwarded > 0 ? `\n🎁 +${bonusAwarded.toFixed(2)} ETB Auto Bonus ተጨምሯል።` : ''}`
@@ -545,31 +633,20 @@ app.post('/api/admin/review', async (req, res) => {
                 : (approve
                     ? `✅ ${targetAmount.toFixed(2)} ETB የማውጣት ጥያቄዎ ተፈቅዷል!`
                     : `❌ ${targetAmount.toFixed(2)} ETB የማውጣት ጥያቄዎ ውድቅ ተደርጓል። ገንዘቡ ወደ Main Balance ተመልሷል።`);
-            bot.telegram.sendMessage(targetUserId, msg).catch(() => {});
+            tgBot.telegram.sendMessage(targetUserId, msg).catch(() => {});
         }
-
-        res.json({ status: 'success', message: 'Request updated.' });
-    } catch (e) {
-        if (e.message === 'REQUEST_NOT_FOUND') return res.status(404).json({ status: 'error', message: 'Request not found.' });
-        if (e.message === 'ALREADY_REVIEWED') return res.status(400).json({ status: 'error', message: 'Request already reviewed.' });
-        console.error('Admin review error:', e);
-        res.status(500).json({ status: 'error', message: 'Could not review request.' });
     }
-});
 
-app.get('/api/admin/users', async (req, res) => {
-    try {
-        const q = String(req.query.q || '').trim().toLowerCase();
-        const snap = await db.collection('users').get();
+    async searchUsers(query = '') {
+        const q = String(query || '').trim().toLowerCase();
+        const snap = await this.db.collection('users').get();
         const matches = [];
-
         for (const doc of snap.docs) {
             const u = doc.data() || {};
             const id = String(doc.id);
             const firstName = String(u.first_name || '');
             const username = String(u.username || '');
             const phone = String(u.phone_number || '');
-
             if (!q || [id, firstName, username, phone].some(f => f.toLowerCase().includes(q))) {
                 matches.push({
                     id,
@@ -583,23 +660,13 @@ app.get('/api/admin/users', async (req, res) => {
                 });
             }
         }
-
-        res.json({ status: 'success', users: matches.slice(0, 100) });
-    } catch (e) {
-        console.error('Admin users search error:', e);
-        res.status(500).json({ status: 'error', message: 'Could not search users.' });
-    }
-});
-
-app.post('/api/admin/user-action', async (req, res) => {
-    const { userId, action, amount, walletType } = req.body || {};
-    if (!userId || !['block', 'unblock', 'credit', 'debit'].includes(action)) {
-        return res.status(400).json({ status: 'error', message: 'Invalid user action.' });
+        return matches.slice(0, 100);
     }
 
-    const userRef = db.collection('users').doc(String(userId));
-    try {
-        await db.runTransaction(async (tx) => {
+    async mutateUser({ userId, action, amount, walletType }) {
+        const uidStr = String(userId);
+        const userRef = this.db.collection('users').doc(uidStr);
+        await this.db.runTransaction(async (tx) => {
             const snap = await tx.get(userRef);
             if (!snap.exists) throw new Error('USER_NOT_FOUND');
             const u = snap.data() || {};
@@ -629,6 +696,275 @@ app.post('/api/admin/user-action', async (req, res) => {
             });
         });
 
+        if (action === 'block' || action === 'unblock') {
+            this.blockedUsersCache.set(uidStr, { blocked: action === 'block', at: Date.now() });
+        } else {
+            this.engine.invalidateBalanceCache(uidStr);
+        }
+        this.invalidateCaches();
+    }
+
+    async getBotSettings() {
+        const doc = await this.db.collection('settings').doc('bot_settings').get();
+        return doc.exists ? { ...this.engine.botSettings, ...doc.data() } : this.engine.botSettings;
+    }
+
+    async saveBotSettings(body, adminId) {
+        const settings = {
+            botCount: Math.min(400, Math.max(0, Math.round(Number(body.botCount ?? 50)))),
+            botWinPercent: Math.min(100, Math.max(0, Number(body.botWinPercent ?? 20))),
+            botCardsPerUser: Math.min(4, Math.max(1, Math.round(Number(body.botCardsPerUser ?? 2)))),
+            restrictDepositedWin: Boolean(body.restrictDepositedWin),
+            updated_at: Date.now(),
+            updated_by: String(adminId)
+        };
+        await this.db.collection('settings').doc('bot_settings').set(settings, { merge: true });
+        this.engine.setBotSettings(settings);
+        return settings;
+    }
+
+    async getPromosAndBonus() {
+        const [bonusSnap, promosSnap] = await Promise.all([
+            this.db.collection('settings').doc('auto_bonus').get(),
+            this.db.collection('promo_codes').get()
+        ]);
+        const autoBonus = bonusSnap.exists ? bonusSnap.data() : { enabled: false, type: 'percent', value: 0, minDeposit: 100 };
+        const promos = promosSnap.docs.map(doc => ({ code: doc.id, ...doc.data() }));
+        promos.sort((a, b) => Number(b.created_at || 0) - Number(a.created_at || 0));
+        return { autoBonus, promos };
+    }
+
+    async saveAutoBonus(body, adminId) {
+        const autoBonus = {
+            enabled: Boolean(body.enabled),
+            type: body.type === 'fixed' ? 'fixed' : 'percent',
+            value: Math.max(0, Number(body.value || 0)),
+            minDeposit: Math.max(0, Number(body.minDeposit || 0)),
+            updated_at: Date.now(),
+            updated_by: String(adminId)
+        };
+        await this.db.collection('settings').doc('auto_bonus').set(autoBonus, { merge: true });
+        return autoBonus;
+    }
+
+    async createPromoCode({ code, type, value, minDeposit, maxUses, adminId }) {
+        const cleanCode = String(code || '').trim().toUpperCase();
+        const promoType = type === 'fixed' ? 'fixed' : 'percent';
+        const promoValue = Number(value || 0);
+        const minDep = Math.max(0, Number(minDeposit || 0));
+        const maxU = Math.max(1, Math.round(Number(maxUses || 100)));
+
+        if (!cleanCode || !/^[A-Z0-9_-]{2,40}$/.test(cleanCode)) throw new Error('INVALID_CODE');
+        if (!Number.isFinite(promoValue) || promoValue <= 0) throw new Error('INVALID_VALUE');
+
+        const promoRef = this.db.collection('promo_codes').doc(cleanCode);
+        const existing = await promoRef.get();
+        if (existing.exists) throw new Error('CODE_EXISTS');
+
+        await promoRef.set({
+            code: cleanCode,
+            type: promoType,
+            value: promoValue,
+            minDeposit: minDep,
+            maxUses: maxU,
+            usedCount: 0,
+            usedBy: [],
+            created_at: Date.now(),
+            created_by: String(adminId)
+        });
+        return cleanCode;
+    }
+
+    async deletePromoCode(code) {
+        const cleanCode = String(code || '').trim().toUpperCase();
+        if (!cleanCode) throw new Error('CODE_REQUIRED');
+        await this.db.collection('promo_codes').doc(cleanCode).delete();
+    }
+
+    async sendBroadcast({ message, audience, buttonText, buttonUrl, imageBase64 }) {
+        const text = String(message || '').trim();
+        const img = String(imageBase64 || '');
+        if (!text && !img) throw new Error('EMPTY_BROADCAST');
+
+        let photoBuffer = null;
+        if (img) {
+            const m = img.match(/^data:image\/(jpeg|jpg|png|webp);base64,([A-Za-z0-9+/=]+)$/i);
+            if (!m) throw new Error('INVALID_IMAGE');
+            photoBuffer = Buffer.from(m[2], 'base64');
+            if (photoBuffer.length > 7 * 1024 * 1024) throw new Error('IMAGE_TOO_LARGE');
+        }
+
+        const extra = {};
+        if (buttonText && buttonUrl) {
+            extra.reply_markup = { inline_keyboard: [[{ text: String(buttonText).trim(), url: String(buttonUrl).trim() }]] };
+        }
+
+        const snap = await this.db.collection('users').get();
+        const targets = [];
+        for (const doc of snap.docs) {
+            const u = doc.data() || {};
+            if (u.blocked) continue;
+            const hasPhone = Boolean(u.phone_number && u.phone_number !== 'Not Provided');
+            if (audience === 'verified' && !hasPhone) continue;
+            if (audience === 'unverified' && hasPhone) continue;
+            targets.push(String(doc.id));
+        }
+
+        const tgBot = this.getBot();
+        let sent = 0;
+        let failed = 0;
+        const BATCH_SIZE = 20;
+        for (let i = 0; i < targets.length; i += BATCH_SIZE) {
+            const batch = targets.slice(i, i + BATCH_SIZE);
+            const results = await Promise.allSettled(
+                batch.map((uid) => (
+                    photoBuffer
+                        ? tgBot.telegram.sendPhoto(uid, { source: photoBuffer }, { caption: text || undefined, ...extra })
+                        : tgBot.telegram.sendMessage(uid, text, extra)
+                ))
+            );
+            for (const r of results) {
+                if (r.status === 'fulfilled') sent++;
+                else failed++;
+            }
+            if (i + BATCH_SIZE < targets.length) {
+                await new Promise(resolve => setTimeout(resolve, 150));
+            }
+        }
+        return { sent, failed, total: targets.length };
+    }
+}
+
+const adminTools = new AdminControlTools({
+    db,
+    engine,
+    adminIds: ADMIN_IDS,
+    getConnectedCount,
+    getBot: () => bot,
+    blockedUsersCache,
+    invalidateCaches: invalidateAdminCaches
+});
+
+function requireAdmin(req, res, next) {
+    if (!adminTools.isAuthorized(req.telegramUserId)) {
+        return res.status(403).json({ status: 'error', message: 'Admin access required.' });
+    }
+    next();
+}
+
+app.use('/api/admin', requireAdmin);
+
+app.get('/api/admin/me', (req, res) => {
+    res.json({ status: 'success', isAdmin: true, userId: String(req.telegramUserId), adminCount: ADMIN_IDS.size });
+});
+
+app.get('/api/admin/room', (req, res) => {
+    try {
+        res.json({ status: 'success', room: adminTools.getRoomState() });
+    } catch (e) {
+        res.status(500).json({ status: 'error', message: 'Could not load live room state.' });
+    }
+});
+
+app.get('/api/admin/room/stream', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    if (typeof res.flushHeaders === 'function') res.flushHeaders();
+
+    let lastSentSeq = -1;
+    let lastSentAt = 0;
+
+    const pushState = (force = false) => {
+        try {
+            const now = Date.now();
+            const room = adminTools.getRoomState();
+            if (!force && room.seq === lastSentSeq && now - lastSentAt < 3500) return;
+            lastSentSeq = room.seq;
+            lastSentAt = now;
+            res.write(`data: ${JSON.stringify(room)}\n\n`);
+        } catch (_) {}
+    };
+
+    pushState(true);
+    const unsub = engine.onChange(() => pushState(true));
+    const timer = setInterval(() => pushState(false), 1500);
+
+    req.on('close', () => {
+        unsub();
+        clearInterval(timer);
+        res.end();
+    });
+});
+
+app.post('/api/admin/room/control', async (req, res) => {
+    try {
+        const result = await adminTools.controlRoom(req.body || {});
+        res.status(result.statusCode).json({
+            status: result.ok ? 'success' : 'error',
+            message: result.message,
+            room: result.room
+        });
+    } catch (e) {
+        console.error('Admin room control error:', e);
+        res.status(500).json({ status: 'error', message: 'Room control failed.' });
+    }
+});
+
+app.get('/api/admin/overview', async (req, res) => {
+    try {
+        const stats = await adminTools.getOverview(req.query.fresh === '1');
+        res.json({ status: 'success', stats });
+    } catch (e) {
+        console.error('Admin overview error:', e);
+        res.status(500).json({ status: 'error', message: 'Could not load overview.' });
+    }
+});
+
+app.get('/api/admin/requests', async (req, res) => {
+    try {
+        const requests = await adminTools.getRequests(req.query.fresh === '1');
+        res.json({ status: 'success', requests });
+    } catch (e) {
+        console.error('Admin requests error:', e);
+        res.status(500).json({ status: 'error', message: 'Could not load requests.' });
+    }
+});
+
+app.post('/api/admin/review', async (req, res) => {
+    const { id, type, approve } = req.body || {};
+    if (!id || !['deposit', 'withdrawal'].includes(type) || typeof approve !== 'boolean') {
+        return res.status(400).json({ status: 'error', message: 'Invalid review payload.' });
+    }
+    try {
+        await adminTools.reviewRequest({ id, type, approve, adminId: req.telegramUserId });
+        res.json({ status: 'success', message: 'Request updated.' });
+    } catch (e) {
+        if (e.message === 'REQUEST_NOT_FOUND') return res.status(404).json({ status: 'error', message: 'Request not found.' });
+        if (e.message === 'ALREADY_REVIEWED') return res.status(400).json({ status: 'error', message: 'Request already reviewed.' });
+        console.error('Admin review error:', e);
+        res.status(500).json({ status: 'error', message: 'Could not review request.' });
+    }
+});
+
+app.get('/api/admin/users', async (req, res) => {
+    try {
+        const users = await adminTools.searchUsers(req.query.q);
+        res.json({ status: 'success', users });
+    } catch (e) {
+        console.error('Admin users search error:', e);
+        res.status(500).json({ status: 'error', message: 'Could not search users.' });
+    }
+});
+
+app.post('/api/admin/user-action', async (req, res) => {
+    const { userId, action, amount, walletType } = req.body || {};
+    if (!userId || !['block', 'unblock', 'credit', 'debit'].includes(action)) {
+        return res.status(400).json({ status: 'error', message: 'Invalid user action.' });
+    }
+    try {
+        await adminTools.mutateUser({ userId, action, amount, walletType });
         res.json({ status: 'success', message: 'User updated.' });
     } catch (e) {
         if (e.message === 'USER_NOT_FOUND') return res.status(404).json({ status: 'error', message: 'User not found.' });
@@ -641,8 +977,7 @@ app.post('/api/admin/user-action', async (req, res) => {
 
 app.get('/api/admin/bot-settings', async (req, res) => {
     try {
-        const doc = await db.collection('settings').doc('bot_settings').get();
-        const settings = doc.exists ? { ...engine.botSettings, ...doc.data() } : engine.botSettings;
+        const settings = await adminTools.getBotSettings();
         res.json({ status: 'success', settings });
     } catch (e) {
         res.status(500).json({ status: 'error', message: 'Could not load bot settings.' });
@@ -650,19 +985,8 @@ app.get('/api/admin/bot-settings', async (req, res) => {
 });
 
 app.post('/api/admin/bot-settings', async (req, res) => {
-    const body = req.body || {};
-    const settings = {
-        botCount: Math.min(400, Math.max(0, Math.round(Number(body.botCount ?? 50)))),
-        botWinPercent: Math.min(100, Math.max(0, Number(body.botWinPercent ?? 20))),
-        botCardsPerUser: Math.min(4, Math.max(1, Math.round(Number(body.botCardsPerUser ?? 2)))),
-        restrictDepositedWin: Boolean(body.restrictDepositedWin),
-        updated_at: Date.now(),
-        updated_by: String(req.telegramUserId)
-    };
-
     try {
-        await db.collection('settings').doc('bot_settings').set(settings, { merge: true });
-        engine.setBotSettings(settings);
+        const settings = await adminTools.saveBotSettings(req.body || {}, req.telegramUserId);
         res.json({ status: 'success', settings });
     } catch (e) {
         console.error('Save bot settings error:', e);
@@ -672,14 +996,8 @@ app.post('/api/admin/bot-settings', async (req, res) => {
 
 app.get('/api/admin/promos', async (req, res) => {
     try {
-        const [bonusSnap, promosSnap] = await Promise.all([
-            db.collection('settings').doc('auto_bonus').get(),
-            db.collection('promo_codes').get()
-        ]);
-        const autoBonus = bonusSnap.exists ? bonusSnap.data() : { enabled: false, type: 'percent', value: 0, minDeposit: 100 };
-        const promos = promosSnap.docs.map(doc => ({ code: doc.id, ...doc.data() }));
-        promos.sort((a, b) => Number(b.created_at || 0) - Number(a.created_at || 0));
-        res.json({ status: 'success', autoBonus, promos });
+        const data = await adminTools.getPromosAndBonus();
+        res.json({ status: 'success', ...data });
     } catch (e) {
         console.error('Load promos error:', e);
         res.status(500).json({ status: 'error', message: 'Could not load promos.' });
@@ -687,17 +1005,8 @@ app.get('/api/admin/promos', async (req, res) => {
 });
 
 app.post('/api/admin/autobonus', async (req, res) => {
-    const body = req.body || {};
-    const autoBonus = {
-        enabled: Boolean(body.enabled),
-        type: body.type === 'fixed' ? 'fixed' : 'percent',
-        value: Math.max(0, Number(body.value || 0)),
-        minDeposit: Math.max(0, Number(body.minDeposit || 0)),
-        updated_at: Date.now(),
-        updated_by: String(req.telegramUserId)
-    };
     try {
-        await db.collection('settings').doc('auto_bonus').set(autoBonus, { merge: true });
+        const autoBonus = await adminTools.saveAutoBonus(req.body || {}, req.telegramUserId);
         res.json({ status: 'success', autoBonus });
     } catch (e) {
         console.error('Save auto bonus error:', e);
@@ -706,107 +1015,37 @@ app.post('/api/admin/autobonus', async (req, res) => {
 });
 
 app.post('/api/admin/promos/create', async (req, res) => {
-    const code = String(req.body?.code || '').trim().toUpperCase();
-    const type = req.body?.type === 'fixed' ? 'fixed' : 'percent';
-    const value = Number(req.body?.value || 0);
-    const minDeposit = Math.max(0, Number(req.body?.minDeposit || 0));
-    const maxUses = Math.max(1, Math.round(Number(req.body?.maxUses || 100)));
-
-    if (!code || !/^[A-Z0-9_-]{2,40}$/.test(code)) {
-        return res.status(400).json({ status: 'error', message: 'Valid alphanumeric promo code required.' });
-    }
-    if (!Number.isFinite(value) || value <= 0) {
-        return res.status(400).json({ status: 'error', message: 'Promo value must be greater than 0.' });
-    }
-
     try {
-        const promoRef = db.collection('promo_codes').doc(code);
-        const existing = await promoRef.get();
-        if (existing.exists) {
-            return res.status(400).json({ status: 'error', message: 'ይህ ፕሮሞ ኮድ ቀድሞውኑ አለ!' });
-        }
-        await promoRef.set({
-            code,
-            type,
-            value,
-            minDeposit,
-            maxUses,
-            usedCount: 0,
-            usedBy: [],
-            created_at: Date.now(),
-            created_by: String(req.telegramUserId)
-        });
+        const code = await adminTools.createPromoCode({ ...(req.body || {}), adminId: req.telegramUserId });
         res.json({ status: 'success', code });
     } catch (e) {
+        if (e.message === 'INVALID_CODE') return res.status(400).json({ status: 'error', message: 'Valid alphanumeric promo code required.' });
+        if (e.message === 'INVALID_VALUE') return res.status(400).json({ status: 'error', message: 'Promo value must be greater than 0.' });
+        if (e.message === 'CODE_EXISTS') return res.status(400).json({ status: 'error', message: 'ይህ ፕሮሞ ኮድ ቀድሞውኑ አለ!' });
         console.error('Create promo error:', e);
         res.status(500).json({ status: 'error', message: 'Could not create promo code.' });
     }
 });
 
 app.post('/api/admin/promos/delete', async (req, res) => {
-    const code = String(req.body?.code || '').trim().toUpperCase();
-    if (!code) return res.status(400).json({ status: 'error', message: 'Promo code required.' });
     try {
-        await db.collection('promo_codes').doc(code).delete();
+        await adminTools.deletePromoCode(req.body?.code);
         res.json({ status: 'success' });
     } catch (e) {
+        if (e.message === 'CODE_REQUIRED') return res.status(400).json({ status: 'error', message: 'Promo code required.' });
         console.error('Delete promo error:', e);
         res.status(500).json({ status: 'error', message: 'Could not delete promo code.' });
     }
 });
 
 app.post('/api/admin/broadcast', async (req, res) => {
-    const { message, audience, buttonText, buttonUrl, imageBase64 } = req.body || {};
-    const text = String(message || '').trim();
-    const img = String(imageBase64 || '');
-    if (!text && !img) {
-        return res.status(400).json({ status: 'error', message: 'Message or image is required.' });
-    }
-
-    let photoBuffer = null;
-    if (img) {
-        const m = img.match(/^data:image\/(jpeg|jpg|png|webp);base64,([A-Za-z0-9+/=]+)$/i);
-        if (!m) return res.status(400).json({ status: 'error', message: 'Image must be JPG, PNG, or WEBP.' });
-        photoBuffer = Buffer.from(m[2], 'base64');
-        if (photoBuffer.length > 7 * 1024 * 1024) {
-            return res.status(400).json({ status: 'error', message: 'Image must be under 7MB.' });
-        }
-    }
-
-    const extra = {};
-    if (buttonText && buttonUrl) {
-        extra.reply_markup = { inline_keyboard: [[{ text: String(buttonText).trim(), url: String(buttonUrl).trim() }]] };
-    }
-
     try {
-        const snap = await db.collection('users').get();
-        const targets = [];
-        for (const doc of snap.docs) {
-            const u = doc.data() || {};
-            if (u.blocked) continue;
-            const hasPhone = Boolean(u.phone_number && u.phone_number !== 'Not Provided');
-            if (audience === 'verified' && !hasPhone) continue;
-            if (audience === 'unverified' && hasPhone) continue;
-            targets.push(String(doc.id));
-        }
-
-        let sent = 0;
-        let failed = 0;
-        for (const uid of targets) {
-            try {
-                if (photoBuffer) {
-                    await bot.telegram.sendPhoto(uid, { source: photoBuffer }, { caption: text || undefined, ...extra });
-                } else {
-                    await bot.telegram.sendMessage(uid, text, extra);
-                }
-                sent++;
-            } catch (_) {
-                failed++;
-            }
-        }
-
-        res.json({ status: 'success', sent, failed, total: targets.length });
+        const result = await adminTools.sendBroadcast(req.body || {});
+        res.json({ status: 'success', ...result });
     } catch (e) {
+        if (e.message === 'EMPTY_BROADCAST') return res.status(400).json({ status: 'error', message: 'Message or image is required.' });
+        if (e.message === 'INVALID_IMAGE') return res.status(400).json({ status: 'error', message: 'Image must be JPG, PNG, or WEBP.' });
+        if (e.message === 'IMAGE_TOO_LARGE') return res.status(400).json({ status: 'error', message: 'Image must be under 7MB.' });
         console.error('Broadcast error:', e);
         res.status(500).json({ status: 'error', message: 'Broadcast failed.' });
     }
@@ -818,8 +1057,9 @@ app.get('/api/wallet/history', async (req,res) => {
         const userSnap = await db.collection('users').doc(userId).get();
         const user = userSnap.exists ? userSnap.data() : {};
         const [deposits, withdrawals] = await Promise.all([
-            db.collection('deposit_requests').get(),
-            db.collection('withdrawal_requests').get()
+            db.collection('deposit_requests').where('user_id', '==', userId).select('user_id', 'amount', 'reference', 'status', 'created_at', 'created_at_iso').get()
+                .catch(() => db.collection('deposit_requests').where('user_id', '==', userId).get()),
+            db.collection('withdrawal_requests').where('user_id', '==', userId).get()
         ]);
         const requestIds = new Set();
         const items = [];
@@ -829,13 +1069,11 @@ app.get('/api/wallet/history', async (req,res) => {
         };
         for (const doc of deposits.docs) {
             const r = doc.data();
-            if (String(r.user_id) !== userId) continue;
             requestIds.add(doc.id);
             items.push({id:doc.id, type:'deposit', amount:Number(r.amount||0), reference:r.reference||'', status:r.status||'pending', timestamp:r.created_at_iso || toIso(r.created_at), wallet:'bonus'});
         }
         for (const doc of withdrawals.docs) {
             const r = doc.data();
-            if (String(r.user_id) !== userId) continue;
             requestIds.add(doc.id);
             items.push({id:doc.id, type:'withdrawal', amount:Number(r.amount||0), reference:doc.id, status:r.status||'pending', timestamp:toIso(r.created_at), wallet:'main'});
         }
@@ -868,6 +1106,7 @@ app.post('/api/wallet/deposit', async (req,res) => {
     try {
         const ref=db.collection('deposit_requests').doc();
         await ref.set({user_id:req.telegramUserId,amount,reference,receipt_image:receipt,status:'pending',created_at:Date.now(),created_at_iso:new Date().toISOString()});
+        invalidateAdminCaches();
         res.json({status:'success',message:'Deposit request sent to admin.',requestId:ref.id});
     } catch(e){res.status(500).json({status:'error',message:'Could not submit deposit request.'});}
 });
@@ -892,6 +1131,8 @@ app.post('/api/wallet/withdraw', async (req,res) => {
             tx.update(userRef,{balance:balance-amount,transactions:[...txs,{type:'withdrawal_pending',amount,request_id:ref.id,timestamp:new Date().toISOString()}]});
             tx.set(ref,{user_id:req.telegramUserId,amount,payout_name:name,payout_account:account,status:'pending',created_at:Date.now()});
         });
+        engine.invalidateBalanceCache(req.telegramUserId);
+        invalidateAdminCaches();
         res.json({status:'success',message:'Withdrawal request sent to admin.',requestId:ref.id});
     } catch(e){
         let msg = 'Could not submit withdrawal.';
@@ -944,6 +1185,8 @@ app.post('/api/promo/redeem', async (req, res) => {
                 usedBy: [...(promo.usedBy || []), userId]
             });
         });
+        engine.invalidateBalanceCache(userId);
+        invalidateAdminCaches();
         res.json({ status: 'success', message: 'ፕሮሞ ኮድ ተቀባይነት አግኝቷል!', bonusAdded });
     } catch (e) {
         res.status(400).json({ status: 'error', message: e.message || 'ፕሮሞ ኮድ መጠቀም አልተቻለም' });
@@ -955,6 +1198,48 @@ app.get('/api/round', (req, res) => {
     res.json({
         status: 'success',
         state: engine.get_state(req.telegramUserId)
+    });
+});
+
+app.get('/api/round/stream', (req, res) => {
+    const uid = String(req.telegramUserId);
+    trackConnectedClient(uid);
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    if (typeof res.flushHeaders === 'function') res.flushHeaders();
+
+    let lastSentSeq = -1;
+    let lastSentAt = 0;
+
+    const pushState = (force = false) => {
+        try {
+            trackConnectedClient(uid);
+            const now = Date.now();
+            const state = engine.get_state(uid);
+            if (!force && state.seq === lastSentSeq) {
+                if (now - lastSentAt >= 5000) {
+                    lastSentAt = now;
+                    res.write(`: keepalive ${now}\n\n`);
+                }
+                return;
+            }
+            lastSentSeq = state.seq;
+            lastSentAt = now;
+            res.write(`data: ${JSON.stringify(state)}\n\n`);
+        } catch (_) {}
+    };
+
+    pushState(true);
+    const unsub = engine.onChange(() => pushState(true));
+    const timer = setInterval(() => pushState(false), 4000);
+
+    req.on('close', () => {
+        unsub();
+        clearInterval(timer);
+        res.end();
     });
 });
 
@@ -1062,4 +1347,4 @@ app.listen(PORT, () => {
 });
 
 const bot = require('./bot');
-module.exports = { app, engine, wallet, ADMIN_IDS };
+module.exports = { app, engine, wallet, ADMIN_IDS, AdminControlTools, adminTools };

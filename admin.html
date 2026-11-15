@@ -27,7 +27,6 @@
     }
 
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       background: var(--bg);
@@ -43,18 +42,14 @@
       font-variant-numeric: tabular-nums;
     }
 
-    .shell {
-      display: flex;
-      min-height: 100vh;
-    }
+    .shell { display: flex; min-height: 100vh; }
 
-    /* Sidebar */
     .sidebar {
-      width: 248px;
+      width: 256px;
       flex-shrink: 0;
       background: var(--surface);
       border-right: 1px solid var(--border);
-      padding: 20px 16px;
+      padding: 20px 14px;
       position: sticky;
       top: 0;
       height: 100vh;
@@ -68,56 +63,64 @@
       font-weight: 700;
       letter-spacing: -0.01em;
       color: var(--text);
-      padding: 4px 8px 16px;
+      padding: 4px 10px 16px;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       white-space: nowrap;
     }
 
-    .nav-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+    .nav-list { display: flex; flex-direction: column; gap: 4px; }
 
-    .nav-link {
-      display: block;
-      padding: 9px 12px;
+    button.nav-link {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      min-height: 40px;
       border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
       color: var(--muted);
-      text-decoration: none;
       font-size: 13px;
       font-weight: 600;
-      transition: background-color 150ms ease, color 150ms ease;
+      text-align: left;
       white-space: nowrap;
+      transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease;
     }
 
-    .nav-link:hover,
-    .nav-link.active {
+    button.nav-link:hover {
       background: var(--surface-alt);
       color: var(--text);
+    }
+
+    button.nav-link.active {
+      background: var(--surface-alt);
+      border-color: var(--border-strong);
+      color: #34d399;
+    }
+
+    .nav-count {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--amber);
     }
 
     .sidebar-note {
       font-size: 12px;
       color: var(--muted);
-      padding: 12px 8px 0;
+      padding: 12px 10px 0;
       border-top: 1px solid var(--border);
     }
 
-    /* Main Workspace */
-    .workspace {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-    }
+    .workspace { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
     .topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 32px;
+      gap: 24px;
       padding: 14px 24px;
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -126,20 +129,8 @@
       z-index: 20;
     }
 
-    .topbar-left {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .topbar-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin: 0;
-      white-space: nowrap;
-    }
-
+    .topbar-left { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .topbar-title { font-size: 16px; font-weight: 700; margin: 0; white-space: nowrap; }
     .topbar-meta {
       font-size: 12px;
       color: var(--muted);
@@ -147,37 +138,39 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
-    .topbar-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
+    .topbar-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
     .mobile-nav {
       display: none;
       gap: 6px;
-      padding: 10px 16px;
+      padding: 10px 14px;
       background: var(--surface);
       border-bottom: 1px solid var(--border);
       overflow-x: auto;
     }
 
-    .mobile-nav a {
+    button.mobile-nav-btn {
+      min-height: 34px;
+      padding: 6px 11px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: transparent;
       color: var(--muted);
-      text-decoration: none;
       font-size: 12px;
       font-weight: 600;
-      padding: 6px 10px;
-      border-radius: 6px;
       white-space: nowrap;
       flex-shrink: 0;
     }
 
-    .mobile-nav a:hover {
+    button.mobile-nav-btn:hover {
       background: var(--surface-alt);
       color: var(--text);
+    }
+
+    button.mobile-nav-btn.active {
+      background: var(--surface-alt);
+      border-color: var(--border-strong);
+      color: #34d399;
     }
 
     main {
@@ -187,10 +180,12 @@
       padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
+      gap: 20px;
     }
 
-    /* Sections & Panels (Single-Elevation) */
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+
     .panel {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -209,28 +204,11 @@
       margin-bottom: 16px;
     }
 
-    .panel-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin: 0;
-      color: var(--text);
-    }
-
-    .panel-sub {
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .sub-heading {
-      font-size: 14px;
-      font-weight: 700;
-      margin: 0 0 12px;
-      color: var(--text);
-    }
-
+    .panel-title { font-size: 16px; font-weight: 700; margin: 0; color: var(--text); }
+    .panel-sub { font-size: 12px; color: var(--muted); }
+    .sub-heading { font-size: 14px; font-weight: 700; margin: 0 0 12px; color: var(--text); }
     .muted { color: var(--muted); }
 
-    /* Notice Banner */
     .notice {
       padding: 12px 16px;
       border-radius: 10px;
@@ -241,13 +219,8 @@
       font-weight: 500;
       display: none;
     }
-    .notice.ok {
-      border-color: #065f46;
-      background: #0b2920;
-      color: #a7f3d0;
-    }
+    .notice.ok { border-color: #065f46; background: #0b2920; color: #a7f3d0; }
 
-    /* Live Room KPI Grid */
     .room-kpis {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -259,53 +232,17 @@
       margin-bottom: 16px;
     }
 
-    .kpi-cell {
-      background: var(--bg);
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .kpi-label {
-      font-size: 12px;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .kpi-value {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--text);
-      line-height: 1.25;
-    }
-
+    .kpi-cell { background: var(--bg); padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; }
+    .kpi-label { font-size: 12px; color: var(--muted); font-weight: 500; }
+    .kpi-value { font-size: 20px; font-weight: 700; color: var(--text); line-height: 1.25; }
     .kpi-value.accent { color: #34d399; }
     .kpi-value.warn { color: #fbbf24; }
     .kpi-value.danger { color: #fb7185; }
+    .kpi-foot { font-size: 11px; color: var(--muted); }
 
-    .kpi-foot {
-      font-size: 11px;
-      color: var(--muted);
-    }
+    .bar { height: 8px; background: var(--surface-alt); border-radius: 99px; overflow: hidden; margin-top: 6px; }
+    .bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width 150ms cubic-bezier(0.16, 1, 0.3, 1); }
 
-    /* Progress Bars */
-    .bar {
-      height: 8px;
-      background: var(--surface-alt);
-      border-radius: 99px;
-      overflow: hidden;
-      margin-top: 6px;
-    }
-    .bar > i {
-      display: block;
-      height: 100%;
-      background: var(--accent);
-      width: 0;
-      transition: width 200ms cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    /* Controller Action Strip */
     .ctrl-bar {
       display: flex;
       flex-wrap: wrap;
@@ -317,15 +254,26 @@
       margin-bottom: 16px;
     }
 
+    .manual-call-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+    }
+    .manual-call-box input {
+      width: 96px;
+      min-height: 40px;
+      padding: 8px 10px;
+    }
+
     .timing-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
       gap: 12px;
       align-items: end;
       margin-bottom: 18px;
     }
 
-    /* Bingo 1-75 Board */
     .bingo-board-wrap {
       display: grid;
       grid-template-columns: 1.4fr 1fr;
@@ -340,7 +288,7 @@
     }
 
     .ball-cell {
-      height: 28px;
+      height: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -350,69 +298,29 @@
       background: var(--bg);
       border: 1px solid var(--border);
       color: var(--muted);
+      cursor: pointer;
+      transition: transform 120ms ease, border-color 120ms ease;
+      padding: 0;
+      min-height: auto;
     }
+    .ball-cell:hover { border-color: var(--accent); color: var(--text); }
+    .ball-cell.called { background: #064e3b; border-color: #10b981; color: #ecfdf5; cursor: default; }
+    .ball-cell.last { background: var(--amber); border-color: #fde68a; color: #090d16; font-weight: 700; cursor: default; }
 
-    .ball-cell.called {
-      background: #064e3b;
-      border-color: #10b981;
-      color: #ecfdf5;
-    }
-
-    .ball-cell.last {
-      background: var(--amber);
-      border-color: #fde68a;
-      color: #090d16;
-      font-weight: 700;
-    }
-
-    /* Overview Stats */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 12px;
     }
+    .stat-box { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+    .stat-box .num { font-size: 22px; font-weight: 700; margin-top: 6px; color: var(--text); }
 
-    .stat-box {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px;
-    }
+    .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .split-block { padding-top: 4px; }
+    .divider-v { border-left: 1px solid var(--border); padding-left: 20px; }
+    .field { margin-bottom: 12px; }
 
-    .stat-box .num {
-      font-size: 22px;
-      font-weight: 700;
-      margin-top: 6px;
-      color: var(--text);
-    }
-
-    /* Forms & Grid Splits */
-    .two {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
-
-    .split-block {
-      padding-top: 4px;
-    }
-
-    .divider-v {
-      border-left: 1px solid var(--border);
-      padding-left: 20px;
-    }
-
-    .field {
-      margin-bottom: 12px;
-    }
-
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
 
     input, textarea, select {
       width: 100%;
@@ -426,27 +334,16 @@
       font-size: 13px;
       transition: border-color 150ms ease;
     }
-
     input:focus, textarea:focus, select:focus {
       outline: 2px solid rgba(16, 185, 129, 0.35);
       border-color: var(--accent);
     }
+    textarea { min-height: 104px; resize: vertical; }
 
-    textarea {
-      min-height: 104px;
-      resize: vertical;
-    }
-
-    .row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
     .row > * { flex: 1; min-width: 160px; }
     .row > button { flex: 0 0 auto; min-width: auto; }
 
-    /* Buttons */
     button {
       cursor: pointer;
       display: inline-flex;
@@ -466,96 +363,74 @@
       flex-shrink: 0;
       transition: background-color 150ms ease, transform 120ms ease, opacity 150ms ease;
     }
-
     button:hover { background: var(--accent-hover); color: #ffffff; }
     button:active { transform: scale(0.98); }
     button:focus-visible { outline: 2px solid #34d399; outline-offset: 2px; }
     button:disabled { opacity: 0.45; cursor: not-allowed; }
 
-    button.secondary {
-      background: var(--btn-secondary);
-      border-color: var(--border-strong);
-      color: var(--text);
-    }
+    button.secondary { background: var(--btn-secondary); border-color: var(--border-strong); color: var(--text); }
     button.secondary:hover { background: #293548; }
-
-    button.amber {
-      background: var(--amber);
-      color: #1c1002;
-    }
+    button.amber { background: var(--amber); color: #1c1002; }
     button.amber:hover { background: #d97706; color: #fff; }
-
-    button.danger {
-      background: var(--danger);
-      color: #fff;
-    }
+    button.danger { background: var(--danger); color: #fff; }
     button.danger:hover { background: var(--danger-hover); }
+    button.sm { min-height: 32px; padding: 6px 11px; font-size: 12px; }
+    button.xs { min-height: 24px; padding: 2px 7px; font-size: 11px; border-radius: 5px; }
 
-    button.sm {
-      min-height: 32px;
-      padding: 6px 11px;
-      font-size: 12px;
-    }
-
-    /* Tables */
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: var(--bg);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 680px;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 10px 12px;
-      border-bottom: 1px solid var(--border);
-      font-size: 13px;
-      vertical-align: top;
-    }
-
-    th {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 600;
-      background: var(--surface);
-    }
-
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); }
+    table { width: 100%; border-collapse: collapse; min-width: 680px; }
+    th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+    th { color: var(--muted); font-size: 12px; font-weight: 600; background: var(--surface); }
     tbody tr:hover { background: rgba(255, 255, 255, 0.02); }
     tbody tr:last-child td { border-bottom: none; }
 
     .status { font-weight: 700; }
-    .small {
-      font-size: 12px;
-      white-space: pre-wrap;
-      max-width: 280px;
-      overflow-wrap: anywhere;
-    }
-
+    .small { font-size: 12px; white-space: pre-wrap; max-width: 280px; overflow-wrap: anywhere; }
     a { color: #38bdf8; }
 
-    .weekly-item {
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-    }
+    .weekly-item { padding: 10px 0; border-bottom: 1px solid var(--border); }
     .weekly-item:last-of-type { border-bottom: none; }
-    .weekly-head {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      margin-bottom: 6px;
+    .weekly-head { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+
+    .cartel-chip-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin: 2px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border-strong);
+      color: var(--text);
     }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 8, 15, 0.78);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 60;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      padding: 20px;
+    }
+    .modal-title { font-size: 16px; font-weight: 700; margin: 0 0 8px; color: var(--text); }
+    .modal-text { font-size: 13px; color: var(--muted); margin: 0 0 16px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 
     @media (max-width: 980px) {
       .sidebar { display: none; }
       .mobile-nav { display: flex; }
       .bingo-board-wrap { grid-template-columns: 1fr; }
       .divider-v { border-left: none; padding-left: 0; border-top: 1px solid var(--border); padding-top: 16px; }
+      .manual-call-box { margin-left: 0; }
     }
 
     @media (max-width: 640px) {
@@ -564,6 +439,8 @@
       .bingo-grid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
       button { min-height: 44px; }
       button.sm { min-height: 36px; }
+      button.nav-link { min-height: 40px; }
+      button.mobile-nav-btn { min-height: 34px; }
     }
   </style>
 </head>
@@ -572,14 +449,29 @@
   <aside class="sidebar">
     <div>
       <div class="brand">XLiteBingo Admin</div>
-      <nav class="nav-list">
-        <a class="nav-link active" href="#sec-live-room">Live Room Controller</a>
-        <a class="nav-link" href="#sec-overview">Overview & 7-Day Report</a>
-        <a class="nav-link" href="#sec-bot-settings">Bot & Game Settings</a>
-        <a class="nav-link" href="#sec-promo">Auto Bonus & Promos</a>
-        <a class="nav-link" href="#sec-requests">Deposits & Withdrawals</a>
-        <a class="nav-link" href="#sec-users">User Management</a>
-        <a class="nav-link" href="#sec-broadcast">Telegram Broadcast</a>
+      <nav class="nav-list" aria-label="Admin Menu">
+        <button type="button" class="nav-link active" data-view="live-room" onclick="switchMenu('live-room')">
+          <span>Live Room Controller</span>
+        </button>
+        <button type="button" class="nav-link" data-view="overview" onclick="switchMenu('overview')">
+          <span>Overview &amp; 7-Day Report</span>
+        </button>
+        <button type="button" class="nav-link" data-view="bot-settings" onclick="switchMenu('bot-settings')">
+          <span>Bot &amp; Game Settings</span>
+        </button>
+        <button type="button" class="nav-link" data-view="promo" onclick="switchMenu('promo')">
+          <span>Auto Bonus &amp; Promos</span>
+        </button>
+        <button type="button" class="nav-link" data-view="requests" onclick="switchMenu('requests')">
+          <span>Deposits &amp; Withdrawals</span>
+          <span class="nav-count mono" id="navPendingCount"></span>
+        </button>
+        <button type="button" class="nav-link" data-view="users" onclick="switchMenu('users')">
+          <span>User Management</span>
+        </button>
+        <button type="button" class="nav-link" data-view="broadcast" onclick="switchMenu('broadcast')">
+          <span>Telegram Broadcast</span>
+        </button>
       </nav>
     </div>
     <div class="sidebar-note">
@@ -590,30 +482,29 @@
   <div class="workspace">
     <header class="topbar">
       <div class="topbar-left">
-        <h1 class="topbar-title">Operations Console</h1>
-        <span class="topbar-meta mono" id="topSyncMeta">Syncing live room...</span>
+        <h1 class="topbar-title" id="topbarTitle">Live Room Controller</h1>
+        <span class="topbar-meta mono" id="topSyncMeta">Connecting live stream...</span>
       </div>
       <div class="topbar-actions">
-        <button class="secondary sm" id="liveToggleBtn" onclick="toggleLivePolling()">Auto-Sync: ON</button>
-        <button onclick="loadAll()">↻ አድስ</button>
+        <button type="button" class="secondary sm" id="liveToggleBtn" onclick="toggleLivePolling()">Live Stream: ON</button>
+        <button type="button" onclick="loadAll(true)">↻ አድስ</button>
       </div>
     </header>
 
-    <nav class="mobile-nav">
-      <a href="#sec-live-room">Live Room</a>
-      <a href="#sec-overview">Overview</a>
-      <a href="#sec-bot-settings">Bots</a>
-      <a href="#sec-promo">Promos</a>
-      <a href="#sec-requests">Requests</a>
-      <a href="#sec-users">Users</a>
-      <a href="#sec-broadcast">Broadcast</a>
+    <nav class="mobile-nav" aria-label="Mobile Admin Menu">
+      <button type="button" class="mobile-nav-btn active" data-view="live-room" onclick="switchMenu('live-room')">Live Room</button>
+      <button type="button" class="mobile-nav-btn" data-view="overview" onclick="switchMenu('overview')">Overview</button>
+      <button type="button" class="mobile-nav-btn" data-view="bot-settings" onclick="switchMenu('bot-settings')">Bots</button>
+      <button type="button" class="mobile-nav-btn" data-view="promo" onclick="switchMenu('promo')">Promos</button>
+      <button type="button" class="mobile-nav-btn" data-view="requests" onclick="switchMenu('requests')">Requests <span class="mono" id="mobilePendingCount"></span></button>
+      <button type="button" class="mobile-nav-btn" data-view="users" onclick="switchMenu('users')">Users</button>
+      <button type="button" class="mobile-nav-btn" data-view="broadcast" onclick="switchMenu('broadcast')">Broadcast</button>
     </nav>
 
     <main>
       <div id="notice" class="notice"></div>
 
-      <!-- LIVE BINGO ROOM CONTROLLER -->
-      <section class="panel" id="sec-live-room">
+      <section class="panel view-panel active" id="sec-live-room" data-view="live-room">
         <div class="panel-head">
           <div>
             <h2 class="panel-title">Live Rooms</h2>
@@ -651,7 +542,7 @@
           <div class="kpi-cell">
             <span class="kpi-label">Pool</span>
             <span class="kpi-value mono accent" id="lr-pool">0.00 ETB</span>
-            <span class="kpi-foot">8 ETB / cartel</span>
+            <span class="kpi-foot mono" id="lr-economics">10 ETB / card · 8 ETB pool</span>
           </div>
           <div class="kpi-cell">
             <span class="kpi-label">Numbers Called</span>
@@ -671,39 +562,53 @@
         </div>
 
         <div class="ctrl-bar">
-          <button id="btnPauseResume" class="amber" onclick="toggleRoomPause()">⏸ Pause Room</button>
-          <button id="btnForceStart" onclick="roomAction('force_start')">▶ Force Start Draw</button>
-          <button id="btnDrawNext" class="secondary" onclick="roomAction('draw_next')">🎱 Draw Next Ball</button>
-          <button id="btnInjectBots" class="secondary" onclick="roomAction('inject_bots')">🤖 Inject Bots Now</button>
-          <button class="danger" onclick="confirmResetRound()">↺ Reset / Cancel Round</button>
+          <button type="button" id="btnPauseResume" class="amber" onclick="toggleRoomPause()">⏸ Pause Room</button>
+          <button type="button" id="btnForceStart" onclick="roomAction('force_start')">▶ Force Start Draw</button>
+          <button type="button" id="btnDrawNext" class="secondary" onclick="roomAction('draw_next')">🎱 Draw Next Ball</button>
+          <button type="button" id="btnInjectBots" class="secondary" onclick="roomAction('inject_bots')">🤖 Inject Bots</button>
+          <button type="button" id="btnClearBots" class="secondary" onclick="roomAction('clear_bots')">🧹 Clear Bots</button>
+          <button type="button" class="danger" onclick="confirmResetRound()">↺ Reset Round</button>
+
+          <div class="manual-call-box">
+            <input id="manualCallInput" type="number" min="1" max="75" placeholder="1–75">
+            <button type="button" id="btnCallNumber" class="secondary" onclick="callSpecificNumber()">Call #</button>
+          </div>
         </div>
 
         <div class="timing-grid">
           <div>
-            <label>Selection Seconds</label>
+            <label for="timingSelection">Selection (sec)</label>
             <input id="timingSelection" type="number" min="5" max="300" value="30">
           </div>
           <div>
-            <label>Draw Interval (sec)</label>
+            <label for="timingDrawInterval">Draw Interval (sec)</label>
             <input id="timingDrawInterval" type="number" min="0.5" max="30" step="0.5" value="3">
           </div>
           <div>
-            <label>Result Seconds</label>
+            <label for="timingResult">Result (sec)</label>
             <input id="timingResult" type="number" min="3" max="60" value="10">
           </div>
           <div>
-            <label>Min Players</label>
+            <label for="timingMinPlayers">Min Players</label>
             <input id="timingMinPlayers" type="number" min="1" max="50" value="2">
           </div>
           <div>
-            <button class="secondary" style="width:100%" onclick="saveRoomTiming()">💾 Apply Timing</button>
+            <label for="timingTicketPrice">Ticket Price (ETB)</label>
+            <input id="timingTicketPrice" type="number" min="1" max="1000" value="10">
+          </div>
+          <div>
+            <label for="timingPrizePerCartel">Pool / Card (ETB)</label>
+            <input id="timingPrizePerCartel" type="number" min="1" max="1000" value="8">
+          </div>
+          <div>
+            <button type="button" class="secondary" style="width:100%" onclick="saveRoomTiming()">💾 Apply Timing &amp; Price</button>
           </div>
         </div>
 
         <div class="bingo-board-wrap">
           <div>
             <div class="row" style="justify-content:space-between;margin-bottom:8px;">
-              <h3 class="sub-heading" style="margin:0;">Master Call Board (1–75)</h3>
+              <h3 class="sub-heading" style="margin:0;">Master Call Board (1–75 · Click number during Draw to call)</h3>
               <span class="panel-sub mono" id="drawnSequencePreview">Called: none</span>
             </div>
             <div class="bingo-grid" id="adminMasterBoard"></div>
@@ -724,11 +629,13 @@
         </div>
       </section>
 
-      <!-- OVERVIEW & 7-DAY REPORT -->
-      <section class="panel" id="sec-overview">
+      <section class="panel view-panel" id="sec-overview" data-view="overview">
         <div class="panel-head">
-          <h2 class="panel-title">Platform Overview & 7-Day Report</h2>
-          <span class="panel-sub">Real-time wallet balances and weekly volume</span>
+          <div>
+            <h2 class="panel-title">Platform Overview &amp; 7-Day Report</h2>
+            <span class="panel-sub">Real-time wallet balances and weekly volume</span>
+          </div>
+          <button type="button" class="secondary sm" onclick="loadOverview(true)">↻ Refresh Overview</button>
         </div>
         <div class="stats-grid" id="stats">
           <div class="stat-box"><div class="muted">Loading overview...</div><div class="num mono">—</div></div>
@@ -739,27 +646,28 @@
         </div>
       </section>
 
-      <!-- BOT & WIN CONTROL SETTINGS -->
-      <section class="panel" id="sec-bot-settings">
+      <section class="panel view-panel" id="sec-bot-settings" data-view="bot-settings">
         <div class="panel-head">
-          <h2 class="panel-title">🤖 የሮቦት እና የማሸነፍ መቆጣጠሪያ ሴቲንግ (Game & Robot Settings)</h2>
-          <span class="panel-sub">Saved to Firestore & synced immediately to GameEngine</span>
+          <div>
+            <h2 class="panel-title">🤖 የሮቦት እና የማሸነፍ መቆጣጠሪያ ሴቲንግ (Game &amp; Robot Settings)</h2>
+            <span class="panel-sub">Saved to Firestore &amp; synced immediately to GameEngine</span>
+          </div>
         </div>
         <div class="two">
           <div class="field">
-            <label>በአንድ ዙር የሚገቡ የሮቦቶች ብዛት (Max Bots)</label>
+            <label for="botCountInput">በአንድ ዙር የሚገቡ የሮቦቶች ብዛት (Max Bots)</label>
             <input id="botCountInput" type="number" min="0" max="400" value="50" placeholder="ለምሳሌ: 50">
           </div>
           <div class="field">
-            <label>የሮቦቶች ማሸነፊያ ፐርሰንት (%)</label>
+            <label for="botWinPercentInput">የሮቦቶች ማሸነፊያ ፐርሰንት (%)</label>
             <input id="botWinPercentInput" type="number" min="0" max="100" value="20" placeholder="ለምሳሌ: 20%">
           </div>
           <div class="field">
-            <label>አንድ ሮቦት የሚይዘው የካርቴል ብዛት (Cards Per Bot)</label>
+            <label for="botCardsPerUser">አንድ ሮቦት የሚይዘው የካርቴል ብዛት (Cards Per Bot)</label>
             <input id="botCardsPerUser" type="number" min="1" max="4" value="2" placeholder="ለምሳሌ: 2 (እስከ 4)">
           </div>
           <div class="field">
-            <label>🚫 ዲፖዚት ያደረጉ ተጫዋቾች እንዳያሸንፉ መቆጣጠሪያ</label>
+            <label for="restrictDepositedWinInput">🚫 ዲፖዚት ያደረጉ ተጫዋቾች እንዳያሸንፉ መቆጣጠሪያ</label>
             <select id="restrictDepositedWinInput">
               <option value="yes">በርቷል (ON - ዲፖዚት ያደረጉ 1 ቁጥር እየጎደለባቸው አያሸንፉም)</option>
               <option value="no">ጠፍቷል (OFF - ሁሉም በእኩል እድል ያሸንፋሉ)</option>
@@ -767,61 +675,62 @@
           </div>
         </div>
         <div class="row" style="margin-top:4px;">
-          <button onclick="saveBotSettings()">💾 ሴቲንግ አስቀምጥ</button>
+          <button type="button" onclick="saveBotSettings()">💾 ሴቲንግ አስቀምጥ</button>
         </div>
       </section>
 
-      <!-- AUTO BONUS & PROMO CODES -->
-      <section class="panel" id="sec-promo">
+      <section class="panel view-panel" id="sec-promo" data-view="promo">
         <div class="panel-head">
-          <h2 class="panel-title">🎁 አውቶ ዲፖዚት ቦነስ እና ፕሮሞ ኮድ አስተዳደር</h2>
-          <span class="panel-sub">Configure deposit bonuses and redeemable coupon codes</span>
+          <div>
+            <h2 class="panel-title">🎁 አውቶ ዲፖዚት ቦነስ እና ፕሮሞ ኮድ አስተዳደር</h2>
+            <span class="panel-sub">Configure deposit bonuses and redeemable coupon codes</span>
+          </div>
         </div>
         <div class="two">
           <div class="split-block">
             <h3 class="sub-heading">⚡ አውቶማቲክ ዲፖዚት ቦነስ (Auto Deposit Bonus)</h3>
             <div class="field">
-              <label>ሁኔታው</label>
+              <label for="autoBonusEnabled">ሁኔታው</label>
               <select id="autoBonusEnabled"><option value="yes">በርቷል (Active)</option><option value="no">ጠፍቷል (Disabled)</option></select>
             </div>
             <div class="field">
-              <label>የቦነስ ዓይነት</label>
+              <label for="autoBonusType">የቦነስ ዓይነት</label>
               <select id="autoBonusType"><option value="percent">ፐርሰንት (%)</option><option value="fixed">ቋሚ ገንዘብ (Fixed ETB)</option></select>
             </div>
             <div class="field">
-              <label>የቦነስ መጠን (Value)</label>
+              <label for="autoBonusValue">የቦነስ መጠን (Value)</label>
               <input id="autoBonusValue" type="number" placeholder="ለምሳሌ: 10 (ለ %) ወይም 50 (ለ ETB)">
             </div>
             <div class="field">
-              <label>ዝቅተኛ ዲፖዚት (Min Deposit Limit)</label>
+              <label for="autoBonusMinDeposit">ዝቅተኛ ዲፖዚት (Min Deposit Limit)</label>
               <input id="autoBonusMinDeposit" type="number" placeholder="ከዚህ በላይ ዲፖዚት ሲያደርጉ (ለምሳሌ: 100)">
             </div>
-            <button onclick="saveAutoBonus()">💾 አውቶ ቦነስ ሴቲንግ አስቀምጥ</button>
+            <button type="button" onclick="saveAutoBonus()">💾 አውቶ ቦነስ ሴቲንግ አስቀምጥ</button>
           </div>
 
           <div class="split-block divider-v">
             <h3 class="sub-heading">🎟 አዲስ ፕሮሞ / ኩፖን ኮድ መፍጠር</h3>
             <div class="field">
-              <label>የኮዱ ስም (Promo Code)</label>
+              <label for="promoCodeInput">የኮዱ ስም (Promo Code)</label>
               <input id="promoCodeInput" type="text" placeholder="ለምሳሌ: BINGO2026">
             </div>
             <div class="field">
-              <label>የቦነስ ዓይነት</label>
+              <label for="promoType">የቦነስ ዓይነት</label>
               <select id="promoType"><option value="percent">ፐርሰንት (%)</option><option value="fixed">ቋሚ ገንዘብ (Fixed ETB)</option></select>
             </div>
             <div class="field">
-              <label>የቦነስ መጠን (Value)</label>
+              <label for="promoValue">የቦነስ መጠን (Value)</label>
               <input id="promoValue" type="number" placeholder="ለምሳሌ: 20 ወይም 100">
             </div>
             <div class="field">
-              <label>የዲፖዚት ሊሚት (Min Deposit Required - 0 ከሆኑ ለሁሉም ነፃ ነው)</label>
+              <label for="promoMinDeposit">የዲፖዚት ሊሚት (Min Deposit Required - 0 ከሆኑ ለሁሉም ነፃ ነው)</label>
               <input id="promoMinDeposit" type="number" value="0" placeholder="ዲፖዚት ላደረጉ ብቻ ከዚህ በላይ (0 = ለሁሉም)">
             </div>
             <div class="field">
-              <label>የአጠቃቀም ገደብ (Max Uses)</label>
+              <label for="promoMaxUses">የአጠቃቀም ገደብ (Max Uses)</label>
               <input id="promoMaxUses" type="number" value="100" placeholder="ስንት ሰው ይጠቀመው">
             </div>
-            <button onclick="createPromoCode()">➕ ፕሮሞ ኮድ ፍጠር</button>
+            <button type="button" onclick="createPromoCode()">➕ ፕሮሞ ኮድ ፍጠር</button>
           </div>
         </div>
 
@@ -831,38 +740,39 @@
         </div>
       </section>
 
-      <!-- DEPOSIT & WITHDRAWAL REQUESTS -->
-      <section class="panel" id="sec-requests">
+      <section class="panel view-panel" id="sec-requests" data-view="requests">
         <div class="panel-head">
           <h2 class="panel-title">📥 Deposit / 📤 Withdrawal ጥያቄዎች</h2>
-          <button class="secondary sm" onclick="loadRequests()">↻ Refresh Requests</button>
+          <button type="button" class="secondary sm" onclick="loadRequests(true)">↻ Refresh Requests</button>
         </div>
         <div id="requests" class="muted">በመጫን ላይ…</div>
       </section>
 
-      <!-- USER MANAGEMENT -->
-      <section class="panel" id="sec-users">
+      <section class="panel view-panel" id="sec-users" data-view="users">
         <div class="panel-head">
-          <h2 class="panel-title">👥 የተጠቃሚ አስተዳደር</h2>
-          <span class="panel-sub">Search users and adjust Main or Bonus balances</span>
+          <div>
+            <h2 class="panel-title">👥 የተጠቃሚ አስተዳደር</h2>
+            <span class="panel-sub">Search users and adjust Main or Bonus balances</span>
+          </div>
         </div>
         <div class="row" style="margin-bottom:14px;">
           <input id="search" placeholder="Telegram ID፣ ስም፣ username ወይም ስልክ">
-          <button onclick="loadUsers()">ፈልግ</button>
+          <button type="button" onclick="loadUsers()">ፈልግ</button>
         </div>
         <div id="users" class="muted">ተጠቃሚ ለማየት ፈልግ።</div>
       </section>
 
-      <!-- BROADCAST -->
-      <section class="panel" id="sec-broadcast">
+      <section class="panel view-panel" id="sec-broadcast" data-view="broadcast">
         <div class="panel-head">
-          <h2 class="panel-title">📢 ብሮድካስት</h2>
-          <span class="panel-sub">Send text or photo announcements to Telegram bot users</span>
+          <div>
+            <h2 class="panel-title">📢 ብሮድካስት</h2>
+            <span class="panel-sub">Send text or photo announcements to Telegram bot users</span>
+          </div>
         </div>
         <div class="two">
           <div>
             <div class="field">
-              <label>ተቀባዮች</label>
+              <label for="broadcastAudience">ተቀባዮች</label>
               <select id="broadcastAudience">
                 <option value="all">All — ሁሉም የተመዘገቡ (ከታገዱ በስተቀር)</option>
                 <option value="verified">Verified — ስልክ ያረጋገጡ</option>
@@ -870,20 +780,20 @@
               </select>
             </div>
             <div class="field">
-              <label>ፎቶ (JPG/PNG/WEBP፣ ከ7MB በታች)</label>
+              <label for="broadcastImage">ፎቶ (JPG/PNG/WEBP፣ ከ7MB በታች)</label>
               <input id="broadcastImage" type="file" accept="image/jpeg,image/png,image/webp">
             </div>
             <div class="row">
-              <div class="field"><label>Button ስም</label><input id="broadcastButtonText" placeholder="Inline Button ስም (ለምሳሌ: ይጫኑ)"></div>
-              <div class="field"><label>Button URL</label><input id="broadcastButtonUrl" placeholder="https://example.com"></div>
+              <div class="field"><label for="broadcastButtonText">Button ስም</label><input id="broadcastButtonText" placeholder="Inline Button ስም (ለምሳሌ: ይጫኑ)"></div>
+              <div class="field"><label for="broadcastButtonUrl">Button URL</label><input id="broadcastButtonUrl" placeholder="https://example.com"></div>
             </div>
           </div>
           <div>
             <div class="field">
-              <label>ጽሑፍ / Caption</label>
+              <label for="broadcastText">ጽሑፍ / Caption</label>
               <textarea id="broadcastText" placeholder="መልዕክትዎን እዚህ ይጻፉ..."></textarea>
             </div>
-            <button onclick="broadcast()">📢 አሁን ላክ</button>
+            <button type="button" onclick="broadcast()">📢 አሁን ላክ</button>
           </div>
         </div>
       </section>
@@ -891,468 +801,903 @@
   </div>
 </div>
 
-<script>
-const tg = window.Telegram?.WebApp;
-tg?.ready();
-tg?.expand();
-const headers = {
-  'Content-Type': 'application/json',
-  'X-Telegram-Init-Data': tg?.initData || ''
-};
-
-async function api(path, opts = {}) {
-  const r = await fetch(path, { ...opts, headers: { ...headers, ...opts.headers } });
-  const d = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(d.message || `HTTP ${r.status}`);
-  return d;
-}
-
-function esc(v) {
-  return String(v ?? '').replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  }[c]));
-}
-
-function fail(e) {
-  const n = document.getElementById('notice');
-  n.textContent = e?.message || String(e);
-  n.style.display = 'block';
-  n.className = 'notice';
-}
-
-function success(t) {
-  const n = document.getElementById('notice');
-  n.textContent = t;
-  n.style.display = 'block';
-  n.className = 'notice ok';
-}
-
-/* ==================== LIVE ROOM CONTROLLER ==================== */
-let livePollingEnabled = true;
-let roomPollInFlight = false;
-let currentRoomState = null;
-let timingFieldsDirty = false;
-
-['timingSelection', 'timingDrawInterval', 'timingResult', 'timingMinPlayers'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('input', () => { timingFieldsDirty = true; });
-});
-
-function initAdminMasterBoard() {
-  const board = document.getElementById('adminMasterBoard');
-  if (!board) return;
-  let html = '';
-  for (let i = 1; i <= 75; i++) {
-    html += `<div class="ball-cell mono" id="adm-ball-${i}">${i}</div>`;
-  }
-  board.innerHTML = html;
-}
-
-function bingoPrefix(num) {
-  const n = Number(num);
-  if (!Number.isFinite(n) || n < 1) return 'B-I-N-G-O';
-  if (n <= 15) return `B-${n}`;
-  if (n <= 30) return `I-${n}`;
-  if (n <= 45) return `N-${n}`;
-  if (n <= 60) return `G-${n}`;
-  return `O-${n}`;
-}
-
-function toggleLivePolling() {
-  livePollingEnabled = !livePollingEnabled;
-  const btn = document.getElementById('liveToggleBtn');
-  if (btn) btn.textContent = livePollingEnabled ? 'Auto-Sync: ON' : 'Auto-Sync: OFF';
-}
-
-function renderLiveRoom(room) {
-  if (!room) return;
-  currentRoomState = room;
-
-  const updatedStr = new Date(room.updated_at || Date.now()).toLocaleTimeString();
-  const statusEl = document.getElementById('lr-status');
-  const subtitleEl = document.getElementById('roomSubtitle');
-  const topSyncEl = document.getElementById('topSyncMeta');
-
-  if (subtitleEl) {
-    subtitleEl.textContent = `Updated: ${updatedStr} · Round ${room.round_id} · ${room.status_text}`;
-  }
-  if (topSyncEl) {
-    topSyncEl.textContent = `Updated ${updatedStr} · ${room.status_text}`;
-  }
-
-  document.getElementById('roomStatusText').textContent = room.status_text || '—';
-  statusEl.textContent = room.status_text || '—';
-  statusEl.className = 'kpi-value ' + (room.paused ? 'warn' : (room.phase === 'drawing' ? 'accent' : ''));
-  document.getElementById('lr-round-id').textContent = `Round: ${room.round_id || '—'}`;
-
-  const totalSold = Number(room.total_sold || 0);
-  const maxCartels = Number(room.max_cartels || 500);
-  document.getElementById('lr-total-sold').textContent = `${totalSold} / ${maxCartels}`;
-  document.getElementById('lr-sold-bar').style.width = `${Math.min(100, (totalSold / Math.max(1, maxCartels)) * 100)}%`;
-
-  document.getElementById('lr-bots').textContent = Number(room.bot_cartels ?? room.bots_count ?? 0);
-  document.getElementById('lr-bots-cartels').textContent = `${Number(room.bots_count || 0)} bots · ${Number(room.bot_cartels || 0)} cards`;
-
-  document.getElementById('lr-real-players').textContent = Number(room.real_players_count || 0);
-  document.getElementById('lr-real-cartels').textContent = `${Number(room.real_cartels || 0)} real cards`;
-
-  document.getElementById('lr-connected').textContent = Number(room.connected_count || 0);
-  document.getElementById('lr-pool').textContent = `${Number(room.pool || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ETB`;
-
-  const called = Number(room.numbers_called || 0);
-  const totalBalls = Number(room.total_balls || 75);
-  document.getElementById('lr-numbers-called').textContent = `${called} / ${totalBalls}`;
-  document.getElementById('lr-balls-bar').style.width = `${Math.min(100, (called / Math.max(1, totalBalls)) * 100)}%`;
-
-  const lastNum = room.last_number;
-  document.getElementById('lr-last-number').textContent = lastNum != null ? String(lastNum) : '—';
-  document.getElementById('lr-last-letter').textContent = lastNum != null ? bingoPrefix(lastNum) : 'B-I-N-G-O';
-
-  document.getElementById('lr-seconds-left').textContent = String(Number(room.seconds_left || 0));
-  document.getElementById('lr-seconds-note').textContent = room.paused ? 'Timer paused' : (room.phase === 'drawing' ? 'Next ball timer' : 'Phase timer');
-
-  // Update action button states
-  const pauseBtn = document.getElementById('btnPauseResume');
-  if (pauseBtn) {
-    pauseBtn.textContent = room.paused ? '▶ Resume Room' : '⏸ Pause Room';
-    pauseBtn.className = room.paused ? '' : 'amber';
-  }
-  const forceBtn = document.getElementById('btnForceStart');
-  if (forceBtn) forceBtn.disabled = room.phase !== 'selection' || totalSold === 0;
-  const drawBtn = document.getElementById('btnDrawNext');
-  if (drawBtn) drawBtn.disabled = room.phase !== 'drawing';
-  const injectBtn = document.getElementById('btnInjectBots');
-  if (injectBtn) injectBtn.disabled = room.phase !== 'selection';
-
-  // Update timing inputs if admin isn't editing them
-  if (!timingFieldsDirty && room.timing) {
-    document.getElementById('timingSelection').value = room.timing.selection_seconds ?? 30;
-    document.getElementById('timingDrawInterval').value = room.timing.draw_interval ?? 3;
-    document.getElementById('timingResult').value = room.timing.result_seconds ?? 10;
-    document.getElementById('timingMinPlayers').value = room.timing.min_players ?? 2;
-  }
-
-  // Paint 1-75 board
-  const drawnArr = Array.isArray(room.drawn) ? room.drawn : [];
-  const drawnSet = new Set(drawnArr);
-  for (let i = 1; i <= 75; i++) {
-    const el = document.getElementById(`adm-ball-${i}`);
-    if (!el) continue;
-    if (i === lastNum) el.className = 'ball-cell mono last';
-    else if (drawnSet.has(i)) el.className = 'ball-cell mono called';
-    else el.className = 'ball-cell mono';
-  }
-  const seqPreview = document.getElementById('drawnSequencePreview');
-  if (seqPreview) {
-    seqPreview.textContent = drawnArr.length ? `Last 8: ${drawnArr.slice(-8).join(', ')}` : 'Called: none';
-  }
-
-  // Real players table
-  const tbody = document.getElementById('livePlayersBody');
-  const realList = Array.isArray(room.real_players) ? room.real_players : [];
-  if (tbody) {
-    if (!realList.length) {
-      tbody.innerHTML = '<tr><td colspan="3" class="muted">No real players in this round yet.</td></tr>';
-    } else {
-      tbody.innerHTML = realList.map(p => `
-        <tr>
-          <td class="mono">${esc(p.uid)}</td>
-          <td class="mono">${p.cartels.length}</td>
-          <td class="mono">${p.cartels.map(c => '#' + c).join(', ')}</td>
-        </tr>
-      `).join('');
-    }
-  }
-}
-
-async function loadLiveRoom() {
-  if (roomPollInFlight) return;
-  roomPollInFlight = true;
-  try {
-    const d = await api('/api/admin/room');
-    if (d.room) renderLiveRoom(d.room);
-  } catch (e) {
-    const sub = document.getElementById('roomSubtitle');
-    if (sub && !currentRoomState) sub.textContent = `Live room offline (${e.message})`;
-  } finally {
-    roomPollInFlight = false;
-  }
-}
-
-async function roomAction(action, extra = {}) {
-  try {
-    const d = await api('/api/admin/room/control', {
-      method: 'POST',
-      body: JSON.stringify({ action, ...extra })
-    });
-    if (d.room) renderLiveRoom(d.room);
-    success(d.message || 'Room updated.');
-  } catch (e) {
-    fail(e);
-  }
-}
-
-function toggleRoomPause() {
-  const action = currentRoomState?.paused ? 'resume' : 'pause';
-  roomAction(action);
-}
-
-function confirmResetRound() {
-  if (!confirm('አሁን ያለውን ዙር ሰርዘው (ለተጫዋቾች ገንዘብ ተመልሶ) አዲስ ዙር መጀመር ይፈልጋሉ?')) return;
-  roomAction('reset_round');
-}
-
-async function saveRoomTiming() {
-  const selection_seconds = Number(document.getElementById('timingSelection').value);
-  const draw_interval = Number(document.getElementById('timingDrawInterval').value);
-  const result_seconds = Number(document.getElementById('timingResult').value);
-  const min_players = Number(document.getElementById('timingMinPlayers').value);
-  timingFieldsDirty = false;
-  await roomAction('update_timing', { selection_seconds, draw_interval, result_seconds, min_players });
-}
-
-/* ==================== EXISTING ADMIN FUNCTIONS (SAFE & PRESERVED) ==================== */
-async function loadBotSettings() {
-  try {
-    const d = await api('/api/admin/bot-settings');
-    if (d.settings) {
-      document.getElementById('botCountInput').value = d.settings.botCount ?? 50;
-      document.getElementById('botWinPercentInput').value = d.settings.botWinPercent ?? 20;
-      document.getElementById('botCardsPerUser').value = d.settings.botCardsPerUser ?? 2;
-      document.getElementById('restrictDepositedWinInput').value = (d.settings.restrictDepositedWin !== false) ? 'yes' : 'no';
-    }
-  } catch (e) { console.error('Failed to load bot settings', e); }
-}
-
-async function saveBotSettings() {
-  const botCount = Number(document.getElementById('botCountInput').value);
-  const botWinPercent = Number(document.getElementById('botWinPercentInput').value);
-  const botCardsPerUser = Number(document.getElementById('botCardsPerUser').value);
-  const restrictDepositedWin = document.getElementById('restrictDepositedWinInput').value === 'yes';
-  try {
-    await api('/api/admin/bot-settings', {
-      method: 'POST',
-      body: JSON.stringify({ botCount, botWinPercent, botCardsPerUser, restrictDepositedWin })
-    });
-    success('ሴቲንጉ በተሳካ ሁኔታ ተስተካክሏል!');
-  } catch (e) { fail(e); }
-}
-
-async function loadPromoAndBonusSettings() {
-  try {
-    const d = await api('/api/admin/promos');
-    if (d.autoBonus) {
-      document.getElementById('autoBonusEnabled').value = d.autoBonus.enabled ? 'yes' : 'no';
-      document.getElementById('autoBonusType').value = d.autoBonus.type || 'percent';
-      document.getElementById('autoBonusValue').value = d.autoBonus.value || '';
-      document.getElementById('autoBonusMinDeposit').value = d.autoBonus.minDeposit || '';
-    }
-    renderPromoList(d.promos || []);
-  } catch (e) { console.error('Failed to load promos', e); }
-}
-
-async function saveAutoBonus() {
-  const enabled = document.getElementById('autoBonusEnabled').value === 'yes';
-  const type = document.getElementById('autoBonusType').value;
-  const value = Number(document.getElementById('autoBonusValue').value);
-  const minDeposit = Number(document.getElementById('autoBonusMinDeposit').value);
-  try {
-    await api('/api/admin/autobonus', {
-      method: 'POST',
-      body: JSON.stringify({ enabled, type, value, minDeposit })
-    });
-    success('አውቶ ዲፖዚት ቦነስ ሴቲንግ ተቀምጧል!');
-  } catch (e) { fail(e); }
-}
-
-async function createPromoCode() {
-  const code = document.getElementById('promoCodeInput').value.trim();
-  const type = document.getElementById('promoType').value;
-  const value = Number(document.getElementById('promoValue').value);
-  const minDeposit = Number(document.getElementById('promoMinDeposit').value);
-  const maxUses = Number(document.getElementById('promoMaxUses').value);
-  if (!code) return alert('እባክዎ የኮድ ስም ያስገቡ');
-  try {
-    await api('/api/admin/promos/create', {
-      method: 'POST',
-      body: JSON.stringify({ code, type, value, minDeposit, maxUses })
-    });
-    success('ፕሮሞ ኮድ በተሳካ ሁኔታ ተፈጠረ!');
-    document.getElementById('promoCodeInput').value = '';
-    document.getElementById('promoValue').value = '';
-    loadPromoAndBonusSettings();
-  } catch (e) { fail(e); }
-}
-
-async function deletePromo(code) {
-  if (!confirm(`ፕሮሞ ኮድ ${code} መሰረዝ ይፈልጋሉ?`)) return;
-  try {
-    await api('/api/admin/promos/delete', { method: 'POST', body: JSON.stringify({ code }) });
-    success('ፕሮሞ ኮድ ተሰርዟል።');
-    loadPromoAndBonusSettings();
-  } catch (e) { fail(e); }
-}
-
-function renderPromoList(promos) {
-  const box = document.getElementById('promoCodesList');
-  if (!promos.length) { box.innerHTML = '<div class="muted">ምንም ፕሮሞ ኮድ የለም።</div>'; return; }
-  box.innerHTML = `<div class="table-wrap"><table><thead><tr><th>ኮድ</th><th>ዓይነት</th><th>መጠን</th><th>ሚን. ዲፖዚት ሊሚት</th><th>Used / Max</th><th>እርምጃ</th></tr></thead><tbody>` +
-    promos.map(p => `<tr><td class="mono"><b>${esc(p.code)}</b></td><td>${esc(p.type)}</td><td class="mono">${esc(p.value)}</td><td class="mono">${esc(p.minDeposit || 0)} ETB</td><td class="mono">${esc(p.usedCount || 0)} / ${esc(p.maxUses)}</td><td><button class="danger sm" onclick="deletePromo('${esc(p.code)}')">ሰርዝ</button></td></tr>`).join('') +
-    `</tbody></table></div>`;
-}
-
-async function loadOverview() {
-  const d = await api('/api/admin/overview');
-  const s = d.stats;
-  document.getElementById('stats').innerHTML = [
-    ['ተጠቃሚዎች', s.users],
-    ['Main Balance', Number(s.mainBalance).toFixed(2) + ' ETB'],
-    ['Bonus Balance', Number(s.bonusBalance).toFixed(2) + ' ETB'],
-    ['Pending Deposit', s.pendingDeposits],
-    ['Pending Withdrawal', s.pendingWithdrawals],
-    ['የጨዋታ ዙሮች', s.rounds]
-  ].map(x => `<div class="stat-box"><div class="muted" style="font-size:12px;">${x[0]}</div><div class="num mono">${x[1]}</div></div>`).join('');
-
-  const vals = [
-    ['Deposit', s.weeklyDeposits],
-    ['Withdrawal requests', s.weeklyWithdrawals],
-    ['Winnings recorded', s.weeklyWinnings]
-  ];
-  const max = Math.max(1, ...vals.map(x => Number(x[1])));
-  document.getElementById('weekly').innerHTML = vals.map(x => `
-    <div class="weekly-item">
-      <div class="weekly-head"><span>${x[0]}</span><b class="mono">${Number(x[1]).toFixed(2)} ETB</b></div>
-      <div class="bar"><i style="width:${Math.max(0, Number(x[1]) / max * 100)}%"></i></div>
+<div class="modal-backdrop" id="adminModal" role="dialog" aria-modal="true" aria-labelledby="adminModalTitle">
+  <div class="modal-card">
+    <h3 class="modal-title" id="adminModalTitle">Confirm Action</h3>
+    <p class="modal-text" id="adminModalText"></p>
+    <div class="field" id="adminModalInputWrap" style="display:none; margin-bottom:0;">
+      <label for="adminModalInput" id="adminModalInputLabel">Amount (ETB)</label>
+      <input id="adminModalInput" type="number" min="0.01" step="0.01" placeholder="100">
     </div>
-  `).join('') + '<p class="muted" style="font-size:12px;margin:10px 0 0;">የሪፖርቱ ጊዜ: ያለፉት 7 ቀናት።</p>';
-}
+    <div class="modal-actions">
+      <button type="button" class="secondary sm" id="adminModalCancel">Cancel</button>
+      <button type="button" class="sm" id="adminModalConfirm">Confirm</button>
+    </div>
+  </div>
+</div>
 
-async function loadRequests() {
-  const d = await api('/api/admin/requests');
-  const rows = d.requests.map(r => `<tr>
-    <td>${esc(r.type)}</td>
-    <td class="mono">${esc(r.user_id)}</td>
-    <td class="mono">${Number(r.amount || 0).toFixed(2)} ETB</td>
-    <td class="status">${esc(r.status)}</td>
-    <td class="mono">${r.created_at ? new Date(Number(r.created_at)).toLocaleString() : ''}</td>
-    <td class="small">${esc(r.reference || r.receipt_text || '')}${r.receipt_image ? '<br><a target="_blank" href="' + r.receipt_image + '">📷 View receipt</a>' : ''}${r.photo_file_id ? '📷 የደረሰኝ ፎቶ በTelegram ተልኳል' : ''}${r.payout_name ? '\nተቀባይ: ' + esc(r.payout_name) : ''}${r.payout_account ? '\nTelebirr: ' + esc(r.payout_account) : ''}</td>
-    <td>${r.status === 'pending' ? `<div class="row" style="gap:6px;"><button class="sm" onclick="review('${esc(r.id)}','${r.type}',true)">Approve</button><button class="danger sm" onclick="review('${esc(r.id)}','${r.type}',false)">Reject</button></div>` : '—'}</td>
-  </tr>`).join('');
-  document.getElementById('requests').innerHTML = `<div class="table-wrap"><table><thead><tr><th>Type</th><th>User ID</th><th>Amount</th><th>Status</th><th>Created</th><th>Receipt / SMS</th><th>Action</th></tr></thead><tbody>${rows || '<tr><td colspan="7">ምንም ጥያቄ የለም።</td></tr>'}</tbody></table></div>`;
-}
+<script>
+class AdminControlTools {
+  constructor() {
+    this.tg = window.Telegram?.WebApp || null;
+    this.initData = this.tg?.initData || '';
+    this.headers = {
+      'Content-Type': 'application/json',
+      'X-Telegram-Init-Data': this.initData
+    };
 
-async function review(id, type, approve) {
-  if (!confirm(`${approve ? 'Approve' : 'Reject'} ${type} ${id}?`)) return;
-  try {
-    await api('/api/admin/review', { method: 'POST', body: JSON.stringify({ id, type, approve }) });
-    success('የጥያቄው ሁኔታ ተቀይሯል።');
-    await loadAll();
-  } catch (e) { fail(e); }
-}
+    this.views = {
+      'live-room': 'Live Room Controller',
+      'overview': 'Overview & 7-Day Report',
+      'bot-settings': 'Bot & Game Settings',
+      'promo': 'Auto Bonus & Promos',
+      'requests': 'Deposits & Withdrawals',
+      'users': 'User Management',
+      'broadcast': 'Telegram Broadcast'
+    };
 
-async function loadUsers() {
-  try {
-    const q = document.getElementById('search').value;
-    const d = await api('/api/admin/users?q=' + encodeURIComponent(q));
-    document.getElementById('users').innerHTML = `<div class="table-wrap"><table><thead><tr><th>User</th><th>Name</th><th>Phone</th><th>Main</th><th>Bonus</th><th>Status</th><th>Actions</th></tr></thead><tbody>${d.users.map(u => `<tr>
-      <td class="mono">${esc(u.id)}</td>
-      <td>${esc(u.first_name || u.username || '')}</td>
-      <td class="mono">${esc(u.phone_number || '')}</td>
-      <td class="mono">${Number(u.balance || 0).toFixed(2)} ETB</td>
-      <td class="mono">${Number(u.bonus || 0).toFixed(2)} ETB</td>
-      <td>${u.has_deposited ? '💳 Deposited' : '🆕 Bonus Only'}</td>
-      <td>
-        <div class="row" style="gap:4px;">
-          <button class="sm" onclick="userAction('${esc(u.id)}','block')">Block</button>
-          <button class="secondary sm" onclick="userAction('${esc(u.id)}','unblock')">Unblock</button>
-          <button class="sm" onclick="adjust('${esc(u.id)}','credit','main')">+ Main</button>
-          <button class="danger sm" onclick="adjust('${esc(u.id)}','debit','main')">− Main</button>
-          <button class="sm" onclick="adjust('${esc(u.id)}','credit','bonus')">+ Bonus</button>
-          <button class="danger sm" onclick="adjust('${esc(u.id)}','debit','bonus')">− Bonus</button>
-        </div>
-      </td>
-    </tr>`).join('') || '<tr><td colspan="7">ተጠቃሚ አልተገኘም።</td></tr>'}</tbody></table></div>`;
-  } catch (e) { fail(e); }
-}
-
-async function userAction(userId, action) {
-  try {
-    await api('/api/admin/user-action', { method: 'POST', body: JSON.stringify({ userId, action }) });
-    success('ተግባሩ ተሳክቷል።');
-    await loadUsers();
-  } catch (e) { fail(e); }
-}
-
-async function adjust(userId, action, walletType) {
-  const amount = Number(prompt(`${walletType === 'main' ? 'Main' : 'Bonus'} Balance መጠን (ETB)`));
-  if (!Number.isFinite(amount) || amount <= 0) return;
-  if (!confirm(`${amount} ETB ${walletType} ${action === 'credit' ? 'ጨምር' : 'ቀንስ'}?`)) return;
-  try {
-    await api('/api/admin/user-action', { method: 'POST', body: JSON.stringify({ userId, action, amount, walletType }) });
-    success('Balance ተስተካክሏል።');
-    await loadUsers();
-    await loadOverview();
-  } catch (e) { fail(e); }
-}
-
-async function broadcast() {
-  const message = document.getElementById('broadcastText').value.trim(),
-    audience = document.getElementById('broadcastAudience').value,
-    buttonText = document.getElementById('broadcastButtonText').value.trim(),
-    buttonUrl = document.getElementById('broadcastButtonUrl').value.trim(),
-    file = document.getElementById('broadcastImage').files[0];
-  if (!message && !file) return alert('ጽሑፍ ወይም ፎቶ ያስገቡ።');
-  if (file && file.size > 7 * 1024 * 1024) return alert('ፎቶው ከ7MB በታች መሆን አለበት።');
-  if (buttonText && !buttonUrl) return alert('የButton URL ያስገቡ።');
-  if (!confirm(`ይህን Broadcast ለተመረጡት ተጠቃሚዎች መላክ ይፈልጋሉ?`)) return;
-  try {
-    let imageBase64 = '';
-    if (file) imageBase64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-    const d = await api('/api/admin/broadcast', {
-      method: 'POST',
-      body: JSON.stringify({ message, audience, buttonText, buttonUrl, imageBase64 })
-    });
-    success(`ብሮድካስት ተጠናቋል። ተልኳል: ${d.sent}፣ አልተሳካም: ${d.failed}፣ ጠቅላላ: ${d.total}`);
-  } catch (e) { fail(e); }
-}
-
-async function loadAll() {
-  document.getElementById('notice').style.display = 'none';
-  try {
-    await Promise.all([
-      loadLiveRoom(),
-      loadOverview(),
-      loadRequests(),
-      loadBotSettings(),
-      loadPromoAndBonusSettings()
-    ]);
-  } catch (e) { fail(e); }
-}
-
-// Sidebar active link highlighting on click
-document.querySelectorAll('.nav-link').forEach(link => {
-  link.addEventListener('click', () => {
-    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-    link.classList.add('active');
-  });
-});
-
-initAdminMasterBoard();
-loadAll();
-setInterval(() => {
-  if (livePollingEnabled) loadLiveRoom();
-}, 1000);
-setInterval(() => {
-  if (livePollingEnabled) {
-    loadOverview().catch(() => {});
-    loadRequests().catch(() => {});
+    this.activeView = 'live-room';
+    this.noticeTimer = null;
+    this.liveStreamingEnabled = true;
+    this.roomStream = null;
+    this.fallbackPollTimer = null;
+    this.reconnectTimer = null;
+    this.localTickTimer = null;
+    this.bgSyncTimer = null;
+    this.currentRoomState = null;
+    this.timingFieldsDirty = false;
+    this.lastBoardStateKey = '';
+    this.lastPlayersKey = '';
+    this.boardCells = [];
+    this.usersLoadedOnce = false;
+    this.inFlight = new Map();
+    this.loadedAt = {};
+    this.sseRetryDelay = 1500;
+    this.lastLatencyMs = null;
+    this.lastRoomRenderAt = 0;
   }
-}, 15000);
+
+  init() {
+    if (this.tg) {
+      this.tg.ready();
+      this.tg.expand();
+    }
+
+    ['timingSelection', 'timingDrawInterval', 'timingResult', 'timingMinPlayers', 'timingTicketPrice', 'timingPrizePerCartel'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', () => { this.timingFieldsDirty = true; });
+    });
+
+    const searchInput = document.getElementById('search');
+    if (searchInput) {
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') this.loadUsers();
+      });
+    }
+
+    const manualCallInput = document.getElementById('manualCallInput');
+    if (manualCallInput) {
+      manualCallInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') this.callSpecificNumber();
+      });
+    }
+
+    const hashView = (window.location.hash || '').replace(/^#(sec-)?/, '');
+    const initialView = this.views[hashView] ? hashView : 'live-room';
+    this.initMasterBoard();
+    this.switchMenu(initialView, false);
+
+    window.addEventListener('hashchange', () => {
+      const nextHash = (window.location.hash || '').replace(/^#(sec-)?/, '');
+      if (this.views[nextHash] && nextHash !== this.activeView) {
+        this.switchMenu(nextHash, false);
+      }
+    });
+
+    window.addEventListener('online', () => {
+      if (this.liveStreamingEnabled && !this.roomStream) {
+        this.sseRetryDelay = 1000;
+        this.startRoomStream();
+      }
+    });
+
+    this.loadLiveRoom();
+    this.startRoomStream();
+
+    this.localTickTimer = setInterval(() => this.tickLocalCountdown(), 1000);
+
+    setTimeout(() => {
+      if (this.activeView === 'live-room') {
+        this.loadOverview().catch(() => {});
+      }
+    }, 900);
+
+    this.bgSyncTimer = setInterval(() => {
+      if (!this.liveStreamingEnabled || document.hidden) return;
+      if (this.activeView === 'overview') this.loadOverview().catch(() => {});
+      else if (this.activeView === 'requests') this.loadRequests().catch(() => {});
+    }, 25000);
+  }
+
+  tickLocalCountdown() {
+    const room = this.currentRoomState;
+    if (!room || room.paused) return;
+    if (!['selection', 'drawing', 'result'].includes(room.phase)) return;
+    const elapsed = Math.floor((Date.now() - this.lastRoomRenderAt) / 1000);
+    if (elapsed <= 0) return;
+    const estLeft = Math.max(0, Number(room.seconds_left || 0) - elapsed);
+    const el = document.getElementById('lr-seconds-left');
+    if (el && el.textContent !== String(estLeft)) {
+      el.textContent = String(estLeft);
+    }
+  }
+
+  isStale(key, ttlMs = 20000) {
+    return Date.now() - (this.loadedAt[key] || 0) > ttlMs;
+  }
+
+  switchMenu(viewId, updateHash = true) {
+    const target = this.views[viewId] ? viewId : 'live-room';
+    this.activeView = target;
+
+    document.querySelectorAll('.view-panel').forEach((panel) => {
+      panel.classList.toggle('active', panel.dataset.view === target);
+    });
+
+    document.querySelectorAll('[data-view]').forEach((el) => {
+      if (el.classList.contains('nav-link') || el.classList.contains('mobile-nav-btn')) {
+        el.classList.toggle('active', el.dataset.view === target);
+      }
+    });
+
+    const titleEl = document.getElementById('topbarTitle');
+    if (titleEl) titleEl.textContent = this.views[target];
+
+    if (updateHash && window.location.hash !== `#${target}`) {
+      history.replaceState(null, '', `#${target}`);
+    }
+
+    window.scrollTo({ top: 0, behavior: 'auto' });
+
+    if (target === 'live-room' && !this.currentRoomState) this.loadLiveRoom();
+    else if (target === 'overview' && this.isStale('overview', 20000)) this.loadOverview().catch(() => {});
+    else if (target === 'bot-settings' && this.isStale('bot-settings', 30000)) this.loadBotSettings().catch(() => {});
+    else if (target === 'promo' && this.isStale('promo', 30000)) this.loadPromoAndBonusSettings().catch(() => {});
+    else if (target === 'requests' && this.isStale('requests', 15000)) this.loadRequests().catch(() => {});
+    else if (target === 'users' && !this.usersLoadedOnce) {
+      this.usersLoadedOnce = true;
+      this.loadUsers().catch(() => {});
+    }
+  }
+
+  async api(path, opts = {}) {
+    const method = String(opts.method || 'GET').toUpperCase();
+    const dedupKey = method === 'GET' ? path : null;
+    if (dedupKey && this.inFlight.has(dedupKey)) {
+      return this.inFlight.get(dedupKey);
+    }
+
+    const timeoutMs = Number(opts.timeoutMs || (method === 'GET' ? 12000 : 30000));
+    const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const timer = ctrl ? setTimeout(() => ctrl.abort(), timeoutMs) : null;
+    const t0 = performance.now();
+
+    const run = (async () => {
+      try {
+        const r = await fetch(path, {
+          ...opts,
+          signal: ctrl ? ctrl.signal : undefined,
+          headers: { ...this.headers, ...opts.headers }
+        });
+        this.lastLatencyMs = Math.round(performance.now() - t0);
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(d.message || `HTTP ${r.status}`);
+        return d;
+      } catch (e) {
+        if (e && e.name === 'AbortError') {
+          throw new Error('የኢንተርኔት ግንኙነት ዘግይቷል — እባክዎ ደግመው ይሞክሩ');
+        }
+        throw e;
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+    })();
+
+    if (dedupKey) {
+      this.inFlight.set(dedupKey, run);
+      run.finally(() => this.inFlight.delete(dedupKey)).catch(() => {});
+    }
+    return run;
+  }
+
+  esc(v) {
+    return String(v ?? '').replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+
+  notify(text, isOk) {
+    const n = document.getElementById('notice');
+    if (!n) return;
+    n.textContent = text;
+    n.style.display = 'block';
+    n.className = isOk ? 'notice ok' : 'notice';
+    if (this.noticeTimer) clearTimeout(this.noticeTimer);
+    this.noticeTimer = setTimeout(() => { n.style.display = 'none'; }, 4500);
+  }
+
+  fail(e) {
+    this.notify(e?.message || String(e), false);
+  }
+
+  success(t) {
+    this.notify(t, true);
+  }
+
+  openModal({ title, text, confirmLabel = 'Confirm', danger = false, withInput = false, inputLabel = '', inputPlaceholder = '' }) {
+    return new Promise((resolve) => {
+      const backdrop = document.getElementById('adminModal');
+      const titleEl = document.getElementById('adminModalTitle');
+      const textEl = document.getElementById('adminModalText');
+      const inputWrap = document.getElementById('adminModalInputWrap');
+      const inputLabelEl = document.getElementById('adminModalInputLabel');
+      const inputEl = document.getElementById('adminModalInput');
+      const cancelBtn = document.getElementById('adminModalCancel');
+      const confirmBtn = document.getElementById('adminModalConfirm');
+
+      titleEl.textContent = title;
+      textEl.textContent = text || '';
+      inputWrap.style.display = withInput ? 'block' : 'none';
+      inputLabelEl.textContent = inputLabel;
+      inputEl.placeholder = inputPlaceholder;
+      inputEl.value = '';
+      confirmBtn.textContent = confirmLabel;
+      confirmBtn.className = danger ? 'danger sm' : 'sm';
+
+      const cleanup = (result) => {
+        backdrop.classList.remove('open');
+        cancelBtn.onclick = null;
+        confirmBtn.onclick = null;
+        backdrop.onclick = null;
+        inputEl.onkeydown = null;
+        resolve(result);
+      };
+
+      cancelBtn.onclick = () => cleanup(withInput ? null : false);
+      backdrop.onclick = (ev) => {
+        if (ev.target === backdrop) cleanup(withInput ? null : false);
+      };
+      confirmBtn.onclick = () => {
+        if (!withInput) return cleanup(true);
+        const val = Number(inputEl.value);
+        if (!Number.isFinite(val) || val <= 0) {
+          inputEl.focus();
+          return;
+        }
+        cleanup(val);
+      };
+      inputEl.onkeydown = (ev) => {
+        if (ev.key === 'Enter') confirmBtn.click();
+      };
+
+      backdrop.classList.add('open');
+      if (withInput) setTimeout(() => inputEl.focus(), 20);
+      else setTimeout(() => confirmBtn.focus(), 20);
+    });
+  }
+
+  bingoPrefix(num) {
+    const n = Number(num);
+    if (!Number.isFinite(n) || n < 1) return 'B-I-N-G-O';
+    if (n <= 15) return `B-${n}`;
+    if (n <= 30) return `I-${n}`;
+    if (n <= 45) return `N-${n}`;
+    if (n <= 60) return `G-${n}`;
+    return `O-${n}`;
+  }
+
+  initMasterBoard() {
+    const board = document.getElementById('adminMasterBoard');
+    if (!board) return;
+    const frag = document.createDocumentFragment();
+    this.boardCells = new Array(76);
+    for (let i = 1; i <= 75; i++) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ball-cell mono';
+      btn.id = `adm-ball-${i}`;
+      btn.textContent = String(i);
+      btn.title = `Call #${i}`;
+      btn.onclick = () => {
+        if (this.currentRoomState && this.currentRoomState.phase === 'drawing' && !(this.currentRoomState.drawn || []).includes(i)) {
+          this.roomAction('call_number', { number: i });
+        }
+      };
+      this.boardCells[i] = btn;
+      frag.appendChild(btn);
+    }
+    board.innerHTML = '';
+    board.appendChild(frag);
+  }
+
+  toggleLivePolling() {
+    this.liveStreamingEnabled = !this.liveStreamingEnabled;
+    const btn = document.getElementById('liveToggleBtn');
+    if (btn) btn.textContent = this.liveStreamingEnabled ? 'Live Stream: ON' : 'Live Stream: OFF';
+    if (this.liveStreamingEnabled) {
+      this.sseRetryDelay = 1500;
+      this.startRoomStream();
+    } else {
+      this.stopRoomStream();
+      document.getElementById('topSyncMeta').textContent = 'Live Stream paused';
+    }
+  }
+
+  stopRoomStream() {
+    if (this.roomStream) {
+      this.roomStream.close();
+      this.roomStream = null;
+    }
+    if (this.fallbackPollTimer) {
+      clearInterval(this.fallbackPollTimer);
+      this.fallbackPollTimer = null;
+    }
+    if (this.reconnectTimer) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+  }
+
+  startRoomStream() {
+    this.stopRoomStream();
+    if (!this.liveStreamingEnabled) return;
+
+    if (typeof EventSource !== 'undefined') {
+      const url = `/api/admin/room/stream?initData=${encodeURIComponent(this.initData)}`;
+      this.roomStream = new EventSource(url);
+      this.roomStream.onopen = () => {
+        this.sseRetryDelay = 1500;
+        if (this.fallbackPollTimer) {
+          clearInterval(this.fallbackPollTimer);
+          this.fallbackPollTimer = null;
+        }
+      };
+      this.roomStream.onmessage = (ev) => {
+        this.sseRetryDelay = 1500;
+        try {
+          const room = JSON.parse(ev.data);
+          this.renderLiveRoom(room);
+        } catch (_) {}
+      };
+      this.roomStream.onerror = () => {
+        if (this.roomStream) {
+          this.roomStream.close();
+          this.roomStream = null;
+        }
+        document.getElementById('topSyncMeta').textContent = 'Reconnecting stream...';
+        if (!this.fallbackPollTimer && this.liveStreamingEnabled) {
+          this.fallbackPollTimer = setInterval(() => {
+            if (this.liveStreamingEnabled && !document.hidden) this.loadLiveRoom();
+          }, 2500);
+        }
+        if (!this.reconnectTimer && this.liveStreamingEnabled) {
+          const wait = this.sseRetryDelay;
+          this.sseRetryDelay = Math.min(10000, this.sseRetryDelay * 2);
+          this.reconnectTimer = setTimeout(() => {
+            this.reconnectTimer = null;
+            if (this.liveStreamingEnabled && !this.roomStream) this.startRoomStream();
+          }, wait);
+        }
+      };
+    } else {
+      this.fallbackPollTimer = setInterval(() => {
+        if (this.liveStreamingEnabled && !document.hidden) this.loadLiveRoom();
+      }, 2000);
+    }
+  }
+
+  renderLiveRoom(room) {
+    if (!room) return;
+    this.currentRoomState = room;
+    this.lastRoomRenderAt = Date.now();
+
+    const updatedStr = new Date(room.updated_at || Date.now()).toLocaleTimeString();
+    const latencyTag = this.lastLatencyMs != null ? ` · ${this.lastLatencyMs}ms` : '';
+    document.getElementById('roomSubtitle').textContent = `Updated: ${updatedStr} · Round ${room.round_id} · ${room.status_text}`;
+    document.getElementById('topSyncMeta').textContent = `Live${latencyTag} · ${room.status_text}`;
+    document.getElementById('roomStatusText').textContent = room.status_text || '—';
+
+    const statusEl = document.getElementById('lr-status');
+    statusEl.textContent = room.status_text || '—';
+    statusEl.className = 'kpi-value ' + (room.paused ? 'warn' : (room.phase === 'drawing' ? 'accent' : ''));
+    document.getElementById('lr-round-id').textContent = `Round: ${room.round_id || '—'}`;
+
+    const totalSold = Number(room.total_sold || 0);
+    const maxCartels = Number(room.max_cartels || 500);
+    document.getElementById('lr-total-sold').textContent = `${totalSold} / ${maxCartels}`;
+    document.getElementById('lr-sold-bar').style.width = `${Math.min(100, (totalSold / Math.max(1, maxCartels)) * 100)}%`;
+
+    document.getElementById('lr-bots').textContent = String(Number(room.bot_cartels ?? room.bots_count ?? 0));
+    document.getElementById('lr-bots-cartels').textContent = `${Number(room.bots_count || 0)} bots · ${Number(room.bot_cartels || 0)} cards`;
+
+    document.getElementById('lr-real-players').textContent = String(Number(room.real_players_count || 0));
+    document.getElementById('lr-real-cartels').textContent = `${Number(room.real_cartels || 0)} real cards`;
+
+    document.getElementById('lr-connected').textContent = String(Number(room.connected_count || 0));
+    document.getElementById('lr-pool').textContent = `${Number(room.pool || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ETB`;
+
+    if (room.timing) {
+      document.getElementById('lr-economics').textContent = `${room.timing.ticket_price ?? 10} ETB / card · ${room.timing.prize_per_cartel ?? 8} ETB pool`;
+    }
+
+    const called = Number(room.numbers_called || 0);
+    const totalBalls = Number(room.total_balls || 75);
+    document.getElementById('lr-numbers-called').textContent = `${called} / ${totalBalls}`;
+    document.getElementById('lr-balls-bar').style.width = `${Math.min(100, (called / Math.max(1, totalBalls)) * 100)}%`;
+
+    const lastNum = room.last_number;
+    document.getElementById('lr-last-number').textContent = lastNum != null ? String(lastNum) : '—';
+    document.getElementById('lr-last-letter').textContent = lastNum != null ? this.bingoPrefix(lastNum) : 'B-I-N-G-O';
+
+    document.getElementById('lr-seconds-left').textContent = String(Number(room.seconds_left || 0));
+    document.getElementById('lr-seconds-note').textContent = room.paused ? 'Timer paused' : (room.phase === 'drawing' ? 'Next ball timer' : 'Phase timer');
+
+    const pauseBtn = document.getElementById('btnPauseResume');
+    if (pauseBtn) {
+      pauseBtn.textContent = room.paused ? '▶ Resume Room' : '⏸ Pause Room';
+      pauseBtn.className = room.paused ? '' : 'amber';
+    }
+    document.getElementById('btnForceStart').disabled = room.phase !== 'selection' || totalSold === 0;
+    document.getElementById('btnDrawNext').disabled = room.phase !== 'drawing';
+    document.getElementById('btnCallNumber').disabled = room.phase !== 'drawing';
+    document.getElementById('btnInjectBots').disabled = room.phase !== 'selection';
+    document.getElementById('btnClearBots').disabled = room.phase !== 'selection' || Number(room.bot_cartels || 0) === 0;
+
+    if (!this.timingFieldsDirty && room.timing) {
+      document.getElementById('timingSelection').value = room.timing.selection_seconds ?? 30;
+      document.getElementById('timingDrawInterval').value = room.timing.draw_interval ?? 3;
+      document.getElementById('timingResult').value = room.timing.result_seconds ?? 10;
+      document.getElementById('timingMinPlayers').value = room.timing.min_players ?? 2;
+      document.getElementById('timingTicketPrice').value = room.timing.ticket_price ?? 10;
+      document.getElementById('timingPrizePerCartel').value = room.timing.prize_per_cartel ?? 8;
+    }
+
+    const drawnArr = Array.isArray(room.drawn) ? room.drawn : [];
+    const boardKey = `${drawnArr.length}:${lastNum ?? ''}`;
+    if (boardKey !== this.lastBoardStateKey) {
+      this.lastBoardStateKey = boardKey;
+      const drawnSet = new Set(drawnArr);
+      for (let i = 1; i <= 75; i++) {
+        const el = this.boardCells[i];
+        if (!el) continue;
+        const targetCls = i === lastNum ? 'ball-cell mono last' : (drawnSet.has(i) ? 'ball-cell mono called' : 'ball-cell mono');
+        if (el.className !== targetCls) el.className = targetCls;
+      }
+      document.getElementById('drawnSequencePreview').textContent = drawnArr.length ? `Last 8: ${drawnArr.slice(-8).join(', ')}` : 'Called: none';
+    }
+
+    const realList = Array.isArray(room.real_players) ? room.real_players : [];
+    const playersKey = `${room.phase}:${JSON.stringify(realList)}`;
+    if (playersKey !== this.lastPlayersKey) {
+      this.lastPlayersKey = playersKey;
+      const tbody = document.getElementById('livePlayersBody');
+      if (tbody) {
+        if (!realList.length) {
+          tbody.innerHTML = '<tr><td colspan="3" class="muted">No real players in this round yet.</td></tr>';
+        } else {
+          const canRemove = room.phase === 'selection';
+          tbody.innerHTML = realList.map((p) => `
+            <tr>
+              <td class="mono">${this.esc(p.uid)}${p.is_admin ? ' ★' : ''}</td>
+              <td class="mono">${p.cartels.length}</td>
+              <td class="mono">${p.cartels.map((c) => (canRemove
+                ? `<button type="button" class="xs cartel-chip-btn" onclick="roomAction('remove_cartel',{cartel:${c}})" title="Remove cartel #${c}">#${c} ×</button>`
+                : `#${c}`)).join(' ')}</td>
+            </tr>
+          `).join('');
+        }
+      }
+    }
+  }
+
+  async loadLiveRoom() {
+    try {
+      const d = await this.api('/api/admin/room');
+      if (d.room) this.renderLiveRoom(d.room);
+    } catch (e) {
+      if (!this.currentRoomState) {
+        document.getElementById('roomSubtitle').textContent = `Live room offline (${e.message})`;
+      }
+    }
+  }
+
+  async roomAction(action, extra = {}) {
+    try {
+      const d = await this.api('/api/admin/room/control', {
+        method: 'POST',
+        body: JSON.stringify({ action, ...extra })
+      });
+      if (d.room) this.renderLiveRoom(d.room);
+      this.success(d.message || 'Room updated.');
+    } catch (e) {
+      this.fail(e);
+    }
+  }
+
+  toggleRoomPause() {
+    const action = this.currentRoomState?.paused ? 'resume' : 'pause';
+    this.roomAction(action);
+  }
+
+  callSpecificNumber() {
+    const input = document.getElementById('manualCallInput');
+    const num = Number(input.value);
+    if (!Number.isInteger(num) || num < 1 || num > 75) {
+      return this.fail(new Error('እባክዎ ከ1 እስከ 75 ያለ ቁጥር ያስገቡ'));
+    }
+    input.value = '';
+    this.roomAction('call_number', { number: num });
+  }
+
+  async confirmResetRound() {
+    const ok = await this.openModal({
+      title: 'Reset Live Round',
+      text: 'አሁን ያለውን ዙር ሰርዘው (ለተጫዋቾች ገንዘብ ተመልሶ) አዲስ ዙር መጀመር ይፈልጋሉ?',
+      confirmLabel: 'Reset Round',
+      danger: true
+    });
+    if (!ok) return;
+    this.roomAction('reset_round');
+  }
+
+  async saveRoomTiming() {
+    const selection_seconds = Number(document.getElementById('timingSelection').value);
+    const draw_interval = Number(document.getElementById('timingDrawInterval').value);
+    const result_seconds = Number(document.getElementById('timingResult').value);
+    const min_players = Number(document.getElementById('timingMinPlayers').value);
+    const ticket_price = Number(document.getElementById('timingTicketPrice').value);
+    const prize_per_cartel = Number(document.getElementById('timingPrizePerCartel').value);
+    this.timingFieldsDirty = false;
+    await this.roomAction('update_timing', {
+      selection_seconds,
+      draw_interval,
+      result_seconds,
+      min_players,
+      ticket_price,
+      prize_per_cartel
+    });
+  }
+
+  async loadBotSettings() {
+    try {
+      const d = await this.api('/api/admin/bot-settings');
+      this.loadedAt['bot-settings'] = Date.now();
+      if (d.settings) {
+        document.getElementById('botCountInput').value = d.settings.botCount ?? 50;
+        document.getElementById('botWinPercentInput').value = d.settings.botWinPercent ?? 20;
+        document.getElementById('botCardsPerUser').value = d.settings.botCardsPerUser ?? 2;
+        document.getElementById('restrictDepositedWinInput').value = d.settings.restrictDepositedWin !== false ? 'yes' : 'no';
+      }
+    } catch (e) {
+      console.error('Failed to load bot settings', e);
+    }
+  }
+
+  async saveBotSettings() {
+    const botCount = Number(document.getElementById('botCountInput').value);
+    const botWinPercent = Number(document.getElementById('botWinPercentInput').value);
+    const botCardsPerUser = Number(document.getElementById('botCardsPerUser').value);
+    const restrictDepositedWin = document.getElementById('restrictDepositedWinInput').value === 'yes';
+    try {
+      await this.api('/api/admin/bot-settings', {
+        method: 'POST',
+        body: JSON.stringify({ botCount, botWinPercent, botCardsPerUser, restrictDepositedWin })
+      });
+      this.loadedAt['bot-settings'] = Date.now();
+      this.success('ሴቲንጉ በተሳካ ሁኔታ ተስተካክሏል!');
+    } catch (e) {
+      this.fail(e);
+    }
+  }
+
+  async loadPromoAndBonusSettings() {
+    try {
+      const d = await this.api('/api/admin/promos');
+      this.loadedAt.promo = Date.now();
+      if (d.autoBonus) {
+        document.getElementById('autoBonusEnabled').value = d.autoBonus.enabled ? 'yes' : 'no';
+        document.getElementById('autoBonusType').value = d.autoBonus.type || 'percent';
+        document.getElementById('autoBonusValue').value = d.autoBonus.value || '';
+        document.getElementById('autoBonusMinDeposit').value = d.autoBonus.minDeposit || '';
+      }
+      this.renderPromoList(d.promos || []);
+    } catch (e) {
+      console.error('Failed to load promos', e);
+    }
+  }
+
+  async saveAutoBonus() {
+    const enabled = document.getElementById('autoBonusEnabled').value === 'yes';
+    const type = document.getElementById('autoBonusType').value;
+    const value = Number(document.getElementById('autoBonusValue').value);
+    const minDeposit = Number(document.getElementById('autoBonusMinDeposit').value);
+    try {
+      await this.api('/api/admin/autobonus', {
+        method: 'POST',
+        body: JSON.stringify({ enabled, type, value, minDeposit })
+      });
+      this.loadedAt.promo = Date.now();
+      this.success('አውቶ ዲፖዚት ቦነስ ሴቲንግ ተቀምጧል!');
+    } catch (e) {
+      this.fail(e);
+    }
+  }
+
+  async createPromoCode() {
+    const code = document.getElementById('promoCodeInput').value.trim();
+    const type = document.getElementById('promoType').value;
+    const value = Number(document.getElementById('promoValue').value);
+    const minDeposit = Number(document.getElementById('promoMinDeposit').value);
+    const maxUses = Number(document.getElementById('promoMaxUses').value);
+    if (!code) return this.fail(new Error('እባክዎ የኮድ ስም ያስገቡ'));
+    try {
+      await this.api('/api/admin/promos/create', {
+        method: 'POST',
+        body: JSON.stringify({ code, type, value, minDeposit, maxUses })
+      });
+      this.success('ፕሮሞ ኮድ በተሳካ ሁኔታ ተፈጠረ!');
+      document.getElementById('promoCodeInput').value = '';
+      document.getElementById('promoValue').value = '';
+      this.loadPromoAndBonusSettings();
+    } catch (e) {
+      this.fail(e);
+    }
+  }
+
+  async deletePromo(code) {
+    const ok = await this.openModal({
+      title: 'Delete Promo Code',
+      text: `ፕሮሞ ኮድ ${code} መሰረዝ ይፈልጋሉ?`,
+      confirmLabel: 'Delete',
+      danger: true
+    });
+    if (!ok) return;
+    try {
+      await this.api('/api/admin/promos/delete', { method: 'POST', body: JSON.stringify({ code }) });
+      this.success('ፕሮሞ ኮድ ተሰርዟል።');
+      this.loadPromoAndBonusSettings();
+    } catch (e) {
+      this.fail(e);
+    }
+  }
+
+  renderPromoList(promos) {
+    const box = document.getElementById('promoCodesList');
+    if (!promos.length) {
+      box.innerHTML = '<div class="muted">ምንም ፕሮሞ ኮድ የለም።</div>';
+      return;
+    }
+    box.innerHTML = `<div class="table-wrap"><table><thead><tr><th>ኮድ</th><th>ዓይነት</th><th>መጠን</th><th>ሚን. ዲፖዚት ሊሚት</th><th>Used / Max</th><th>እርምጃ</th></tr></thead><tbody>` +
+      promos.map((p) => `<tr><td class="mono"><b>${this.esc(p.code)}</b></td><td>${this.esc(p.type)}</td><td class="mono">${this.esc(p.value)}</td><td class="mono">${this.esc(p.minDeposit || 0)} ETB</td><td class="mono">${this.esc(p.usedCount || 0)} / ${this.esc(p.maxUses)}</td><td><button type="button" class="danger sm" onclick="deletePromo('${this.esc(p.code)}')">ሰርዝ</button></td></tr>`).join('') +
+      `</tbody></table></div>`;
+  }
+
+  async loadOverview(fresh = false) {
+    const d = await this.api('/api/admin/overview' + (fresh ? '?fresh=1' : ''));
+    this.loadedAt.overview = Date.now();
+    const s = d.stats;
+    document.getElementById('stats').innerHTML = [
+      ['ተጠቃሚዎች', s.users],
+      ['Main Balance', Number(s.mainBalance).toFixed(2) + ' ETB'],
+      ['Bonus Balance', Number(s.bonusBalance).toFixed(2) + ' ETB'],
+      ['Pending Deposit', s.pendingDeposits],
+      ['Pending Withdrawal', s.pendingWithdrawals],
+      ['የጨዋታ ዙሮች', s.rounds]
+    ].map((x) => `<div class="stat-box"><div class="muted" style="font-size:12px;">${x[0]}</div><div class="num mono">${x[1]}</div></div>`).join('');
+
+    const vals = [
+      ['Deposit', s.weeklyDeposits],
+      ['Withdrawal requests', s.weeklyWithdrawals],
+      ['Winnings recorded', s.weeklyWinnings]
+    ];
+    const max = Math.max(1, ...vals.map((x) => Number(x[1])));
+    document.getElementById('weekly').innerHTML = vals.map((x) => `
+      <div class="weekly-item">
+        <div class="weekly-head"><span>${x[0]}</span><b class="mono">${Number(x[1]).toFixed(2)} ETB</b></div>
+        <div class="bar"><i style="width:${Math.max(0, Number(x[1]) / max * 100)}%"></i></div>
+      </div>
+    `).join('') + '<p class="muted" style="font-size:12px;margin:10px 0 0;">የሪፖርቱ ጊዜ: ያለፉት 7 ቀናት።</p>';
+
+    const totalPending = Number(s.pendingDeposits || 0) + Number(s.pendingWithdrawals || 0);
+    this.updatePendingCounters(totalPending);
+  }
+
+  updatePendingCounters(count) {
+    const navCount = document.getElementById('navPendingCount');
+    const mobileCount = document.getElementById('mobilePendingCount');
+    if (navCount) navCount.textContent = count > 0 ? String(count) : '';
+    if (mobileCount) mobileCount.textContent = count > 0 ? `(${count})` : '';
+  }
+
+  async loadRequests(fresh = false) {
+    const d = await this.api('/api/admin/requests' + (fresh ? '?fresh=1' : ''));
+    this.loadedAt.requests = Date.now();
+    const pendingCount = (d.requests || []).filter((r) => r.status === 'pending').length;
+    this.updatePendingCounters(pendingCount);
+
+    const rows = (d.requests || []).map((r) => `<tr>
+      <td>${this.esc(r.type)}</td>
+      <td class="mono">${this.esc(r.user_id)}</td>
+      <td class="mono">${Number(r.amount || 0).toFixed(2)} ETB</td>
+      <td class="status">${this.esc(r.status)}</td>
+      <td class="mono">${r.created_at ? new Date(Number(r.created_at)).toLocaleString() : ''}</td>
+      <td class="small">${this.esc(r.reference || r.receipt_text || '')}${r.receipt_image ? '<br><a target="_blank" rel="noopener noreferrer" href="' + this.esc(r.receipt_image) + '">📷 View receipt</a>' : ''}${r.photo_file_id ? '📷 የደረሰኝ ፎቶ በTelegram ተልኳል' : ''}${r.payout_name ? '\nተቀባይ: ' + this.esc(r.payout_name) : ''}${r.payout_account ? '\nTelebirr: ' + this.esc(r.payout_account) : ''}</td>
+      <td>${r.status === 'pending' ? `<div class="row" style="gap:6px;"><button type="button" class="sm" onclick="review('${this.esc(r.id)}','${r.type}',true)">Approve</button><button type="button" class="danger sm" onclick="review('${this.esc(r.id)}','${r.type}',false)">Reject</button></div>` : '—'}</td>
+    </tr>`).join('');
+    document.getElementById('requests').innerHTML = `<div class="table-wrap"><table><thead><tr><th>Type</th><th>User ID</th><th>Amount</th><th>Status</th><th>Created</th><th>Receipt / SMS</th><th>Action</th></tr></thead><tbody>${rows || '<tr><td colspan="7">ምንም ጥያቄ የለም።</td></tr>'}</tbody></table></div>`;
+  }
+
+  async review(id, type, approve) {
+    const ok = await this.openModal({
+      title: `${approve ? 'Approve' : 'Reject'} ${type}`,
+      text: `${approve ? 'Approve' : 'Reject'} ${type} request ${id}?`,
+      confirmLabel: approve ? 'Approve' : 'Reject',
+      danger: !approve
+    });
+    if (!ok) return;
+    try {
+      await this.api('/api/admin/review', { method: 'POST', body: JSON.stringify({ id, type, approve }) });
+      this.success('የጥያቄው ሁኔታ ተቀይሯል።');
+      await Promise.all([this.loadOverview(true), this.loadRequests(true)]);
+    } catch (e) {
+      this.fail(e);
+    }
+  }
+
+  async loadUsers() {
+    this.usersLoadedOnce = true;
+    this.loadedAt.users = Date.now();
+    try {
+      const q = document.getElementById('search').value;
+      const d = await this.api('/api/admin/users?q=' + encodeURIComponent(q));
+      document.getElementById('users').innerHTML = `<div class="table-wrap"><table><thead><tr><th>User</th><th>Name</th><th>Phone</th><th>Main</th><th>Bonus</th><th>Status</th><th>Actions</th></tr></thead><tbody>${d.users.map((u) => `<tr>
+        <td class="mono">${this.esc(u.id)}</td>
+        <td>${this.esc(u.first_name || u.username || '')}</td>
+        <td class="mono">${this.esc(u.phone_number || '')}</td>
+        <td class="mono">${Number(u.balance || 0).toFixed(2)} ETB</td>
+        <td class="mono">${Number(u.bonus || 0).toFixed(2)} ETB</td>
+        <td>${u.blocked ? '🚫 Blocked' : (u.has_deposited ? '💳 Deposited' : '🆕 Bonus Only')}</td>
+        <td>
+          <div class="row" style="gap:4px;">
+            <button type="button" class="sm" onclick="userAction('${this.esc(u.id)}','block')">Block</button>
+            <button type="button" class="secondary sm" onclick="userAction('${this.esc(u.id)}','unblock')">Unblock</button>
+            <button type="button" class="sm" onclick="adjust('${this.esc(u.id)}','credit','main')">+ Main</button>
+            <button type="button" class="danger sm" onclick="adjust('${this.esc(u.id)}','debit','main')">− Main</button>
+            <button type="button" class="sm" onclick="adjust('${this.esc(u.id)}','credit','bonus')">+ Bonus</button>
+            <button type="button" class="danger sm" onclick="adjust('${this.esc(u.id)}','debit','bonus')">− Bonus</button>
+          </div>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="7">ተጠቃሚ አልተገኘም።</td></tr>'}</tbody></table></div>`;
+    } catch (e) {
+      this.fail(e);
+    }
+  }
+
+  async userAction(userId, action) {
+    try {
+      await this.api('/api/admin/user-action', { method: 'POST', body: JSON.stringify({ userId, action }) });
+      this.success('ተግባሩ ተሳክቷል።');
+      await this.loadUsers();
+    } catch (e) {
+      this.fail(e);
+    }
+  }
+
+  async adjust(userId, action, walletType) {
+    const label = `${walletType === 'main' ? 'Main' : 'Bonus'} Balance መጠን (ETB)`;
+    const amount = await this.openModal({
+      title: `${action === 'credit' ? 'Add' : 'Deduct'} ${walletType === 'main' ? 'Main' : 'Bonus'} Balance`,
+      text: `User ID: ${userId}`,
+      confirmLabel: action === 'credit' ? 'Credit' : 'Debit',
+      danger: action === 'debit',
+      withInput: true,
+      inputLabel: label,
+      inputPlaceholder: '100'
+    });
+    if (!amount) return;
+    try {
+      await this.api('/api/admin/user-action', {
+        method: 'POST',
+        body: JSON.stringify({ userId, action, amount, walletType })
+      });
+      this.success('Balance ተስተካክሏል።');
+      await Promise.all([this.loadUsers(), this.loadOverview(true)]);
+    } catch (e) {
+      this.fail(e);
+    }
+  }
+
+  async broadcast() {
+    const message = document.getElementById('broadcastText').value.trim();
+    const audience = document.getElementById('broadcastAudience').value;
+    const buttonText = document.getElementById('broadcastButtonText').value.trim();
+    const buttonUrl = document.getElementById('broadcastButtonUrl').value.trim();
+    const file = document.getElementById('broadcastImage').files[0];
+
+    if (!message && !file) return this.fail(new Error('ጽሑፍ ወይም ፎቶ ያስገቡ።'));
+    if (file && file.size > 7 * 1024 * 1024) return this.fail(new Error('ፎቶው ከ7MB በታች መሆን አለበት።'));
+    if (buttonText && !buttonUrl) return this.fail(new Error('የButton URL ያስገቡ።'));
+
+    const ok = await this.openModal({
+      title: 'Send Telegram Broadcast',
+      text: 'ይህን Broadcast ለተመረጡት ተጠቃሚዎች መላክ ይፈልጋሉ?',
+      confirmLabel: 'Send Now',
+      danger: false
+    });
+    if (!ok) return;
+
+    try {
+      let imageBase64 = '';
+      if (file) {
+        imageBase64 = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+      const d = await this.api('/api/admin/broadcast', {
+        method: 'POST',
+        timeoutMs: 60000,
+        body: JSON.stringify({ message, audience, buttonText, buttonUrl, imageBase64 })
+      });
+      this.success(`ብሮድካስት ተጠናቋል። ተልኳል: ${d.sent}፣ አልተሳካም: ${d.failed}፣ ጠቅላላ: ${d.total}`);
+    } catch (e) {
+      this.fail(e);
+    }
+  }
+
+  async loadAll(fresh = false) {
+    const notice = document.getElementById('notice');
+    if (notice) notice.style.display = 'none';
+    try {
+      const tasks = [this.loadLiveRoom()];
+      if (this.activeView === 'overview' || fresh) tasks.push(this.loadOverview(fresh));
+      if (this.activeView === 'requests' || fresh) tasks.push(this.loadRequests(fresh));
+      if (this.activeView === 'bot-settings' || fresh) tasks.push(this.loadBotSettings());
+      if (this.activeView === 'promo' || fresh) tasks.push(this.loadPromoAndBonusSettings());
+      if (this.activeView === 'users') tasks.push(this.loadUsers());
+      await Promise.all(tasks);
+    } catch (e) {
+      this.fail(e);
+    }
+  }
+}
+
+const adminTools = new AdminControlTools();
+window.adminTools = adminTools;
+
+function switchMenu(viewId) { return adminTools.switchMenu(viewId); }
+function toggleLivePolling() { return adminTools.toggleLivePolling(); }
+function loadAll(fresh = false) { return adminTools.loadAll(fresh); }
+function roomAction(action, extra) { return adminTools.roomAction(action, extra); }
+function toggleRoomPause() { return adminTools.toggleRoomPause(); }
+function callSpecificNumber() { return adminTools.callSpecificNumber(); }
+function confirmResetRound() { return adminTools.confirmResetRound(); }
+function saveRoomTiming() { return adminTools.saveRoomTiming(); }
+function saveBotSettings() { return adminTools.saveBotSettings(); }
+function saveAutoBonus() { return adminTools.saveAutoBonus(); }
+function createPromoCode() { return adminTools.createPromoCode(); }
+function deletePromo(code) { return adminTools.deletePromo(code); }
+function loadOverview(fresh = false) { return adminTools.loadOverview(fresh); }
+function loadRequests(fresh = false) { return adminTools.loadRequests(fresh); }
+function review(id, type, approve) { return adminTools.review(id, type, approve); }
+function loadUsers() { return adminTools.loadUsers(); }
+function userAction(userId, action) { return adminTools.userAction(userId, action); }
+function adjust(userId, action, walletType) { return adminTools.adjust(userId, action, walletType); }
+function broadcast() { return adminTools.broadcast(); }
+
+adminTools.init();
 </script>
 </body>
 </html>

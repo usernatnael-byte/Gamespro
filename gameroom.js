@@ -1,5 +1,5 @@
-const TICKET_PRICE = 10;
-const PRIZE_PER_CARTEL = 8;
+const DEFAULT_TICKET_PRICE = 10;
+const DEFAULT_PRIZE_PER_CARTEL = 8;
 const MAX_SELECTION = 4;
 const CARTEL_COUNT = 500;
 const BALLS = 75;
@@ -7,7 +7,7 @@ const BALLS = 75;
 const matrixCache = {};
 
 const ETHIOPIAN_NAMES = [
-   "Abenet", "Abel", "Abiy", "Addis", "Afework",
+    "Abenet", "Abel", "Abiy", "Addis", "Afework",
     "Amanuel", "Amha", "Anwar", "Aragaw", "Aschalew",
     "Ashenafi", "Asrat", "Atnafu", "Aklilu", "Axum",
     "Awet", "Ayalew", "Ayenew", "Azmeraw", "Bamlaku",
@@ -45,10 +45,11 @@ const ETHIOPIAN_NAMES = [
     "Zekarias", "Zelalem", "Zeleke", "Zewde", "Zewdu",
     "Zinabu", "Zurayesh", "Anteneh", "Asmamaw", "Banchiamlak",
     "Birtukan", "Chemeda", "Damtew", "Demelash", "Ammanuel",
-    "Biniam", "Getachew", "Zemnaw1" ,"Bethelhem",
+    "Biniam", "Getachew", "Zemnaw1", "Bethelhem",
     "Kalkidan", "Elsabet", "Haymanot", "Hanna", "Rahel",
     "Mimi", "Saron", "Mahi", "Lidia", "Ruth",
-    "Meron", "Eden", "Blen", "Tsgered", "Freh" ];
+    "Meron", "Eden", "Blen", "Tsgered", "Freh"
+];
 
 function seededRandom(seed) {
     let x = Math.sin(seed) * 10000;
@@ -75,13 +76,13 @@ function generateMatrix(ticketId) {
 
 function checkBingo(m, drawnSet) {
     for (let r = 0; r < 5; r++) {
-        if ([0,1,2,3,4].every(c => (r === 2 && c === 2) || drawnSet.has(m[c][r]))) return true;
+        if ([0, 1, 2, 3, 4].every(c => (r === 2 && c === 2) || drawnSet.has(m[c][r]))) return true;
     }
     for (let c = 0; c < 5; c++) {
-        if ([0,1,2,3,4].every(r => (r === 2 && c === 2) || drawnSet.has(m[c][r]))) return true;
+        if ([0, 1, 2, 3, 4].every(r => (r === 2 && c === 2) || drawnSet.has(m[c][r]))) return true;
     }
-    if ([0,1,2,3,4].every(i => i === 2 || drawnSet.has(m[i][i]))) return true;
-    if ([0,1,2,3,4].every(i => i === 2 || drawnSet.has(m[4 - i][i]))) return true;
+    if ([0, 1, 2, 3, 4].every(i => i === 2 || drawnSet.has(m[i][i]))) return true;
+    if ([0, 1, 2, 3, 4].every(i => i === 2 || drawnSet.has(m[4 - i][i]))) return true;
     return false;
 }
 
@@ -94,11 +95,18 @@ class GameEngine {
         this.result_seconds = result_seconds;
         this.first_draw_delay = 3.0;
 
+        this.ticket_price = DEFAULT_TICKET_PRICE;
+        this.prize_per_cartel = DEFAULT_PRIZE_PER_CARTEL;
+        this.max_selection = MAX_SELECTION;
+
         this._seq = 0;
         this._threadRunning = false;
         this.paused = false;
         this._pausedAt = null;
         this.on_round_result = null;
+        this._stateListeners = new Set();
+        this._balanceCache = new Map();
+        this._BALANCE_CACHE_MS = 4000;
 
         this.adminIds = new Set(
             [process.env.ADMIN_ID || '', process.env.ADMIN_IDS || '']
@@ -119,6 +127,19 @@ class GameEngine {
         this._newRound();
     }
 
+    onChange(listener) {
+        if (typeof listener !== 'function') return () => {};
+        this._stateListeners.add(listener);
+        return () => this._stateListeners.delete(listener);
+    }
+
+    _bumpSeq() {
+        this._seq++;
+        for (const fn of this._stateListeners) {
+            try { fn(this); } catch (_) {}
+        }
+    }
+
     setAdminIds(adminIds) {
         if (!adminIds) return;
         const list = Array.isArray(adminIds) || adminIds instanceof Set
@@ -137,7 +158,27 @@ class GameEngine {
     setBotSettings(settings) {
         if (settings) {
             this.botSettings = { ...this.botSettings, ...settings };
+            this._bumpSeq();
         }
+    }
+
+    invalidateBalanceCache(uid) {
+        if (uid == null) {
+            this._balanceCache.clear();
+        } else {
+            this._balanceCache.delete(String(uid));
+        }
+    }
+
+    async _getFastBalance(uid) {
+        const key = String(uid);
+        const cached = this._balanceCache.get(key);
+        if (cached && Date.now() - cached.at < this._BALANCE_CACHE_MS) {
+            return cached.balance;
+        }
+        const balance = await this.wallet.get_balance(key);
+        this._balanceCache.set(key, { balance: Number(balance || 0), at: Date.now() });
+        return balance;
     }
 
     start() {
@@ -154,7 +195,7 @@ class GameEngine {
         if (this.paused) return [true, 'ሩሙ ቀድሞውኑ ቆሟል'];
         this.paused = true;
         this._pausedAt = Date.now() / 1000;
-        this._seq++;
+        this._bumpSeq();
         return [true, 'ጨዋታው ለጊዜው ቆሟል (Paused)'];
     }
 
@@ -166,7 +207,7 @@ class GameEngine {
         if (this.next_draw_at != null) this.next_draw_at += delta;
         this.paused = false;
         this._pausedAt = null;
-        this._seq++;
+        this._bumpSeq();
         return [true, 'ጨዋታው ቀጥሏል (Resumed)'];
     }
 
@@ -180,7 +221,7 @@ class GameEngine {
         this.paused = false;
         this._pausedAt = null;
         this.phase = 'locking';
-        this._seq++;
+        this._bumpSeq();
         await this._do_lock(this.cartels);
         return [true, 'ጨዋታው ወዲያውኑ ተጀምሯል!'];
     }
@@ -197,6 +238,28 @@ class GameEngine {
         return [true, `ቁጥር ${this.drawn[this.drawn.length - 1] ?? ''} ወጥቷል!`];
     }
 
+    call_number(num) {
+        const target = Number(num);
+        if (this.phase !== 'drawing') {
+            return [false, 'ቁጥር መጥራት የሚቻለው በDrawing ጊዜ ብቻ ነው'];
+        }
+        if (!Number.isInteger(target) || target < 1 || target > BALLS) {
+            return [false, 'ቁጥሩ ከ1 እስከ 75 መሆን አለበት'];
+        }
+        if (this.drawn.includes(target)) {
+            return [false, `ቁጥር ${target} ቀድሞውኑ ወጥቷል`];
+        }
+        const idx = this.drawn.length;
+        const pos = this.draw_order.indexOf(target, idx);
+        if (pos !== -1) {
+            [this.draw_order[idx], this.draw_order[pos]] = [this.draw_order[pos], this.draw_order[idx]];
+        }
+        const now = Date.now() / 1000;
+        this._draw_one(now, true);
+        if (this.paused) this._pausedAt = now;
+        return [true, `ቁጥር ${target} በቀጥታ ተጠርቷል!`];
+    }
+
     inject_bots_now() {
         if (this.phase !== 'selection') {
             return [false, 'ቦቶችን ማስገባት የሚቻለው በSelection ጊዜ ብቻ ነው'];
@@ -205,23 +268,55 @@ class GameEngine {
             this._initBotsQueue();
             this._botsInjected = true;
         }
+        const available = [];
+        for (let i = 1; i <= CARTEL_COUNT; i++) {
+            if (!this.cartels[i]) available.push(i);
+        }
         let added = 0;
-        while (this.botInjectIndex < this.botQueue.length) {
+        while (this.botInjectIndex < this.botQueue.length && available.length > 0) {
             const botId = this.botQueue[this.botInjectIndex++];
-            let availableCartels = [];
-            for (let i = 1; i <= CARTEL_COUNT; i++) {
-                if (!this.cartels[i]) availableCartels.push(i);
-            }
-            if (availableCartels.length === 0) break;
-            const chosenCartel = availableCartels[Math.floor(Math.random() * availableCartels.length)];
             const botExistingCount = Object.values(this.cartels).filter(u => u === botId).length;
-            if (botExistingCount < MAX_SELECTION) {
-                this.cartels[chosenCartel] = botId;
-                added++;
+            if (botExistingCount >= this.max_selection) continue;
+            const randIdx = Math.floor(Math.random() * available.length);
+            const chosenCartel = available[randIdx];
+            available[randIdx] = available[available.length - 1];
+            available.pop();
+            this.cartels[chosenCartel] = botId;
+            added++;
+        }
+        if (added > 0) this._bumpSeq();
+        return [true, `${added} የቦት ካርቴሎች ገብተዋል`];
+    }
+
+    clear_bots() {
+        if (this.phase !== 'selection') {
+            return [false, 'ቦቶችን ማጽዳት የሚቻለው በSelection ጊዜ ብቻ ነው'];
+        }
+        let removed = 0;
+        for (const [c, uid] of Object.entries(this.cartels)) {
+            if (String(uid).startsWith('bot_')) {
+                delete this.cartels[c];
+                removed++;
             }
         }
-        if (added > 0) this._seq++;
-        return [true, `${added} የቦት ካርቴሎች ገብተዋል`];
+        this.botQueue = [];
+        this.botInjectIndex = 0;
+        this._botsInjected = true;
+        if (removed > 0) this._bumpSeq();
+        return [true, `${removed} የቦት ካርቴሎች ተነስተዋል`];
+    }
+
+    remove_cartel(cartel) {
+        const c = Number(cartel);
+        if (this.phase !== 'selection') {
+            return [false, 'ካርቴል ማንሳት የሚቻለው በSelection ጊዜ ብቻ ነው'];
+        }
+        if (!this.cartels[c]) {
+            return [false, `ካርቴል #${c} አልተያዘም`];
+        }
+        delete this.cartels[c];
+        this._bumpSeq();
+        return [true, `ካርቴል #${c} ተነስቷል`];
     }
 
     async reset_round() {
@@ -240,7 +335,7 @@ class GameEngine {
         return [true, 'ዙሩ ተሰርዞ አዲስ ዙር ተጀምሯል!'];
     }
 
-    update_timing({ selection_seconds, draw_interval, result_seconds, min_players } = {}) {
+    update_timing({ selection_seconds, draw_interval, result_seconds, min_players, ticket_price, prize_per_cartel } = {}) {
         if (Number.isFinite(Number(selection_seconds))) {
             this.selection_seconds = Math.min(300, Math.max(5, Number(selection_seconds)));
         }
@@ -253,8 +348,14 @@ class GameEngine {
         if (Number.isFinite(Number(min_players))) {
             this.min_players = Math.min(50, Math.max(1, Math.round(Number(min_players))));
         }
-        this._seq++;
-        return [true, 'የጨዋታ ሰዓት ሴቲንግ ተዘምኗል'];
+        if (Number.isFinite(Number(ticket_price)) && Number(ticket_price) >= 1) {
+            this.ticket_price = Math.min(1000, Math.max(1, Number(ticket_price)));
+        }
+        if (Number.isFinite(Number(prize_per_cartel)) && Number(prize_per_cartel) >= 1) {
+            this.prize_per_cartel = Math.min(1000, Math.max(1, Number(prize_per_cartel)));
+        }
+        this._bumpSeq();
+        return [true, 'የጨዋታ ሰዓት እና ዋጋ ሴቲንግ ተዘምኗል'];
     }
 
     async _runLoop() {
@@ -285,7 +386,7 @@ class GameEngine {
         this._botsInjected = false;
         this.botQueue = [];
         this.botInjectIndex = 0;
-        this._seq++;
+        this._bumpSeq();
     }
 
     async pick(uid, cartel) {
@@ -296,18 +397,19 @@ class GameEngine {
         if (this.cartels[cartel]) return [false, 'taken'];
 
         let myCount = Object.values(this.cartels).filter(u => u === uid).length;
-        if (myCount >= MAX_SELECTION) return [false, 'full'];
+        if (myCount >= this.max_selection) return [false, 'full'];
 
         try {
-            let balance = await this.wallet.get_balance(uid);
-            if (balance < (myCount + 1) * TICKET_PRICE) return [false, 'balance'];
+            let balance = await this._getFastBalance(uid);
+            if (balance < (myCount + 1) * this.ticket_price) return [false, 'balance'];
         } catch (e) {
             return [false, 'error'];
         }
 
         if (this.phase !== 'selection') return [false, 'phase'];
+        if (this.cartels[cartel]) return [false, 'taken'];
         this.cartels[cartel] = uid;
-        this._seq++;
+        this._bumpSeq();
         return [true, 'ok'];
     }
 
@@ -316,7 +418,7 @@ class GameEngine {
         if (this.phase !== 'selection') return [false, 'phase'];
         if (this.cartels[cartel] === uid) {
             delete this.cartels[cartel];
-            this._seq++;
+            this._bumpSeq();
         }
         return [true, 'ok'];
     }
@@ -344,10 +446,11 @@ class GameEngine {
             selection_seconds: this.selection_seconds,
             result_seconds: this.result_seconds,
             min_players: this.min_players,
+            ticket_price: this.ticket_price,
             players: uniquePlayers.size,
             taken: Object.keys(this.cartels).map(Number),
             my_cartels: mine,
-            pool: Object.keys(this.cartels).length * PRIZE_PER_CARTEL,
+            pool: Object.keys(this.cartels).length * this.prize_per_cartel,
             drawn: this.drawn,
             winners: winners,
             no_winner: this.phase === 'result' ? this.no_winner : false,
@@ -404,7 +507,7 @@ class GameEngine {
             real_cartels: realCartels,
             real_players_count: realMap.size,
             connected_count: connectedCount,
-            pool: entries.length * PRIZE_PER_CARTEL,
+            pool: entries.length * this.prize_per_cartel,
             numbers_called: this.drawn.length,
             total_balls: BALLS,
             last_number: this.drawn.length > 0 ? this.drawn[this.drawn.length - 1] : null,
@@ -422,7 +525,9 @@ class GameEngine {
                 selection_seconds: this.selection_seconds,
                 draw_interval: this.draw_interval,
                 result_seconds: this.result_seconds,
-                min_players: this.min_players
+                min_players: this.min_players,
+                ticket_price: this.ticket_price,
+                prize_per_cartel: this.prize_per_cartel
             },
             bot_settings: { ...this.botSettings }
         };
@@ -441,10 +546,10 @@ class GameEngine {
                 let activePlayers = new Set(Object.values(this.cartels)).size;
                 if (activePlayers < this.min_players) {
                     this.phase_ends_at = now + this.selection_seconds;
-                    this._seq++;
+                    this._bumpSeq();
                 } else {
                     this.phase = 'locking';
-                    this._seq++;
+                    this._bumpSeq();
                     await this._do_lock(this.cartels);
                 }
             }
@@ -483,23 +588,27 @@ class GameEngine {
     _processBotQueue() {
         if (!this.botQueue || this.botInjectIndex >= this.botQueue.length) return;
         let steps = Math.floor(Math.random() * 3) + 1;
-        let changed = false;
-
-        for (let s = 0; s < steps && this.botInjectIndex < this.botQueue.length; s++) {
-            const botId = this.botQueue[this.botInjectIndex++];
-            let availableCartels = [];
-            for (let i = 1; i <= CARTEL_COUNT; i++) {
-                if (!this.cartels[i]) availableCartels.push(i);
-            }
-            if (availableCartels.length === 0) break;
-            const chosenCartel = availableCartels[Math.floor(Math.random() * availableCartels.length)];
-            const botExistingCount = Object.values(this.cartels).filter(u => u === botId).length;
-            if (botExistingCount < MAX_SELECTION) {
-                this.cartels[chosenCartel] = botId;
-                changed = true;
-            }
+        let availableCartels = [];
+        for (let i = 1; i <= CARTEL_COUNT; i++) {
+            if (!this.cartels[i]) availableCartels.push(i);
         }
-        if (changed) this._seq++;
+        if (availableCartels.length === 0) return;
+
+        let changed = false;
+        for (let s = 0; s < steps && this.botInjectIndex < this.botQueue.length && availableCartels.length > 0; s++) {
+            const botId = this.botQueue[this.botInjectIndex++];
+            const botExistingCount = Object.values(this.cartels).filter(u => u === botId).length;
+            if (botExistingCount >= this.max_selection) continue;
+
+            const idx = Math.floor(Math.random() * availableCartels.length);
+            const chosenCartel = availableCartels[idx];
+            availableCartels[idx] = availableCartels[availableCartels.length - 1];
+            availableCartels.pop();
+
+            this.cartels[chosenCartel] = botId;
+            changed = true;
+        }
+        if (changed) this._bumpSeq();
     }
 
     async _do_lock(snapshot) {
@@ -518,11 +627,22 @@ class GameEngine {
         }
 
         let paid = {};
+        this.restrictedUsers = new Set();
         for (let [uid, cartels] of Object.entries(byUser)) {
-            let res = await this.wallet.charge(uid, cartels.length * TICKET_PRICE, rid, cartels.length);
+            let res = await this.wallet.charge(uid, cartels.length * this.ticket_price, rid, cartels.length);
             if (res !== null) {
+                this.invalidateBalanceCache(uid);
                 for (let c of cartels) paid[c] = uid;
+                if (this.botSettings.restrictDepositedWin && !this.isAdmin(uid)) {
+                    try {
+                        const prof = await this.wallet.profile(uid);
+                        if (prof && prof.has_deposited) {
+                            this.restrictedUsers.add(uid);
+                        }
+                    } catch (_) {}
+                }
             } else {
+                this.invalidateBalanceCache(uid);
                 await this.wallet.refund(uid, rid);
             }
         }
@@ -540,7 +660,7 @@ class GameEngine {
             this.cartels = {};
             this.phase = 'selection';
             this.phase_ends_at = Date.now() / 1000 + this.selection_seconds;
-            this._seq++;
+            this._bumpSeq();
             return;
         }
 
@@ -554,25 +674,51 @@ class GameEngine {
         this.drawn = [];
         this.phase = 'drawing';
         this.next_draw_at = Date.now() / 1000 + this.first_draw_delay;
-        this._seq++;
+        this._bumpSeq();
     }
 
-    _draw_one(now) {
+    _draw_one(now, manualOverride = false) {
         let nextIndex = this.drawn.length;
         if (nextIndex >= this.draw_order.length) {
             this._pending = ['none', []];
             this.phase = 'settling';
+            this._bumpSeq();
             return;
         }
-        let chosenNumber = this.draw_order[nextIndex];
-        let number = chosenNumber;
+
+        // Apply restrictDepositedWin safely when enabled and unrestricted cartels exist
+        if (!manualOverride && this.botSettings.restrictDepositedWin && this.restrictedUsers.size > 0) {
+            const hasUnrestricted = Object.values(this.cartels).some(u => !this.restrictedUsers.has(u));
+            if (hasUnrestricted) {
+                for (let look = nextIndex; look < this.draw_order.length; look++) {
+                    const candidate = this.draw_order[look];
+                    const testSet = new Set(this.drawn);
+                    testSet.add(candidate);
+                    let restrictedWouldWin = false;
+                    let unrestrictedAlsoWins = false;
+                    for (const [c, uid] of Object.entries(this.cartels)) {
+                        if (checkBingo(generateMatrix(Number(c)), testSet)) {
+                            if (this.restrictedUsers.has(uid)) restrictedWouldWin = true;
+                            else unrestrictedAlsoWins = true;
+                        }
+                    }
+                    if (!restrictedWouldWin || unrestrictedAlsoWins) {
+                        if (look !== nextIndex) {
+                            [this.draw_order[nextIndex], this.draw_order[look]] = [this.draw_order[look], this.draw_order[nextIndex]];
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+
+        let number = this.draw_order[nextIndex];
         this.drawn.push(number);
-        this._seq++;
 
         let drawnSet = new Set(this.drawn);
         let winning = [];
 
-        for (let [cartel, uid] of Object.entries(this.cartels)) {
+        for (let [cartel] of Object.entries(this.cartels)) {
             if (checkBingo(generateMatrix(Number(cartel)), drawnSet)) {
                 winning.push(Number(cartel));
             }
@@ -585,8 +731,11 @@ class GameEngine {
             this._pending = ['none', []];
             this.phase = 'settling';
         } else {
-            this.next_draw_at = Math.max(this.next_draw_at + this.draw_interval, now);
+            this.next_draw_at = manualOverride
+                ? now + this.draw_interval
+                : Math.max(this.next_draw_at + this.draw_interval, now);
         }
+        this._bumpSeq();
     }
 
     async _do_settle() {
@@ -597,7 +746,7 @@ class GameEngine {
 
         if (pending[0] === 'win') {
             let wins = pending[1];
-            pool = Object.keys(tickets).length * PRIZE_PER_CARTEL;
+            pool = Object.keys(tickets).length * this.prize_per_cartel;
             let share = Math.round((pool / wins.length) * 100) / 100;
             let payouts = {};
             let realWinnersList = [];
@@ -633,10 +782,18 @@ class GameEngine {
             this.no_winner = true;
         }
 
+        this.invalidateBalanceCache();
         this.phase = 'result';
         this.phase_ends_at = Date.now() / 1000 + this.result_seconds;
-        this._seq++;
+        this._bumpSeq();
     }
 }
 
-module.exports = { GameEngine, TICKET_PRICE, PRIZE_PER_CARTEL, MAX_SELECTION, CARTEL_COUNT, generateMatrix };
+module.exports = {
+    GameEngine,
+    TICKET_PRICE: DEFAULT_TICKET_PRICE,
+    PRIZE_PER_CARTEL: DEFAULT_PRIZE_PER_CARTEL,
+    MAX_SELECTION,
+    CARTEL_COUNT,
+    generateMatrix
+};
