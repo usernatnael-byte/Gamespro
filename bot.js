@@ -46,11 +46,24 @@ function money(v) {
     return `${Number(v || 0).toFixed(2)} ETB`;
 }
 
-async function isChannelMember(ctx) {
+const pendingChannelWatchers = new Map();
+const recentlyVerifiedAt = new Map();
+
+function stopChannelWatcher(uid) {
+    const key = String(uid);
+    const entry = pendingChannelWatchers.get(key);
+    if (entry) {
+        entry.stopped = true;
+        if (entry.timer) clearTimeout(entry.timer);
+        pendingChannelWatchers.delete(key);
+    }
+}
+
+async function checkMembershipById(userId) {
     if (!CHANNEL_ID) return false;
 
     try {
-        const m = await ctx.telegram.getChatMember(CHANNEL_ID, ctx.from.id);
+        const m = await bot.telegram.getChatMember(CHANNEL_ID, Number(userId) || userId);
 
         return (
             ['creator', 'administrator', 'member'].includes(m.status) ||
@@ -62,14 +75,95 @@ async function isChannelMember(ctx) {
     }
 }
 
+async function isChannelMember(ctx) {
+    return checkMembershipById(ctx.from?.id);
+}
+
+function startChannelWatcher(userId, chatId, messageId) {
+    const uid = String(userId);
+    stopChannelWatcher(uid);
+
+    const entry = { chatId, messageId, timer: null, stopped: false, attempts: 0 };
+    pendingChannelWatchers.set(uid, entry);
+
+    const tick = async () => {
+        if (entry.stopped) return;
+        entry.attempts++;
+        try {
+            const joined = await checkMembershipById(uid);
+            if (entry.stopped) return;
+            if (joined) {
+                await handleAutoVerifiedUser(uid, chatId);
+                return;
+            }
+        } catch (_) {}
+
+        if (!entry.stopped && entry.attempts < 45) {
+            const delay = entry.attempts < 18 ? 2500 : 5000;
+            entry.timer = setTimeout(tick, delay);
+        } else {
+            stopChannelWatcher(uid);
+        }
+    };
+
+    entry.timer = setTimeout(tick, 2500);
+}
+
+async function handleAutoVerifiedUser(userId, fallbackChatId) {
+    const uid = String(userId);
+    const watcher = pendingChannelWatchers.get(uid);
+    const chatId = watcher?.chatId || fallbackChatId || uid;
+    const promptMsgId = watcher?.messageId || null;
+
+    stopChannelWatcher(uid);
+
+    const now = Date.now();
+    const lastAt = recentlyVerifiedAt.get(uid) || 0;
+    if (now - lastAt < 10000) return;
+    if (recentlyVerifiedAt.size > 1000) recentlyVerifiedAt.clear();
+    recentlyVerifiedAt.set(uid, now);
+
+    if (promptMsgId && chatId) {
+        await bot.telegram.editMessageText(
+            chatId,
+            promptMsgId,
+            undefined,
+            '✅ የTelegram ቻናል አባልነትዎ በራሱ ተረጋግጧል!'
+        ).catch(() => {});
+    }
+
+    const doc = await db.collection('users').doc(uid).get();
+
+    if (!doc.exists || !doc.data().phone_number) {
+        await bot.telegram.sendMessage(
+            chatId,
+            '✅ MELBET ቻናሉን በትክክል ተቀላቅለዋል።\n\nምዝገባውን ለማጠናቀቅ የራስዎን ስልክ ቁጥር ያጋሩ።',
+            Markup.keyboard([
+                [Markup.button.contactRequest('📱 ስልክ ቁጥሮን አጋራ')]
+            ]).resize().oneTime()
+        ).catch(() => {});
+        return;
+    }
+
+    await db.collection('users').doc(uid).set({
+        channel_joined: true
+    }, { merge: true });
+
+    await showMainMenuToChat(chatId, uid);
+}
+
 async function askToJoin(ctx) {
-    return ctx.reply(
-        '👋 ወደ MELBET BINGO እንኳን በደህና መጡ!\n\nቀጥለው ለመሄድ መጀመሪያ የTelegram ቻናላችንን ይቀላቀሉ። ከገቡ በኋላ “✅ ቻናሉን ተቀላቅያለሁ” ይጫኑ።',
+    const sent = await ctx.reply(
+        '👋 ወደ MELBET BINGO እንኳን በደህና መጡ!\n\nቀጥለው ለመሄድ መጀመሪያ የTelegram ቻናላችንን ይቀላቀሉ። ቻናሉን እንደተቀላቀሉ ቦቱ በራሱ ወዲያውኑ ያረጋግጣል!',
         Markup.inlineKeyboard([
             [Markup.button.url('📢 ቻናሉን ተቀላቀል', CHANNEL_URL)],
             [Markup.button.callback('✅ MELBET ቻናሉን ተቀላቅያለሁ', 'verify_channel')]
         ])
     );
+    if (ctx.from?.id && ctx.chat?.id) {
+        startChannelWatcher(ctx.from.id, ctx.chat.id, sent?.message_id);
+    }
+    return sent;
 }
 
 function askForContact(ctx) {
@@ -81,7 +175,7 @@ function askForContact(ctx) {
     );
 }
 
-async function showMainMenu(ctx) {
+async function showMainMenuToChat(chatId, userId) {
     const replyMarkup = {
         inline_keyboard: [
             [
@@ -98,16 +192,21 @@ async function showMainMenu(ctx) {
         ]
     };
 
-    if (isAdmin(ctx)) {
+    if (ADMIN_IDS.has(String(userId))) {
         replyMarkup.inline_keyboard.push([
             { text: "🛠 Admin Panel", web_app: { url: `${WEBAPP_URL}/admin` }, style: "primary" }
         ]);
     }
 
-    await ctx.reply(
+    await bot.telegram.sendMessage(
+        chatId,
         '✅ ምዝገባዎ ተሳክቷል! እባክዎ ከታች ካሉት አማራጮች ይምረጡ።',
         { reply_markup: replyMarkup }
     );
+}
+
+async function showMainMenu(ctx) {
+    return showMainMenuToChat(ctx.chat.id, ctx.from.id);
 }
 
 bot.on('callback_query', async (ctx) => {
@@ -343,6 +442,8 @@ bot.start(async ctx => {
             return askToJoin(ctx);
         }
 
+        stopChannelWatcher(uid);
+
         if (!userDoc.exists || !userDoc.data().phone_number) {
             return askForContact(ctx);
         }
@@ -360,24 +461,36 @@ bot.start(async ctx => {
     }
 });
 
+bot.on('chat_member', async (ctx) => {
+    try {
+        const update = ctx.update?.chat_member;
+        if (!update || String(update.chat?.id) !== String(CHANNEL_ID)) return;
+        const memberUser = update.new_chat_member?.user;
+        const status = update.new_chat_member?.status;
+        if (!memberUser || memberUser.is_bot) return;
+
+        const isJoined =
+            ['creator', 'administrator', 'member'].includes(status) ||
+            (status === 'restricted' && update.new_chat_member?.is_member === true);
+        if (!isJoined) return;
+
+        const uid = String(memberUser.id);
+        if (pendingChannelWatchers.has(uid)) {
+            await handleAutoVerifiedUser(uid, uid);
+        }
+    } catch (e) {
+        console.warn('chat_member auto-verify failed:', e.message);
+    }
+});
+
 bot.action('verify_channel', async ctx => {
-    await ctx.answerCbQuery();
+    await ctx.answerCbQuery().catch(() => {});
 
     if (!await isChannelMember(ctx)) {
-        return ctx.reply('❌ ገና ቻናሉን አልተቀላቀሉም። ቻናሉን ይቀላቀሉና እንደገና ይሞክሩ።');
+        return ctx.reply('❌ ገና ቻናሉን አልተቀላቀሉም። እባክዎ ቻናሉን ይቀላቀሉ፤ ቦቱ በራሱ ያረጋግጣል።');
     }
 
-    const doc = await db.collection('users').doc(String(ctx.from.id)).get();
-
-    if (!doc.exists || !doc.data().phone_number) {
-        return askForContact(ctx);
-    }
-
-    await db.collection('users').doc(String(ctx.from.id)).set({
-        channel_joined: true
-    }, { merge: true });
-
-    await showMainMenu(ctx);
+    await handleAutoVerifiedUser(ctx.from.id, ctx.chat?.id);
 });
 
 bot.on('contact', async ctx => {
@@ -391,6 +504,8 @@ bot.on('contact', async ctx => {
         if (!await isChannelMember(ctx)) {
             return askToJoin(ctx);
         }
+
+        stopChannelWatcher(ctx.from.id);
 
         let phone = String(contact.phone_number || '');
 
@@ -786,7 +901,7 @@ bot.action(/^wd_no_(.+)$/, ctx =>
     reviewRequest(ctx, 'withdrawal', ctx.match[1], false)
 );
 
-bot.launch()
+bot.launch({ allowedUpdates: ['message', 'callback_query', 'chat_member'] })
     .then(() => console.log('Telegram Bot polling started.'))
     .catch(err => console.error('Telegram bot launch failed:', err.message));
 
