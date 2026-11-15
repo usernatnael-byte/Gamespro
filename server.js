@@ -1101,38 +1101,105 @@ app.post('/api/admin/broadcast', async (req, res) => {
 
 app.get('/api/wallet/history', async (req,res) => {
     try {
-        const userId = String(req.telegramUserId);
-        const userSnap = await db.collection('users').doc(userId).get();
-        const user = userSnap.exists ? userSnap.data() : {};
-        const [deposits, withdrawals] = await Promise.all([
-            db.collection('deposit_requests').where('user_id', '==', userId).select('user_id', 'amount', 'reference', 'status', 'created_at', 'created_at_iso').get()
-                .catch(() => db.collection('deposit_requests').where('user_id', '==', userId).get()),
-            db.collection('withdrawal_requests').where('user_id', '==', userId).get()
+        const userId = String(req.telegramUserId || '');
+        const numericId = /^\d+$/.test(userId) ? Number(userId) : null;
+        const userIdCandidates = numericId !== null ? [userId, numericId] : [userId];
+
+        const safeQueryByUserId = async (colName, fields) => {
+            try {
+                let q = userIdCandidates.length > 1
+                    ? db.collection(colName).where('user_id', 'in', userIdCandidates)
+                    : db.collection(colName).where('user_id', '==', userId);
+                if (fields && typeof q.select === 'function') {
+                    try {
+                        return await q.select(...fields).get();
+                    } catch (_) {}
+                }
+                return await q.get();
+            } catch (_) {
+                try {
+                    return await db.collection(colName).where('user_id', '==', userId).get();
+                } catch (__) {
+                    return { docs: [] };
+                }
+            }
+        };
+
+        const [userSnap, deposits, withdrawals] = await Promise.all([
+            db.collection('users').doc(userId).get().catch(() => ({ exists: false })),
+            safeQueryByUserId('deposit_requests', ['user_id', 'amount', 'reference', 'status', 'created_at', 'created_at_iso']),
+            safeQueryByUserId('withdrawal_requests', ['user_id', 'amount', 'status', 'created_at', 'payout_account'])
         ]);
+
+        const user = userSnap.exists ? (userSnap.data() || {}) : {};
         const requestIds = new Set();
         const items = [];
+
         const toIso = value => {
-            const d = new Date(typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value)) ? Number(value) : (value || Date.now()));
+            if (!value) return new Date().toISOString();
+            if (typeof value === 'object') {
+                if (typeof value.toMillis === 'function') return new Date(value.toMillis()).toISOString();
+                if (Number.isFinite(Number(value.seconds))) return new Date(Number(value.seconds) * 1000).toISOString();
+                if (Number.isFinite(Number(value._seconds))) return new Date(Number(value._seconds) * 1000).toISOString();
+            }
+            const d = new Date(typeof value === 'number' || (typeof value === 'string' && /^\d+$/.test(value)) ? Number(value) : value);
             return Number.isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
         };
-        for (const doc of deposits.docs) {
-            const r = doc.data();
-            requestIds.add(doc.id);
-            items.push({id:doc.id, type:'deposit', amount:Number(r.amount||0), reference:r.reference||'', status:r.status||'pending', timestamp:r.created_at_iso || toIso(r.created_at), wallet:'bonus'});
+
+        for (const doc of (Array.isArray(deposits?.docs) ? deposits.docs : [])) {
+            if (!doc) continue;
+            const r = (typeof doc.data === 'function' ? doc.data() : null) || {};
+            requestIds.add(String(doc.id));
+            items.push({
+                id: String(doc.id),
+                type: 'deposit',
+                amount: Number(r.amount || 0),
+                reference: r.reference || '',
+                status: r.status || 'pending',
+                timestamp: r.created_at_iso ? toIso(r.created_at_iso) : toIso(r.created_at),
+                wallet: 'main'
+            });
         }
-        for (const doc of withdrawals.docs) {
-            const r = doc.data();
-            requestIds.add(doc.id);
-            items.push({id:doc.id, type:'withdrawal', amount:Number(r.amount||0), reference:doc.id, status:r.status||'pending', timestamp:toIso(r.created_at), wallet:'main'});
+
+        for (const doc of (Array.isArray(withdrawals?.docs) ? withdrawals.docs : [])) {
+            if (!doc) continue;
+            const r = (typeof doc.data === 'function' ? doc.data() : null) || {};
+            requestIds.add(String(doc.id));
+            items.push({
+                id: String(doc.id),
+                type: 'withdrawal',
+                amount: Number(r.amount || 0),
+                reference: r.payout_account || String(doc.id),
+                status: r.status || 'pending',
+                timestamp: toIso(r.created_at),
+                wallet: 'main'
+            });
         }
+
         for (const t of (Array.isArray(user.transactions) ? user.transactions : [])) {
+            if (!t || typeof t !== 'object') continue;
             if (t.request_id && requestIds.has(String(t.request_id))) continue;
-            const raw = t.timestamp || t.created_at || Date.now();
-            items.push({id:t.request_id || `${t.type}-${raw}`, type:t.type||'transaction', amount:Number(t.amount||0), status:t.status || 'approved', timestamp:typeof raw==='number'?new Date(raw).toISOString():raw, wallet:t.wallet || 'main'});
+            const raw = t.timestamp || t.created_at || t.createdAt || t.date || t.time || Date.now();
+            const iso = toIso(raw);
+            items.push({
+                id: t.request_id ? String(t.request_id) : `${t.type || 'tx'}-${iso}-${items.length}`,
+                type: String(t.type || 'transaction'),
+                amount: Number(t.amount || 0),
+                description: t.description || '',
+                note: t.note || '',
+                reference: t.reference || t.code || '',
+                status: t.status || (t.type === 'withdrawal_pending' ? 'pending' : 'approved'),
+                timestamp: iso,
+                wallet: t.wallet || 'main'
+            });
         }
-        items.sort((a,b)=>Date.parse(b.timestamp)-Date.parse(a.timestamp));
-        res.json({status:'success', transactions:items.slice(0,200)});
-    } catch(e) { res.status(500).json({status:'error',message:'Could not load transaction history.'}); }
+
+        items.sort((a, b) => (Date.parse(b.timestamp) || 0) - (Date.parse(a.timestamp) || 0));
+        res.json({ status: 'success', transactions: items.slice(0, 200) });
+    } catch (e) {
+        console.error('Wallet history error:', e);
+        res.status(500).json({ status: 'error', message: 'Could not load transaction history.' });
+    }
 });
 
 app.get('/api/wallet/config', async (req,res) => {

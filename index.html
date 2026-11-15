@@ -550,6 +550,7 @@
       drawnNumbers.forEach(markMaster);
       gridState = [];
       paintGrid();
+      if (walletHistory.length > 0 || currentPage === 'wallet') renderTransactionHistory(walletHistory);
     }
 
     document.addEventListener("DOMContentLoaded", async () => {
@@ -1027,6 +1028,12 @@
       lastUserRefresh = Date.now();
       serverBalance = Number(d.balance) || 0;
       serverBonus = Number(d.bonus) || 0;
+      if (Array.isArray(d.transactions)) {
+        userDataTransactions = d.transactions.slice().reverse();
+        if (walletHistory.length === 0 && userDataTransactions.length > 0 && currentPage === 'wallet') {
+          renderTransactionHistory(userDataTransactions);
+        }
+      }
       if (currentPage === 'wallet') loadTransactionHistory();
       
       const phoneNum = d.phone_number || 'Not Provided';
@@ -1341,17 +1348,43 @@
     });
 
     let walletHistory = [];
+    let userDataTransactions = [];
     let historyFilter = 'all';
-    async function loadTransactionHistory() {
+    let historyInFlight = null;
+
+    async function loadTransactionHistory(force = false) {
       const box = document.getElementById('transaction-history-list');
       if (!box) return;
-      box.innerHTML = `<div class="text-center opacity-75 text-xs py-6 border rounded-2xl ${isDarkMode ? 'bg-[#141414] border-[#222]' : 'bg-white border-gray-200'}">Loading history…</div>`;
-      try {
-        const data = await api('/api/wallet/history');
-        if (data.status !== 'success') throw new Error();
-        walletHistory = Array.isArray(data.transactions) ? data.transactions : [];
-        renderTransactionHistory(walletHistory);
-      } catch (e) { box.innerHTML = `<div class="text-center text-rose-400 text-xs py-6 border rounded-2xl ${isDarkMode ? 'bg-[#141414] border-[#222]' : 'bg-white border-gray-200'}">Error loading history</div>`; }
+      if (historyInFlight && !force) return historyInFlight;
+
+      const cardCls = isDarkMode ? 'bg-[#141414] border-[#222]' : 'bg-white border-gray-200';
+      if (walletHistory.length === 0 && userDataTransactions.length === 0) {
+        box.innerHTML = `<div class="text-center opacity-75 text-xs py-6 border rounded-2xl ${cardCls}">Loading history…</div>`;
+      }
+
+      const run = (async () => {
+        try {
+          const data = await api('/api/wallet/history', { timeoutMs: 20000 });
+          if (!data || data.status !== 'success') {
+            throw new Error(data?.message || 'Error loading history');
+          }
+          walletHistory = Array.isArray(data.transactions) ? data.transactions : [];
+          renderTransactionHistory(walletHistory.length > 0 ? walletHistory : userDataTransactions);
+        } catch (e) {
+          if (userDataTransactions.length > 0) {
+            renderTransactionHistory(userDataTransactions);
+          } else if (walletHistory.length > 0) {
+            renderTransactionHistory(walletHistory);
+          } else {
+            box.innerHTML = `<div class="text-center text-rose-400 text-xs py-6 px-4 border rounded-2xl ${cardCls}"><div>${esc(e?.message || 'ታሪክ መጫን አልተቻለም')}</div><button type="button" onclick="loadTransactionHistory(true)" class="mt-3 px-3 py-1.5 rounded-xl bg-yellow-400 text-slate-950 font-black text-[11px]">↻ ደግመው ይሞክሩ</button></div>`;
+          }
+        } finally {
+          if (historyInFlight === run) historyInFlight = null;
+        }
+      })();
+
+      historyInFlight = run;
+      return run;
     }
 
     function setHistoryFilter(filter) {
@@ -1361,36 +1394,72 @@
       });
       const active = document.getElementById(filter==='all'?'history-all-btn':filter==='deposit'?'history-deposit-btn':'history-withdraw-btn');
       if (active) active.className = 'history-filter bg-yellow-400 text-slate-950 font-black text-xs rounded-xl py-2';
-      renderTransactionHistory(walletHistory);
+      renderTransactionHistory(walletHistory.length > 0 ? walletHistory : userDataTransactions);
     }
 
     function getTransactionTitleAm(type) {
+      const key = String(type || '').toLowerCase();
       const map = {
         deposit: 'ገቢ (Deposit)',
         withdrawal: 'ወጪ (Withdraw)',
+        withdrawal_pending: 'ወጪ (በመጠባበቅ ላይ)',
+        withdraw: 'ወጪ (Withdraw)',
         win: 'የጨዋታ ድል (Win)',
         winnings: 'የጨዋታ ድል (Win)',
+        game_win: 'የጨዋታ ድል (Win)',
         bonus: 'ቦነስ (Bonus)',
         deposit_bonus: 'የተቀማጭ ቦነስ',
         promo_bonus: 'ፕሮሞ ቦነስ',
-        auto_deposit_bonus: 'ቦነስ',
+        auto_deposit_bonus: 'አውቶ ዲፖዚት ቦነስ',
+        referral: 'ሪፈራል ቦነስ',
         refund: 'ተመላሽ (Refund)',
-        bet: 'የጨዋታ ክፍያ (Play)'
+        bet: 'የጨዋታ ክፍያ (Play)',
+        game_entry: 'የጨዋታ ክፍያ (Play)',
+        admin_debit: 'ቅናሽ (Admin Debit)'
       };
-      return map[type] || String(type || '').toUpperCase();
+      return map[key] || String(type || 'TRANSACTION').toUpperCase();
+    }
+
+    function formatTxDate(ts) {
+      if (!ts) return '';
+      if (typeof ts === 'object' && typeof ts.seconds === 'number') {
+        return new Date(ts.seconds * 1000).toLocaleDateString();
+      }
+      if (typeof ts === 'object' && typeof ts._seconds === 'number') {
+        return new Date(ts._seconds * 1000).toLocaleDateString();
+      }
+      const d = new Date(typeof ts === 'number' || (typeof ts === 'string' && /^\d+$/.test(ts)) ? Number(ts) : ts);
+      return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString();
     }
 
     function renderTransactionHistory(transactions) {
       const box = document.getElementById('transaction-history-list');
       if (!box) return;
-      const rows = (transactions || []).filter(t => historyFilter==='all' || (historyFilter==='deposit' ? t.type==='deposit' : t.type==='withdrawal'));
-      if (!rows.length) { box.innerHTML = `<div class="text-center opacity-75 text-xs py-6 border rounded-2xl ${isDarkMode ? 'bg-[#141414] border-[#222]' : 'bg-white border-gray-200'}">ምንም ግብይት የለም</div>`; return; }
+      const creditTypes = ['deposit', 'win', 'winnings', 'game_win', 'refund', 'bonus', 'deposit_bonus', 'promo_bonus', 'auto_deposit_bonus', 'referral', 'credit'];
+      const debitTypes = ['withdrawal', 'withdrawal_pending', 'withdraw', 'admin_debit', 'bet', 'game_entry', 'debit'];
+      const rows = (transactions || []).filter(t => {
+        if (!t || typeof t !== 'object') return false;
+        const tp = String(t.type || '').toLowerCase();
+        if (historyFilter === 'all') return true;
+        if (historyFilter === 'deposit') return creditTypes.includes(tp);
+        return debitTypes.includes(tp);
+      });
+      if (!rows.length) {
+        box.innerHTML = `<div class="text-center opacity-75 text-xs py-6 border rounded-2xl ${isDarkMode ? 'bg-[#141414] border-[#222]' : 'bg-white border-gray-200'}">ምንም ግብይት የለም</div>`;
+        return;
+      }
       box.innerHTML = rows.map(t => {
-        const deposit = t.type==='deposit' || ['win','winnings','refund','bonus','deposit_bonus','promo_bonus','auto_deposit_bonus'].includes(t.type);
+        const tp = String(t.type || '').toLowerCase();
+        const rawAmount = Number(t.amount || 0);
+        const deposit = rawAmount >= 0 && creditTypes.includes(tp);
+        const absAmount = Math.abs(rawAmount);
         const sign = deposit ? '+' : '−';
-        const statusTextAm = t.status === 'pending' ? 'በመጠባበቅ ላይ' : (t.status === 'rejected' || t.status === 'failed' ? 'ውድቅ ተደርጓል' : 'ተፈቅዷል');
-        const statusColor = t.status === 'pending' ? 'text-yellow-500 bg-yellow-400/10' : (t.status === 'rejected' || t.status === 'failed' ? 'text-rose-500 bg-rose-500/10' : 'text-emerald-500 bg-emerald-500/10');
-        const subtitle = t.description || t.note || new Date(t.timestamp).toLocaleDateString();
+        const statusKey = String(t.status || (tp === 'withdrawal_pending' ? 'pending' : 'approved')).toLowerCase();
+        const statusTextAm = statusKey === 'pending' ? 'በመጠባበቅ ላይ' : (statusKey === 'rejected' || statusKey === 'failed' ? 'ውድቅ ተደርጓል' : 'ተፈቅዷል');
+        const statusColor = statusKey === 'pending' ? 'text-yellow-500 bg-yellow-400/10' : (statusKey === 'rejected' || statusKey === 'failed' ? 'text-rose-500 bg-rose-500/10' : 'text-emerald-500 bg-emerald-500/10');
+        const dateStr = formatTxDate(t.timestamp || t.created_at);
+        const detailStr = t.description || t.note || (t.reference ? `Ref: ${t.reference}` : '');
+        const subtitle = [detailStr, dateStr].filter(Boolean).join(' · ') || '—';
 
         return `
           <div class="${isDarkMode ? 'bg-[#141414] border border-[#222]' : 'bg-white border border-gray-200'} rounded-2xl p-3.5 flex items-center justify-between gap-3 shadow-sm">
@@ -1404,7 +1473,7 @@
               </div>
             </div>
             <div class="text-right shrink-0">
-              <div class="font-mono font-black text-xs ${deposit ? 'text-emerald-500' : 'text-rose-500'}">${sign}${Number(t.amount||0).toFixed(0)} ብር</div>
+              <div class="font-mono font-black text-xs ${deposit ? 'text-emerald-500' : 'text-rose-500'}">${sign}${absAmount.toFixed(0)} ብር</div>
               <span class="inline-block mt-1 px-2 py-0.5 rounded-md text-[9px] font-bold ${statusColor}">${statusTextAm}</span>
             </div>
           </div>
